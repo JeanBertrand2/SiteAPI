@@ -63,39 +63,80 @@ const InterogStatut = () => {
         </div>
 
         <div className="card-body inscription-body">
-          {/* Search Criteria Section */}
           <h3
             className="form-label section-title"
             style={{ color: "gray", textDecoration: "underline" }}
           >
             Critères de recherche
           </h3>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              border: "1px solid #ccc",
+              padding: "8px 5px",
+              marginBottom: "1.5rem",
+              alignItems: "flex-start",
+              height: "6rem",
+            }}
+          >
+            <div
+              className="mb-3 col-6"
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.5rem",
+              }}
+            >
+              <div
+                className="d-flex align-items-center"
+                style={{ gap: "0.75rem", marginBottom: "0.25rem" }}
+              >
+                <label
+                  className="form-label field-label"
+                  style={{ width: "9rem", fontSize: "0.8rem", marginBottom: 0 }}
+                >
+                  Nom Naissance
+                </label>
+                <input
+                  type="text"
+                  name="nomNaissance"
+                  className="form-control form-control-sm"
+                  value={searchCriteria.nomNaissance}
+                  onChange={handleSearchChange}
+                  style={{ width: "15rem" }}
+                />
+              </div>
 
-          <div className="row mb-3">
-            <div className="col-md-6">
-              <label className="form-label field-label">Nom Naissance</label>
-              <input
-                type="text"
-                name="nomNaissance"
-                className="form-control form-control-sm"
-                value={searchCriteria.nomNaissance}
-                onChange={handleSearchChange}
-              />
+              <div
+                className="d-flex align-items-center"
+                style={{ gap: "0.75rem", marginBottom: "0.25rem" }}
+              >
+                <label
+                  className="form-label field-label"
+                  style={{ width: "9rem", fontSize: "0.8rem", marginBottom: 0 }}
+                >
+                  Prénoms
+                </label>
+                <input
+                  type="text"
+                  name="prenoms"
+                  className="form-control form-control-sm"
+                  value={searchCriteria.prenoms}
+                  onChange={handleSearchChange}
+                  style={{ width: "15rem" }}
+                />
+              </div>
             </div>
-            <div className="col-md-6">
-              <label className="form-label field-label">Prénoms</label>
-              <input
-                type="text"
-                name="prenoms"
-                className="form-control form-control-sm"
-                value={searchCriteria.prenoms}
-                onChange={handleSearchChange}
-              />
-            </div>
-          </div>
 
-          <div className="row mb-3">
-            <div className="col-12 d-flex justify-content-end gap-2">
+            <div
+              className="d-flex mb-3 justify-content-end gap-2"
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                marginLeft: "auto",
+              }}
+            >
               <button className="btn btn-primary btn-sm" onClick={handleSearch}>
                 🔍 Rechercher
               </button>
@@ -108,7 +149,6 @@ const InterogStatut = () => {
             </div>
           </div>
 
-          {/* Results Table */}
           <div className="row mb-4">
             <div className="col-12">
               <div
