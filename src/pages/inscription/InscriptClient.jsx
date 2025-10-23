@@ -56,6 +56,26 @@ const InscriptClient = () => {
   const openFile = () => document.getElementById("fileInput").click();
   const submit = () => console.log("Form submitted:", formData);
 
+  const greenFieldNames = [
+    "civilite",
+    "nomNaissance",
+    "prenoms",
+    "dateNaissance",
+    "nomPays",
+    "codeCommune",
+    "nomCommune",
+    "numTelPortable",
+    "adresseMail",
+    "nomCommune2",
+    "codeInsee",
+    "codePostal",
+    "nomPays2",
+    "codePays",
+    "bic",
+    "iban",
+    "titulaire",
+  ];
+
   const leftFields = [
     [
       {
@@ -146,17 +166,27 @@ const InscriptClient = () => {
     config.map((row, idx) => (
       <Row
         key={idx}
-        cols={row.map((f) => ({
-          col: f.col || "col-12",
-          label: f.label,
-          element: (
-            <Field
-              field={f}
-              value={formData[f.name]}
-              onChange={handleInputChange}
-            />
-          ),
-        }))}
+        cols={row.map((f) => {
+          const labelContent = greenFieldNames.includes(f.name) ? (
+            <span style={{ color: "#e05f23ff", fontWeight: "bold" }}>
+              {f.label}
+            </span>
+          ) : (
+            f.label
+          );
+
+          return {
+            col: f.col || "col-12",
+            label: labelContent,
+            element: (
+              <Field
+                field={f}
+                value={formData[f.name]}
+                onChange={handleInputChange}
+              />
+            ),
+          };
+        })}
       />
     ));
 
@@ -218,7 +248,6 @@ const InscriptClient = () => {
               className="col-md-6 d-flex align-items-end justify-content-end gap-2"
               style={{
                 width: "20%",
-              
               }}
             >
               <button className="btn btn-primary btn-sm" onClick={openFile}>
@@ -229,15 +258,20 @@ const InscriptClient = () => {
               </a>
             </div>
           </div>
-
+          <h3
+            className="form-label section-title"
+            style={{ color: "gray", textDecoration: "underline" }}
+          >
+            Particulier
+          </h3>
           <div className="row">
-            <div className="col-md-6">
-              <label className="form-label section-title">Particulier</label>
-              {renderConfig(leftFields)}
-            </div>
+            <div className="col-md-6">{renderConfig(leftFields)}</div>
 
             <div className="col-md-6">
-              <label className="form-label section-title">
+              <label
+                className="form-label section-title"
+                style={{ color: "gray", textDecoration: "underline" }}
+              >
                 Adresse Postale & Coordonnée Bancaire
               </label>
               {renderConfig(rightFields)}
