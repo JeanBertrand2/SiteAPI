@@ -238,36 +238,71 @@ const InterogStatut = () => {
           </h3>
 
           <div className="row mb-3">
-            <div className="col-md-6">
-              <label className="form-label field-label">Id client</label>
-              <input
-                type="text"
-                name="idClient"
-                className="form-control form-control-sm"
-                value={searchByIdOrEmail.idClient}
-                onChange={handleIdEmailChange}
-              />
-            </div>
-            <div className="col-md-6">
-              <label className="form-label field-label">Adresse mail</label>
-              <input
-                type="email"
-                name="adresseMail"
-                className="form-control form-control-sm"
-                value={searchByIdOrEmail.adresseMail}
-                onChange={handleIdEmailChange}
-              />
-            </div>
-          </div>
-
-          <div className="row mt-3">
-            <div className="col-12 text-end">
-              <button
-                className="btn btn-primary inscrire-btn"
-                onClick={handleGetStatus}
+            <div className="col-12">
+              <div
+                className="d-flex flex-wrap align-items-center gap-3 border rounded p-3"
+                style={{ alignItems: "center" }}
               >
-                Obtenir statut
-              </button>
+                <div
+                  style={{
+                    minWidth: 450,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.75rem",
+                  }}
+                >
+                  <label
+                    className="form-label field-label"
+                    style={{ marginBottom: 0 }}
+                  >
+                    Id client
+                  </label>
+                  <input
+                    id="idClient"
+                    type="text"
+                    name="idClient"
+                    className="form-control form-control-sm"
+                    value={searchByIdOrEmail.idClient}
+                    onChange={handleIdEmailChange}
+                    style={{ flex: 1 }}
+                  />
+                </div>
+
+                <div
+                  style={{
+                    minWidth: 400,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.75rem",
+                  }}
+                >
+                  <label
+                    className="form-label field-label"
+                    style={{ marginBottom: 0 }}
+                  >
+                    Adresse mail
+                  </label>
+                  <input
+                    id="adresseMail"
+                    type="email"
+                    name="adresseMail"
+                    className="form-control form-control-sm"
+                    value={searchByIdOrEmail.adresseMail}
+                    onChange={handleIdEmailChange}
+                    style={{ flex: 1 }}
+                  />
+                </div>
+
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <button
+                    className="btn btn-primary inscrire-btn"
+                    onClick={handleGetStatus}
+                    style={{ whiteSpace: "nowrap" }}
+                  >
+                    Obtenir statut
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
