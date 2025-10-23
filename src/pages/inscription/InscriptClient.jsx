@@ -161,7 +161,6 @@ const InscriptClient = () => {
     ));
 
   return (
-    // <div>
     <div className="inscription-container ">
       <div className="card shadow-sm inscription-card">
         <div className="card-header d-flex justify-content-between align-items-center inscription-header">
@@ -175,16 +174,36 @@ const InscriptClient = () => {
 
         <div className="card-body inscription-body">
           <div className="row mb-3">
-            <div className="col-md-6">
+            <div
+              className="col-md-6"
+              style={{
+                display: "flex",
+                width: "80%",
+                gap: "1rem",
+              }}
+            >
               <label className="form-label label-style">Fichier Json</label>
-              <div className="input-group">
+              <div
+                className="input-group"
+                style={{
+                  width: "45rem",
+                }}
+              >
                 <input
                   className="form-control form-control-sm"
                   readOnly
                   value={selectedFile || ""}
                 />
-                <button className="btn btn-primary btn-sm" onClick={openFile}>
-                  📁
+                <button
+                  className="btn btn-primary btn-sm ml-3  rounded "
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                  onClick={openFile}
+                >
+                  ....
                 </button>
                 <input
                   id="fileInput"
@@ -195,7 +214,13 @@ const InscriptClient = () => {
                 />
               </div>
             </div>
-            <div className="col-md-6 d-flex align-items-end justify-content-end gap-2">
+            <div
+              className="col-md-6 d-flex align-items-end justify-content-end gap-2"
+              style={{
+                width: "20%",
+              
+              }}
+            >
               <button className="btn btn-primary btn-sm" onClick={openFile}>
                 Import Particulier
               </button>
@@ -229,7 +254,6 @@ const InscriptClient = () => {
         </div>
       </div>
     </div>
-    // </div>
   );
 };
 
