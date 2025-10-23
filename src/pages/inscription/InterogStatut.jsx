@@ -305,9 +305,9 @@ const InterogStatut = () => {
                               fontSize: "12px",
                               fontWeight: 600,
                               userSelect: "none",
-                              padding: "8px",
                               position: "relative",
                               verticalAlign: "top",
+                              width: "16rem",
                             }}
                           >
                             <input
@@ -349,7 +349,7 @@ const InterogStatut = () => {
                                 htmlFor={`filter-toggle-${col.key}`}
                                 className="filter-label"
                                 title="Afficher le filtre"
-                                onClick={(e) => e.stopPropagation()} 
+                                onClick={(e) => e.stopPropagation()}
                               >
                                 <FaFilter />
                               </label>
@@ -362,7 +362,13 @@ const InterogStatut = () => {
                               onChange={handleColumnFilterChange}
                               className="form-control form-control-sm filter-input"
                               placeholder="Filtrer..."
-                              style={{ fontSize: "12px", position: "relative", bottom: "2rem", width:"8rem" }}
+                              style={{
+                                fontSize: "12px",
+                                position: "relative",
+                                bottom: "2rem",
+                                width: "8rem",
+                                width: "7rem",
+                              }}
                             />
                           </th>
                         ))}
@@ -493,8 +499,8 @@ const InterogStatut = () => {
             </div>
           </div>
 
-          <div className="row mb-3">
-            <div className="col-12 text-end">
+          <div className=" mb-3" style={{ width: "8rem" }}>
+            <div className=" text-end">
               <button
                 className="btn btn-primary inscrire-btn"
                 onClick={handleRowClick}
