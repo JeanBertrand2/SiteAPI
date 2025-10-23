@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./InscriptClient.css";
+import { FaFilter } from "react-icons/fa";
+import { RiExpandUpDownFill } from "react-icons/ri";
 
 const InterogStatut = () => {
   const [searchCriteria, setSearchCriteria] = useState({
@@ -287,58 +289,86 @@ const InterogStatut = () => {
                         zIndex: 1,
                       }}
                     >
+                      <style>{`
+    .filter-toggle { display: none; }
+    .filter-input { display: none; margin-top: 6px; }
+    .filter-toggle:checked + .th-main + .filter-input { display: block !important; }
+    .th-main { display: flex; align-items: center; justify-content: space-between; gap: 8px; cursor: pointer; }
+    .filter-label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; padding: 4px; }
+  `}</style>
+
                       <tr>
                         {columns.map((col) => (
                           <th
                             key={col.key}
                             style={{
                               fontSize: "12px",
-                              fontWeight: "600",
-                              cursor: "pointer",
+                              fontWeight: 600,
                               userSelect: "none",
+                              padding: "8px",
+                              position: "relative",
+                              verticalAlign: "top",
                             }}
-                            onClick={() => toggleSort(col.key)}
                           >
+                            <input
+                              type="checkbox"
+                              id={`filter-toggle-${col.key}`}
+                              className="filter-toggle"
+                            />
+
                             <div
-                              style={{
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "space-between",
-                              }}
+                              className="th-main"
+                              onClick={() => toggleSort(col.key)}
+                              aria-hidden
                             >
-                              <span>{col.label}</span>
                               <span
-                                style={{ marginLeft: "8px", fontSize: "10px" }}
+                                style={{
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: 8,
+                                }}
                               >
-                                {sortConfig.key === col.key
-                                  ? sortConfig.direction === "asc"
-                                    ? "▲"
-                                    : sortConfig.direction === "desc"
-                                    ? "▼"
-                                    : ""
-                                  : ""}
+                                <span>{col.label}</span>
+                                <span
+                                  style={{
+                                    fontSize: "10px",
+                                    userSelect: "none",
+                                  }}
+                                >
+                                  {sortConfig.key === col.key
+                                    ? sortConfig.direction === "asc"
+                                      ? "▲"
+                                      : sortConfig.direction === "desc"
+                                      ? "▼"
+                                      : ""
+                                    : ""}
+                                </span>
                               </span>
+
+                              <label
+                                htmlFor={`filter-toggle-${col.key}`}
+                                className="filter-label"
+                                title="Afficher le filtre"
+                                onClick={(e) => e.stopPropagation()} 
+                              >
+                                <FaFilter />
+                              </label>
                             </div>
-                          </th>
-                        ))}
-                      </tr>
-                      {/* filter row: one input per column */}
-                      <tr>
-                        {columns.map((col) => (
-                          <th key={col.key} style={{ padding: "6px" }}>
+
                             <input
                               type="text"
                               name={col.key}
-                              value={columnFilters[col.key]}
+                              value={columnFilters[col.key] || ""}
                               onChange={handleColumnFilterChange}
-                              className="form-control form-control-sm"
+                              className="form-control form-control-sm filter-input"
                               placeholder="Filtrer..."
-                              style={{ fontSize: "12px" }}
+                              style={{ fontSize: "12px", position: "relative", bottom: "2rem", width:"8rem" }}
                             />
                           </th>
                         ))}
                       </tr>
                     </thead>
+
                     <tbody>
                       {finalResults.length === 0 ? (
                         <tr>
@@ -401,7 +431,7 @@ const InterogStatut = () => {
                 >
                   <div
                     style={{
-                      minWidth:400,
+                      minWidth: 400,
                       display: "flex",
                       alignItems: "center",
                       gap: "0.75rem",
