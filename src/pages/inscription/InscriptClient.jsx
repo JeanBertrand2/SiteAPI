@@ -197,9 +197,9 @@ const InscriptClient = () => {
     ));
 
   const personalInfoFields = leftFields.slice(0, 5); // Fields before Lieu naissance
-  const birthplaceFields = leftFields.slice(5, 9); // Fields for Lieu naissance (Nom pays through nom commune)
+  const birthplaceFields = leftFields.slice(5, 7); // Fields for Lieu naissance (Nom pays and Département only)
   const contactFields = leftFields.slice(9); // Fields after Lieu naissance
-
+  const communeFields = leftFields.slice(7, 9); // Fields for Commune (Code commune and nom commune)
   return (
     <div className="inscription-container ">
       <div className="card shadow-sm inscription-card">
@@ -321,6 +321,22 @@ const InscriptClient = () => {
                     }}
                   >
                     {renderConfig(birthplaceFields)}
+
+                    <h3
+                      className="form-label section-title"
+                      style={{ color: "gray", textDecoration: "underline" }}
+                    >
+                      Commune
+                    </h3>
+                    <div
+                      style={{
+                        border: "1px solid lightgray",
+                        padding: "10px",
+                        marginBottom: "15px",
+                      }}
+                    >
+                      {renderConfig(communeFields)}
+                    </div>
                   </div>
 
                   {renderConfig(contactFields)}
