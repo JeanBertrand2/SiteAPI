@@ -205,10 +205,35 @@ const InscriptClient = () => {
       <div className="card shadow-sm inscription-card">
         <div className="card-header d-flex justify-content-between align-items-center inscription-header">
           <span className="header-title">📋 INSCRIPTION PARTICULIER</span>
-          <div className="d-flex gap-2">
-            <button className="btn btn-sm btn-secondary">─</button>
-            <button className="btn btn-sm btn-secondary">□</button>
-            <button className="btn btn-sm btn-danger">✕</button>
+          <div className="d-flex gap-1">
+            <button
+              className="btn btn-sm"
+              style={{
+                padding: "0 8px",
+                fontSize: "12px",
+                backgroundColor: "#d4e3f3",
+                border: "1px solid gray",
+              }}
+            >
+              ─
+            </button>
+            <button
+              className="btn btn-sm"
+              style={{
+                padding: "0 8px",
+                fontSize: "12px",
+                backgroundColor: "#d4e3f3",
+                border: "1px solid gray",
+              }}
+            >
+              □
+            </button>
+            <button
+              className="btn btn-sm btn-danger"
+              style={{ padding: "0 8px", fontSize: "12px" }}
+            >
+              ✕
+            </button>
           </div>
         </div>
 
