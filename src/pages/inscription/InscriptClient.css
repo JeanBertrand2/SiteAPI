@@ -1,16 +1,16 @@
-/* InscriptClient.css */
-
-/* Main container */
 .inscription-container {
   background-color: #f0f0f0;
-  min-height: 100vh;
-  padding: 20px;
+  padding: 3rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-/* Card styling */
 .inscription-card {
   border: 1px solid #ccc;
   border-radius: 0;
+  margin: 5rem;
+  width: 70rem;
 }
 
 .inscription-header {

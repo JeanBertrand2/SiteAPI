@@ -161,7 +161,8 @@ const InscriptClient = () => {
     ));
 
   return (
-    <div className="inscription-container container-fluid">
+    // <div>
+    <div className="inscription-container ">
       <div className="card shadow-sm inscription-card">
         <div className="card-header d-flex justify-content-between align-items-center inscription-header">
           <span className="header-title">📋 INSCRIPTION PARTICULIER</span>
@@ -228,6 +229,7 @@ const InscriptClient = () => {
         </div>
       </div>
     </div>
+    // </div>
   );
 };
 
