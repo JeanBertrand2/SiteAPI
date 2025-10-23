@@ -166,206 +166,310 @@ const InterogStatut = () => {
             <button className="btn btn-sm btn-danger">✕</button>
           </div>
         </div>
-
-        <div className="card-body inscription-body">
-          <h3
-            className="form-label section-title"
-            style={{ color: "gray", textDecoration: "underline" }}
-          >
-            Critères de recherche
-          </h3>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              border: "1px solid #ccc",
-              padding: "8px 5px",
-              marginBottom: "1.5rem",
-              alignItems: "flex-start",
-              height: "6rem",
-            }}
-          >
+        <div
+          style={{
+            display: "flex ",
+            justifyContent: "center",
+            alignItems: "center",
+            padding: "0.5rem",
+          }}
+        >
+          <div className="card-body inscription-body">
+            <h3
+              className="form-label section-title"
+              style={{ color: "gray", textDecoration: "underline" }}
+            >
+              Critères de recherche
+            </h3>
             <div
-              className="mb-3 col-6"
               style={{
                 display: "flex",
-                flexDirection: "column",
-                gap: "0.5rem",
+                flexDirection: "row",
+                border: "1px solid #ccc",
+                padding: "8px 5px",
+                marginBottom: "1.5rem",
+                alignItems: "flex-start",
+                height: "6rem",
               }}
             >
               <div
-                className="d-flex align-items-center"
-                style={{ gap: "0.75rem", marginBottom: "0.25rem" }}
+                className="mb-3 col-6"
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "0.5rem",
+                }}
               >
-                <label
-                  className="form-label field-label"
-                  style={{ width: "9rem", fontSize: "0.8rem", marginBottom: 0 }}
+                <div
+                  className="d-flex align-items-center"
+                  style={{ gap: "0.75rem", marginBottom: "0.25rem" }}
                 >
-                  Nom Naissance
-                </label>
-                <input
-                  type="text"
-                  name="nomNaissance"
-                  className="form-control form-control-sm"
-                  value={searchCriteria.nomNaissance}
-                  onChange={handleSearchChange}
-                  style={{ width: "15rem" }}
-                />
-              </div>
-
-              <div
-                className="d-flex align-items-center"
-                style={{ gap: "0.75rem", marginBottom: "0.25rem" }}
-              >
-                <label
-                  className="form-label field-label"
-                  style={{ width: "9rem", fontSize: "0.8rem", marginBottom: 0 }}
-                >
-                  Prénoms
-                </label>
-                <input
-                  type="text"
-                  name="prenoms"
-                  className="form-control form-control-sm"
-                  value={searchCriteria.prenoms}
-                  onChange={handleSearchChange}
-                  style={{ width: "15rem" }}
-                />
-              </div>
-            </div>
-
-            <div
-              className="d-flex mb-3 justify-content-end gap-2"
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                marginLeft: "auto",
-              }}
-            >
-              <button className="btn btn-primary btn-sm" onClick={handleSearch}>
-                🔍 Rechercher
-              </button>
-              <button
-                className="btn btn-secondary btn-sm"
-                onClick={handleClearCriteria}
-              >
-                🗑️ Effacer critères
-              </button>
-            </div>
-          </div>
-
-          <div className="row mb-4">
-            <div className="col-12">
-              <div
-                className="table-responsive"
-                style={{ maxHeight: "500px", overflowY: "auto" }}
-              >
-                <table className="table table-bordered table-hover table-sm">
-                  <thead
+                  <label
+                    className="form-label field-label"
                     style={{
-                      position: "sticky",
-                      top: 0,
-                      backgroundColor: "#f8f9fa",
-                      zIndex: 1,
+                      width: "9rem",
+                      fontSize: "0.8rem",
+                      marginBottom: 0,
                     }}
                   >
-                    <tr>
-                      {columns.map((col) => (
-                        <th
-                          key={col.key}
-                          style={{
-                            fontSize: "12px",
-                            fontWeight: "600",
-                            cursor: "pointer",
-                            userSelect: "none",
-                          }}
-                          onClick={() => toggleSort(col.key)}
-                        >
-                          <div
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "space-between",
-                            }}
-                          >
-                            <span>{col.label}</span>
-                            <span
-                              style={{ marginLeft: "8px", fontSize: "10px" }}
-                            >
-                              {sortConfig.key === col.key
-                                ? sortConfig.direction === "asc"
-                                  ? "▲"
-                                  : sortConfig.direction === "desc"
-                                  ? "▼"
-                                  : ""
-                                : ""}
-                            </span>
-                          </div>
-                        </th>
-                      ))}
-                    </tr>
-                    {/* filter row: one input per column */}
-                    <tr>
-                      {columns.map((col) => (
-                        <th key={col.key} style={{ padding: "6px" }}>
-                          <input
-                            type="text"
-                            name={col.key}
-                            value={columnFilters[col.key]}
-                            onChange={handleColumnFilterChange}
-                            className="form-control form-control-sm"
-                            placeholder="Filtrer..."
-                            style={{ fontSize: "12px" }}
-                          />
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {finalResults.length === 0 ? (
+                    Nom Naissance
+                  </label>
+                  <input
+                    type="text"
+                    name="nomNaissance"
+                    className="form-control form-control-sm"
+                    value={searchCriteria.nomNaissance}
+                    onChange={handleSearchChange}
+                    style={{ width: "15rem" }}
+                  />
+                </div>
+
+                <div
+                  className="d-flex align-items-center"
+                  style={{ gap: "0.75rem", marginBottom: "0.25rem" }}
+                >
+                  <label
+                    className="form-label field-label"
+                    style={{
+                      width: "9rem",
+                      fontSize: "0.8rem",
+                      marginBottom: 0,
+                    }}
+                  >
+                    Prénoms
+                  </label>
+                  <input
+                    type="text"
+                    name="prenoms"
+                    className="form-control form-control-sm"
+                    value={searchCriteria.prenoms}
+                    onChange={handleSearchChange}
+                    style={{ width: "15rem" }}
+                  />
+                </div>
+              </div>
+
+              <div
+                className="d-flex mb-3 justify-content-end gap-2"
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  marginLeft: "auto",
+                }}
+              >
+                <button
+                  className="btn btn-primary btn-sm"
+                  onClick={handleSearch}
+                >
+                  🔍 Rechercher
+                </button>
+                <button
+                  className="btn btn-secondary btn-sm"
+                  onClick={handleClearCriteria}
+                >
+                  🗑️ Effacer critères
+                </button>
+              </div>
+            </div>
+
+            <div className="row mb-4">
+              <div className="col-12">
+                <div
+                  className="table-responsive"
+                  style={{ maxHeight: "500px", overflowY: "auto" }}
+                >
+                  <table className="table table-bordered table-hover table-sm">
+                    <thead
+                      style={{
+                        position: "sticky",
+                        top: 0,
+                        backgroundColor: "#f8f9fa",
+                        zIndex: 1,
+                      }}
+                    >
                       <tr>
-                        <td
-                          colSpan={columns.length}
-                          className="text-center"
-                          style={{ fontSize: "12px", padding: "20px" }}
-                        >
-                          Aucun résultat
-                        </td>
-                      </tr>
-                    ) : (
-                      finalResults.map((result, rowIdx) => (
-                        <tr
-                          key={rowIdx}
-                          onClick={() => {
-                            handleRowClick(result);
-                          }}
-                          style={{
-                            cursor: "pointer",
-                            fontSize: "12px",
-                            padding: "8px",
-                            height: "30px",
-                            border: "none",
-                          }}
-                        >
-                          {columns.map((col, colIdx) => (
-                            <td
-                              key={colIdx}
+                        {columns.map((col) => (
+                          <th
+                            key={col.key}
+                            style={{
+                              fontSize: "12px",
+                              fontWeight: "600",
+                              cursor: "pointer",
+                              userSelect: "none",
+                            }}
+                            onClick={() => toggleSort(col.key)}
+                          >
+                            <div
                               style={{
-                                backgroundColor:
-                                  (rowIdx ) % 2 === 0
-                                    ? "#ffffff"
-                                    : "#f2f2f2",
-                                verticalAlign: "middle",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "space-between",
                               }}
                             >
-                              {result[col.key]}
-                            </td>
-                          ))}
+                              <span>{col.label}</span>
+                              <span
+                                style={{ marginLeft: "8px", fontSize: "10px" }}
+                              >
+                                {sortConfig.key === col.key
+                                  ? sortConfig.direction === "asc"
+                                    ? "▲"
+                                    : sortConfig.direction === "desc"
+                                    ? "▼"
+                                    : ""
+                                  : ""}
+                              </span>
+                            </div>
+                          </th>
+                        ))}
+                      </tr>
+                      {/* filter row: one input per column */}
+                      <tr>
+                        {columns.map((col) => (
+                          <th key={col.key} style={{ padding: "6px" }}>
+                            <input
+                              type="text"
+                              name={col.key}
+                              value={columnFilters[col.key]}
+                              onChange={handleColumnFilterChange}
+                              className="form-control form-control-sm"
+                              placeholder="Filtrer..."
+                              style={{ fontSize: "12px" }}
+                            />
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {finalResults.length === 0 ? (
+                        <tr>
+                          <td
+                            colSpan={columns.length}
+                            className="text-center"
+                            style={{ fontSize: "12px", padding: "20px" }}
+                          >
+                            Aucun résultat
+                          </td>
                         </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
+                      ) : (
+                        finalResults.map((result, rowIdx) => (
+                          <tr
+                            key={rowIdx}
+                            onClick={() => {
+                              handleRowClick(result);
+                            }}
+                            style={{
+                              cursor: "pointer",
+                              fontSize: "12px",
+                              padding: "8px",
+                              height: "30px",
+                              border: "none",
+                            }}
+                          >
+                            {columns.map((col, colIdx) => (
+                              <td
+                                key={colIdx}
+                                style={{
+                                  backgroundColor:
+                                    rowIdx % 2 === 0 ? "#ffffff" : "#f2f2f2",
+                                  verticalAlign: "middle",
+                                }}
+                              >
+                                {result[col.key]}
+                              </td>
+                            ))}
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <div className="row mb-3">
+              <div className="col-12 text-end">
+                <button
+                  className="btn btn-primary inscrire-btn"
+                  onClick={handleRowClick}
+                >
+                  Obtenir Statut
+                </button>
+              </div>
+            </div>
+
+            <h3
+              className="form-label section-title"
+              style={{ color: "gray", textDecoration: "underline" }}
+            >
+              Obtenir statut à partir de l'id client où son adresse mail
+            </h3>
+
+            <div className="row mb-3">
+              <div className="col-12">
+                <div
+                  className="d-flex flex-wrap align-items-center gap-3 border rounded p-3"
+                  style={{ alignItems: "center" }}
+                >
+                  <div
+                    style={{
+                      minWidth: 450,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.75rem",
+                    }}
+                  >
+                    <label
+                      className="form-label field-label"
+                      style={{ marginBottom: 0 }}
+                    >
+                      Id client
+                    </label>
+                    <input
+                      id="idClient"
+                      type="text"
+                      name="idClient"
+                      className="form-control form-control-sm"
+                      value={searchByIdOrEmail.idClient}
+                      onChange={handleIdEmailChange}
+                      style={{ flex: 1 }}
+                    />
+                  </div>
+
+                  <div
+                    style={{
+                      minWidth: 400,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.75rem",
+                    }}
+                  >
+                    <label
+                      className="form-label field-label"
+                      style={{ marginBottom: 0 }}
+                    >
+                      Adresse mail
+                    </label>
+                    <input
+                      id="adresseMail"
+                      type="email"
+                      name="adresseMail"
+                      className="form-control form-control-sm"
+                      value={searchByIdOrEmail.adresseMail}
+                      onChange={handleIdEmailChange}
+                      style={{ flex: 1 }}
+                    />
+                  </div>
+
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    <button
+                      className="btn btn-primary inscrire-btn"
+                      onClick={handleGetStatus}
+                      style={{ whiteSpace: "nowrap" }}
+                    >
+                      Obtenir statut
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -378,82 +482,6 @@ const InterogStatut = () => {
               >
                 Obtenir Statut
               </button>
-            </div>
-          </div>
-
-          <h3
-            className="form-label section-title"
-            style={{ color: "gray", textDecoration: "underline" }}
-          >
-            Obtenir statut à partir de l'id client où son adresse mail
-          </h3>
-
-          <div className="row mb-3">
-            <div className="col-12">
-              <div
-                className="d-flex flex-wrap align-items-center gap-3 border rounded p-3"
-                style={{ alignItems: "center" }}
-              >
-                <div
-                  style={{
-                    minWidth: 450,
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.75rem",
-                  }}
-                >
-                  <label
-                    className="form-label field-label"
-                    style={{ marginBottom: 0 }}
-                  >
-                    Id client
-                  </label>
-                  <input
-                    id="idClient"
-                    type="text"
-                    name="idClient"
-                    className="form-control form-control-sm"
-                    value={searchByIdOrEmail.idClient}
-                    onChange={handleIdEmailChange}
-                    style={{ flex: 1 }}
-                  />
-                </div>
-
-                <div
-                  style={{
-                    minWidth: 400,
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.75rem",
-                  }}
-                >
-                  <label
-                    className="form-label field-label"
-                    style={{ marginBottom: 0 }}
-                  >
-                    Adresse mail
-                  </label>
-                  <input
-                    id="adresseMail"
-                    type="email"
-                    name="adresseMail"
-                    className="form-control form-control-sm"
-                    value={searchByIdOrEmail.adresseMail}
-                    onChange={handleIdEmailChange}
-                    style={{ flex: 1 }}
-                  />
-                </div>
-
-                <div style={{ display: "flex", alignItems: "center" }}>
-                  <button
-                    className="btn btn-primary inscrire-btn"
-                    onClick={handleGetStatus}
-                    style={{ whiteSpace: "nowrap" }}
-                  >
-                    Obtenir statut
-                  </button>
-                </div>
-              </div>
             </div>
           </div>
         </div>
