@@ -308,6 +308,7 @@ const InterogStatut = () => {
                               position: "relative",
                               verticalAlign: "top",
                               width: "16rem",
+                              
                             }}
                           >
                             <input

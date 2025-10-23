@@ -12,7 +12,6 @@ const InscriptClient = () => {
     nomUsage: "",
     prenoms: "",
     dateNaissance: "",
-    lieuNaissance: "",
     nomPays: "",
     departement: "",
     commune: "",
@@ -89,7 +88,6 @@ const InscriptClient = () => {
     [{ label: "Nom Usage", name: "nomUsage" }],
     [{ label: "Prénoms", name: "prenoms" }],
     [{ label: "Date de naissance", name: "dateNaissance", type: "date" }],
-    [{ label: "Lieu Naissance", name: "lieuNaissance" }],
     [
       {
         label: "Nom Pays",
@@ -164,9 +162,8 @@ const InscriptClient = () => {
 
   const renderConfig = (config) =>
     config.map((row, idx) => (
-      <Row
-        key={idx}
-        cols={row.map((f) => {
+      <div className="mb-3 row align-items-center " key={idx}>
+        {row.map((f, fieldIdx) => {
           const labelContent = greenFieldNames.includes(f.name) ? (
             <span style={{ color: "#e05f23ff", fontWeight: "bold" }}>
               {f.label}
@@ -175,20 +172,33 @@ const InscriptClient = () => {
             f.label
           );
 
-          return {
-            col: f.col || "col-12",
-            label: labelContent,
-            element: (
-              <Field
-                field={f}
-                value={formData[f.name]}
-                onChange={handleInputChange}
-              />
-            ),
-          };
+          return (
+            <div className="row mb-2" key={fieldIdx}>
+              <div className="col-4">
+                <label
+                  className="form-label mb-0"
+                  style={{ fontSize: "13px" }}
+                  htmlFor={f.name}
+                >
+                  {labelContent}
+                </label>
+              </div>
+              <div className="col-8">
+                <Field
+                  field={f}
+                  value={formData[f.name]}
+                  onChange={handleInputChange}
+                />
+              </div>
+            </div>
+          );
         })}
-      />
+      </div>
     ));
+
+  const personalInfoFields = leftFields.slice(0, 5); // Fields before Lieu naissance
+  const birthplaceFields = leftFields.slice(5, 9); // Fields for Lieu naissance (Nom pays through nom commune)
+  const contactFields = leftFields.slice(9); // Fields after Lieu naissance
 
   return (
     <div className="inscription-container ">
@@ -203,86 +213,115 @@ const InscriptClient = () => {
         </div>
 
         <div className="card-body inscription-body">
-          <div className="row mb-3">
-            <div
-              className="col-md-6"
-              style={{
-                display: "flex",
-                width: "80%",
-                gap: "1rem",
-              }}
-            >
-              <label className="form-label label-style">Fichier Json</label>
+          <div>
+            <div className="row mb-3">
               <div
-                className="input-group"
+                className="col-md-6"
                 style={{
-                  width: "45rem",
+                  display: "flex",
+                  width: "80%",
+                  gap: "1rem",
                 }}
               >
-                <input
-                  className="form-control form-control-sm"
-                  readOnly
-                  value={selectedFile || ""}
-                />
-                <button
-                  className="btn btn-primary btn-sm ml-3  rounded "
+                <label className="form-label label-style">Fichier Json</label>
+                <div
+                  className="input-group"
                   style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
+                    width: "45rem",
                   }}
-                  onClick={openFile}
                 >
-                  ....
+                  <input
+                    className="form-control form-control-sm"
+                    readOnly
+                    value={selectedFile || ""}
+                  />
+                  <button
+                    className="btn btn-primary btn-sm ml-3  rounded "
+                    style={{
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                    onClick={openFile}
+                  >
+                    ....
+                  </button>
+                  <input
+                    id="fileInput"
+                    type="file"
+                    accept=".json"
+                    style={{ display: "none" }}
+                    onChange={handleFileImport}
+                  />
+                </div>
+              </div>
+              <div
+                className="col-md-6 d-flex align-items-end justify-content-end gap-2"
+                style={{
+                  width: "20%",
+                }}
+              >
+                <button className="btn btn-primary btn-sm" onClick={openFile}>
+                  Import Particulier
                 </button>
-                <input
-                  id="fileInput"
-                  type="file"
-                  accept=".json"
-                  style={{ display: "none" }}
-                  onChange={handleFileImport}
-                />
+                <a href="#" className="file-link">
+                  Fichier.json
+                </a>
               </div>
             </div>
-            <div
-              className="col-md-6 d-flex align-items-end justify-content-end gap-2"
-              style={{
-                width: "20%",
-              }}
+            <h3
+              className="form-label section-title"
+              style={{ color: "gray", textDecoration: "underline" }}
             >
-              <button className="btn btn-primary btn-sm" onClick={openFile}>
-                Import Particulier
-              </button>
-              <a href="#" className="file-link">
-                Fichier.json
-              </a>
-            </div>
-          </div>
-          <h3
-            className="form-label section-title"
-            style={{ color: "gray", textDecoration: "underline" }}
-          >
-            Particulier
-          </h3>
-          <div className="row">
-            <div className="col-md-6">{renderConfig(leftFields)}</div>
+              Particulier
+            </h3>
 
-            <div className="col-md-6">
-              <label
-                className="form-label section-title"
-                style={{ color: "gray", textDecoration: "underline" }}
-              >
-                Adresse Postale & Coordonnée Bancaire
-              </label>
-              {renderConfig(rightFields)}
-            </div>
-          </div>
+            <div style={{ border: "1px solid lightgray ", padding: "10px" }}>
+              <div className="row">
+                <div className="col-md-6">
+                  {renderConfig(personalInfoFields)}
 
-          <div className="row mt-3">
-            <div className="col-12 text-end">
-              <button className="btn btn-primary inscrire-btn" onClick={submit}>
-                Inscrire
-              </button>
+                  <h3
+                    className="form-label section-title"
+                    style={{ color: "gray", textDecoration: "underline" }}
+                  >
+                    Lieu naissance
+                  </h3>
+
+                  <div
+                    style={{
+                      border: "1px solid lightgray",
+                      padding: "10px",
+                      marginBottom: "15px",
+                    }}
+                  >
+                    {renderConfig(birthplaceFields)}
+                  </div>
+
+                  {renderConfig(contactFields)}
+                </div>
+
+                <div className="col-md-6">
+                  <label
+                    className="form-label section-title"
+                    style={{ color: "gray", textDecoration: "underline" }}
+                  >
+                    Adresse Postale & Coordonnée Bancaire
+                  </label>
+                  {renderConfig(rightFields)}
+                </div>
+              </div>
+            </div>
+
+            <div className="row mt-3">
+              <div className="col-12 text-end">
+                <button
+                  className="btn btn-primary inscrire-btn"
+                  onClick={submit}
+                >
+                  Inscrire
+                </button>
+              </div>
             </div>
           </div>
         </div>
