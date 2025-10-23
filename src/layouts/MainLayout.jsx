@@ -7,7 +7,14 @@ const MainLayout = () => {
     <div>
       <Navbar />
       <main>
-        <div>
+        <div
+          className="container-sm
+                      container-md
+                      container-lg
+                      container-xl
+                      container-xxl"
+          style={{ margin: "90px auto", minHeight: "100vh", width: "100vw" }}
+        >
           <Outlet />
         </div>
       </main>

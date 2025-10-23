@@ -1,6 +1,4 @@
 .inscription-container {
-  background-color: #f0f0f0;
-  padding: 3rem;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -8,13 +6,12 @@
 
 .inscription-card {
   border: 1px solid #ccc;
-  border-radius: 0;
-  margin: 5rem;
   width: 70rem;
+  margin-top: 2rem
 }
 
 .inscription-header {
-  background-color: #f4b342;
+  background-color: #6342f441;
   border-bottom: 2px solid #999;
   display: flex;
   justify-content: space-between;
@@ -35,8 +32,8 @@
 }
 
 .inscription-body {
-  background-color: #e8e8e8;
-  padding: 20px;
+  background-color: #ffffff;
+  margin: 0 20px;
 }
 
 .label-style {
