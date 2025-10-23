@@ -200,6 +200,10 @@ const InscriptClient = () => {
   const birthplaceFields = leftFields.slice(5, 7); // Fields for Lieu naissance (Nom pays and Département only)
   const contactFields = leftFields.slice(9); // Fields after Lieu naissance
   const communeFields = leftFields.slice(7, 9); // Fields for Commune (Code commune and nom commune)
+  const banqueFields = rightFields.slice(9, 12); // Fields for Coordonnée Bancaire
+  const adressePostaleFields = rightFields.slice(0, 9); // Fields for Adresse Postale
+  const idParticulierField = rightFields.slice(12); // Field for Id Particulier
+
   return (
     <div className="inscription-container ">
       <div className="card shadow-sm inscription-card">
@@ -343,13 +347,37 @@ const InscriptClient = () => {
                 </div>
 
                 <div className="col-md-6">
-                  <label
+                  <h3
                     className="form-label section-title"
                     style={{ color: "gray", textDecoration: "underline" }}
                   >
-                    Adresse Postale & Coordonnée Bancaire
-                  </label>
-                  {renderConfig(rightFields)}
+                    Adresse Postale
+                  </h3>
+                  <div
+                    style={{
+                      border: "1px solid lightgray",
+                      padding: "10px",
+                      marginBottom: "15px",
+                    }}
+                  >
+                    {renderConfig(adressePostaleFields)}
+                    <h3
+                      className="form-label section-title"
+                      style={{ color: "gray", textDecoration: "underline" }}
+                    >
+                      Coordonnée Bancaire
+                    </h3>
+                    <div
+                      style={{
+                        border: "1px solid lightgray",
+                        padding: "10px",
+                        marginBottom: "15px",
+                      }}
+                    >
+                      {renderConfig(banqueFields)}
+                    </div>
+                  </div>
+                  {renderConfig(idParticulierField)}
                 </div>
               </div>
             </div>
