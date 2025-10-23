@@ -386,17 +386,6 @@ const InterogStatut = () => {
               </div>
             </div>
 
-            <div className="row mb-3">
-              <div className="col-12 text-end">
-                <button
-                  className="btn btn-primary inscrire-btn"
-                  onClick={handleRowClick}
-                >
-                  Obtenir Statut
-                </button>
-              </div>
-            </div>
-
             <h3
               className="form-label section-title"
               style={{ color: "gray", textDecoration: "underline" }}
@@ -412,7 +401,7 @@ const InterogStatut = () => {
                 >
                   <div
                     style={{
-                      minWidth: 450,
+                      minWidth:400,
                       display: "flex",
                       alignItems: "center",
                       gap: "0.75rem",
@@ -437,7 +426,7 @@ const InterogStatut = () => {
 
                   <div
                     style={{
-                      minWidth: 400,
+                      minWidth: 300,
                       display: "flex",
                       alignItems: "center",
                       gap: "0.75rem",
