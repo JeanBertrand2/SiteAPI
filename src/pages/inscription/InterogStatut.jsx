@@ -43,10 +43,115 @@ const InterogStatut = () => {
     // Add get status logic here
   };
 
-  const handleRowClick = () => {
-    console.log("Obtenir statut from row");
+  const handleRowClick = (row) => {
+    console.log("Obtenir statut from row", row);
     // Add logic to get status when row is clicked
   };
+
+  // Column filters for each table column
+  const [columnFilters, setColumnFilters] = useState({
+    statutInscription: "",
+    nomNaissance: "",
+    nomUsage: "",
+    prenoms: "",
+    adresseMail: "",
+    dateNaissance: "",
+  });
+
+  // global search across all columns
+  const [globalSearch, setGlobalSearch] = useState("");
+
+  // sort configuration: key = column, direction = 'asc' | 'desc' | null
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
+
+  const handleGlobalSearchChange = (e) => {
+    setGlobalSearch(e.target.value);
+  };
+
+  const handleColumnFilterChange = (e) => {
+    const { name, value } = e.target;
+    setColumnFilters((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const toggleSort = (key) => {
+    setSortConfig((prev) => {
+      if (prev.key === key) {
+        if (prev.direction === "asc") return { key, direction: "desc" };
+        if (prev.direction === "desc") return { key: null, direction: null };
+      }
+      return { key, direction: "asc" };
+    });
+  };
+
+  const defaultRows = Array.from({ length: 8 }).map(() => ({
+    statutInscription: "",
+    nomNaissance: "",
+    nomUsage: "",
+    prenoms: "",
+    adresseMail: "",
+    dateNaissance: "",
+  }));
+
+  const dataToDisplay = searchResults.length > 0 ? searchResults : defaultRows;
+
+  const filteredResults = dataToDisplay.filter((row) => {
+    const columnsOk = Object.entries(columnFilters).every(([key, val]) => {
+      if (!val) return true;
+      const cell = row[key];
+      return String(cell || "")
+        .toLowerCase()
+        .includes(String(val).toLowerCase());
+    });
+
+    if (!columnsOk) return false;
+
+    // global search across all cells (if provided)
+    if (!globalSearch) return true;
+    const q = globalSearch.toLowerCase();
+    return Object.values(row).some((cell) =>
+      String(cell || "")
+        .toLowerCase()
+        .includes(q)
+    );
+  });
+
+  // sorting logic
+  const compareRowsByKey = (a, b, key) => {
+    const va = a?.[key] ?? "";
+    const vb = b?.[key] ?? "";
+
+    // try to compare as dates if both parse
+    const da = Date.parse(va);
+    const db = Date.parse(vb);
+    if (!isNaN(da) && !isNaN(db)) return da - db;
+
+    // fallback to string compare
+    const sa = String(va).toLowerCase();
+    const sb = String(vb).toLowerCase();
+    if (sa < sb) return -1;
+    if (sa > sb) return 1;
+    return 0;
+  };
+
+  const sortedResults = (() => {
+    if (!sortConfig.key) return filteredResults;
+    const sorted = [...filteredResults].sort((a, b) =>
+      compareRowsByKey(a, b, sortConfig.key)
+    );
+    if (sortConfig.direction === "desc") sorted.reverse();
+    return sorted;
+  })();
+
+  const finalResults = sortedResults;
+
+  const columns = [
+    { key: "statutInscription", label: "Statut inscription" },
+    { key: "nomNaissance", label: "Nom de naissance" },
+    { key: "nomUsage", label: "Nom usage" },
+    { key: "prenoms", label: "Prénoms" },
+    { key: "adresseMail", label: "Adresse mail" },
+    { key: "dateNaissance", label: "Date naissance" },
+  ];
 
   return (
     <div className="inscription-container">
@@ -153,7 +258,7 @@ const InterogStatut = () => {
             <div className="col-12">
               <div
                 className="table-responsive"
-                style={{ maxHeight: "300px", overflowY: "auto" }}
+                style={{ maxHeight: "500px", overflowY: "auto" }}
               >
                 <table className="table table-bordered table-hover table-sm">
                   <thead
@@ -165,31 +270,62 @@ const InterogStatut = () => {
                     }}
                   >
                     <tr>
-                      <th style={{ fontSize: "12px", fontWeight: "600" }}>
-                        Statut inscription
-                      </th>
-                      <th style={{ fontSize: "12px", fontWeight: "600" }}>
-                        Nom de naissance
-                      </th>
-                      <th style={{ fontSize: "12px", fontWeight: "600" }}>
-                        Nom usage
-                      </th>
-                      <th style={{ fontSize: "12px", fontWeight: "600" }}>
-                        Prénoms
-                      </th>
-                      <th style={{ fontSize: "12px", fontWeight: "600" }}>
-                        Adresse mail
-                      </th>
-                      <th style={{ fontSize: "12px", fontWeight: "600" }}>
-                        Date naissance
-                      </th>
+                      {columns.map((col) => (
+                        <th
+                          key={col.key}
+                          style={{
+                            fontSize: "12px",
+                            fontWeight: "600",
+                            cursor: "pointer",
+                            userSelect: "none",
+                          }}
+                          onClick={() => toggleSort(col.key)}
+                        >
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "space-between",
+                            }}
+                          >
+                            <span>{col.label}</span>
+                            <span
+                              style={{ marginLeft: "8px", fontSize: "10px" }}
+                            >
+                              {sortConfig.key === col.key
+                                ? sortConfig.direction === "asc"
+                                  ? "▲"
+                                  : sortConfig.direction === "desc"
+                                  ? "▼"
+                                  : ""
+                                : ""}
+                            </span>
+                          </div>
+                        </th>
+                      ))}
+                    </tr>
+                    {/* filter row: one input per column */}
+                    <tr>
+                      {columns.map((col) => (
+                        <th key={col.key} style={{ padding: "6px" }}>
+                          <input
+                            type="text"
+                            name={col.key}
+                            value={columnFilters[col.key]}
+                            onChange={handleColumnFilterChange}
+                            className="form-control form-control-sm"
+                            placeholder="Filtrer..."
+                            style={{ fontSize: "12px" }}
+                          />
+                        </th>
+                      ))}
                     </tr>
                   </thead>
                   <tbody>
-                    {searchResults.length === 0 ? (
+                    {finalResults.length === 0 ? (
                       <tr>
                         <td
-                          colSpan="6"
+                          colSpan={columns.length}
                           className="text-center"
                           style={{ fontSize: "12px", padding: "20px" }}
                         >
@@ -197,18 +333,34 @@ const InterogStatut = () => {
                         </td>
                       </tr>
                     ) : (
-                      searchResults.map((result, idx) => (
+                      finalResults.map((result, rowIdx) => (
                         <tr
-                          key={idx}
-                          onClick={handleRowClick}
-                          style={{ cursor: "pointer", fontSize: "12px" }}
+                          key={rowIdx}
+                          onClick={() => {
+                            handleRowClick(result);
+                          }}
+                          style={{
+                            cursor: "pointer",
+                            fontSize: "12px",
+                            padding: "8px",
+                            height: "30px",
+                            border: "none",
+                          }}
                         >
-                          <td>{result.statutInscription}</td>
-                          <td>{result.nomNaissance}</td>
-                          <td>{result.nomUsage}</td>
-                          <td>{result.prenoms}</td>
-                          <td>{result.adresseMail}</td>
-                          <td>{result.dateNaissance}</td>
+                          {columns.map((col, colIdx) => (
+                            <td
+                              key={colIdx}
+                              style={{
+                                backgroundColor:
+                                  (rowIdx ) % 2 === 0
+                                    ? "#ffffff"
+                                    : "#f2f2f2",
+                                verticalAlign: "middle",
+                              }}
+                            >
+                              {result[col.key]}
+                            </td>
+                          ))}
                         </tr>
                       ))
                     )}
@@ -229,7 +381,6 @@ const InterogStatut = () => {
             </div>
           </div>
 
-          {/* Get Status by ID or Email Section */}
           <h3
             className="form-label section-title"
             style={{ color: "gray", textDecoration: "underline" }}
