@@ -34,6 +34,10 @@ const InscriptClient = () => {
     titulaire: "",
     idParticulier: "",
   };
+  const lettresVoie = Array.from({ length: 26 }, (_, i) =>
+    String.fromCharCode(65 + i)
+  );
+
   const typesVoie = [
     { key: "ALL", label: "Allée" },
     { key: "AVE", label: "Avenue" },
@@ -186,12 +190,13 @@ const InscriptClient = () => {
   const rightFields = [
     [
       { label: "Numero Voie", name: "numeroVoie", col: "col-6" },
+
       {
         label: "Lettre Voie",
         name: "lettreVoie",
         col: "col-6",
         type: "select",
-        options: [],
+        options: lettresVoie,
       },
     ],
     [
