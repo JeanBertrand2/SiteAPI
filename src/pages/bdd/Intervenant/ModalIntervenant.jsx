@@ -10,7 +10,6 @@ const ModalIntervenant = ({ show, onClose, mode, data, onSave }) => {
     data || { civilite: "", nom: "", prenoms: "" }
   );
 
-  // Responsive flag for small screens. Desktop UI is kept as-is.
   const [isMobile, setIsMobile] = useState(
     typeof window !== "undefined" ? window.matchMedia("(max-width:600px)").matches : false
   );
@@ -24,7 +23,6 @@ const ModalIntervenant = ({ show, onClose, mode, data, onSave }) => {
   useEffect(() => {
     const mq = window.matchMedia("(max-width:600px)");
     const handle = (e) => setIsMobile(e.matches);
-    // initial set already done, but attach listener for changes
     mq.addEventListener ? mq.addEventListener("change", handle) : mq.addListener(handle);
     return () =>
       mq.removeEventListener ? mq.removeEventListener("change", handle) : mq.removeListener(handle);

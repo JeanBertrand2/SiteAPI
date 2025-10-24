@@ -23,6 +23,18 @@ const Confirmation = ({
 
   return (
     <>
+      <style>{`
+        /* make this footer stack on mobile and switch to flex row on desktop */
+        .confirm-footer { display: block; gap: 0.5rem; }
+        .confirm-footer > div { margin-bottom: 0.5rem; }
+        @media (min-width: 768px) {
+          .confirm-footer { display: flex; flex-direction: row; justify-content: flex-end; align-items: center; gap: 0.5rem; }
+          .confirm-footer > div { margin-bottom: 0; }
+          /* override .w-100 so buttons are full-width on mobile but auto on desktop */
+          .confirm-footer .w-100 { width: auto !important; }
+        }
+      `}</style>
+
       <div
         className="modal d-block"
         tabIndex="-1"
@@ -32,7 +44,7 @@ const Confirmation = ({
         onClick={onClose}
       >
         <div
-          className="modal-dialog modal-dialog-centered"
+          className="modal-dialog modal-dialog-centered modal-fullscreen-sm-down"
           role="document"
           onClick={(e) => e.stopPropagation()}
         >
@@ -54,35 +66,40 @@ const Confirmation = ({
               <p className="mb-0">{message}</p>
             </div>
 
-            <div className="modal-footer">
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={onClose}
-                disabled={loading}
-              >
-                {cancelLabel}
-              </button>
-
-              <button
-                type="button"
-                className={destructive ? "btn btn-danger" : "btn btn-primary"}
-                onClick={onConfirm}
-                disabled={loading}
-              >
-                {loading ? (
-                  <>
-                    <span
-                      className="spinner-border spinner-border-sm me-2"
-                      role="status"
-                      aria-hidden="true"
-                    />
-                    {confirmLabel}
-                  </>
-                ) : (
-                  confirmLabel
-                )}
-              </button>
+            <div className="modal-footer confirm-footer">
+              <div>
+                <button
+                  type="button"
+                  className="btn btn-secondary w-100 mb-0 "
+                  onClick={onClose}
+                  disabled={loading}
+                >
+                  {cancelLabel}
+                </button>
+              </div>
+              <div>
+                <button
+                  type="button"
+                  className={`${
+                    destructive ? "btn btn-danger" : "btn btn-primary"
+                  } w-100 ms-sm-2 ms-lg-0`}
+                  onClick={onConfirm}
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <>
+                      <span
+                        className="spinner-border spinner-border-sm me-2"
+                        role="status"
+                        aria-hidden="true"
+                      />
+                      {confirmLabel}
+                    </>
+                  ) : (
+                    confirmLabel
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </div>
