@@ -9,7 +9,7 @@ import { IoIosSearch } from "react-icons/io";
 import { RiExpandUpDownFill } from "react-icons/ri";
 import ModalIntervenant from "./ModalIntervenant";
 import Confirmation from "./Confirmation"; // <-- added
-
+import "./Intervenant.css";
 const Intervenant = () => {
   const [intervenants, setIntervenants] = useState([
     { id: 1, civilite: "Madame", nom: "CANABY", prenoms: "Karine" },
@@ -221,212 +221,239 @@ const Intervenant = () => {
             </button>
           </div>
         </div>
-
-        <div style={{ padding: "20px", display: "flex", gap: "15px" }}>
-          <div style={{ flex: 1 }}>
-            <table
-              className="table table-bordered table-sm"
-              style={{
-                fontSize: "13px",
-                marginBottom: 0,
-                backgroundColor: "white",
-              }}
+        <div
+          style={{
+            display: "flex",
+            margin: "20px 15px", // default: stack vertically on mobile
+          }}
+          className="desktop-flex"
+        >
+          <div
+            style={{
+              display: "flex",
+              flex: 4,
+              marginRight: "10px",
+            }}
+            className="responsive-container"
+          >
+            <div
+              style={{ overflowX: "auto", width: "100%" }}
+              className="left-table"
             >
-              <thead style={{ backgroundColor: "#174777ff" }}>
-                <tr>
-                  <th style={{ padding: "8px" }}>
-                    <div style={{ display: "flex", alignItems: "center" }}>
-                      <span
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          cursor: "pointer",
-                        }}
-                        onClick={() => handleSort("civilite")}
-                      >
-                        <RiExpandUpDownFill size={14} />
-                      </span>
-                      <span style={{ flex: 1, textAlign: "center" }}>
-                        {searchActive.civilite ? (
-                          <input
-                            type="text"
-                            value={searchValues.civilite}
-                            onChange={(e) =>
-                              handleSearchChange("civilite", e.target.value)
-                            }
-                            style={{
-                              width: "100%",
-                              border: "1px solid #ccc",
-                              borderRadius: "3px",
-                              padding: "2px 5px",
-                              fontSize: "12px",
-                            }}
-                            placeholder="Rechercher..."
-                            autoFocus
-                          />
-                        ) : (
-                          "Civilité"
-                        )}
-                      </span>
-                      <span
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          cursor: "pointer",
-                        }}
-                        onClick={() => handleSearchClick("civilite")}
-                      >
-                        <IoIosSearch size={14} />
-                      </span>
-                    </div>
-                  </th>
-                  <th style={{ padding: "8px" }}>
-                    <div style={{ display: "flex", alignItems: "center" }}>
-                      <span
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          cursor: "pointer",
-                        }}
-                        onClick={() => handleSort("nom")}
-                      >
-                        <RiExpandUpDownFill size={14} />
-                      </span>
-                      <span style={{ flex: 1, textAlign: "center" }}>
-                        {searchActive.nom ? (
-                          <input
-                            type="text"
-                            value={searchValues.nom}
-                            onChange={(e) =>
-                              handleSearchChange("nom", e.target.value)
-                            }
-                            style={{
-                              width: "100%",
-                              border: "1px solid #ccc",
-                              borderRadius: "3px",
-                              padding: "2px 5px",
-                              fontSize: "12px",
-                            }}
-                            placeholder="Rechercher..."
-                            autoFocus
-                          />
-                        ) : (
-                          "Nom"
-                        )}
-                      </span>
-                      <span
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          cursor: "pointer",
-                        }}
-                        onClick={() => handleSearchClick("nom")}
-                      >
-                        <IoIosSearch size={14} />
-                      </span>
-                    </div>
-                  </th>
-                  <th style={{ padding: "8px" }}>
-                    <div style={{ display: "flex", alignItems: "center" }}>
-                      <span
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          cursor: "pointer",
-                        }}
-                        onClick={() => handleSort("prenoms")}
-                      >
-                        <RiExpandUpDownFill size={14} />
-                      </span>
-                      <span style={{ flex: 1, textAlign: "center" }}>
-                        {searchActive.prenoms ? (
-                          <input
-                            type="text"
-                            value={searchValues.prenoms}
-                            onChange={(e) =>
-                              handleSearchChange("prenoms", e.target.value)
-                            }
-                            style={{
-                              width: "100%",
-                              border: "1px solid #ccc",
-                              borderRadius: "3px",
-                              padding: "2px 5px",
-                              fontSize: "12px",
-                            }}
-                            placeholder="Rechercher..."
-                            autoFocus
-                          />
-                        ) : (
-                          "Prénoms"
-                        )}
-                      </span>
-                      <span
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          cursor: "pointer",
-                        }}
-                        onClick={() => handleSearchClick("prenoms")}
-                      >
-                        <IoIosSearch size={14} />
-                      </span>
-                    </div>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredData.map((intervenant, index) => {
-                  const rowBg =
-                    selectedRow === intervenant.id
-                      ? "#cce5ff"
-                      : index % 2 === 0
-                      ? "white"
-                      : "#f8f9fa";
-                  return (
-                    <tr
-                      key={intervenant.id}
-                      onClick={() => handleRowClick(intervenant.id)}
-                      style={{
-                        cursor: "pointer",
-                      }}
-                    >
-                      <td style={{ padding: "8px", backgroundColor: rowBg }}>
-                        {intervenant.civilite}
-                      </td>
-                      <td style={{ padding: "8px", backgroundColor: rowBg }}>
-                        {intervenant.nom}
-                      </td>
-                      <td style={{ padding: "8px", backgroundColor: rowBg }}>
-                        {intervenant.prenoms}
-                      </td>
-                    </tr>
-                  );
-                })}
-                {[...Array(Math.max(0, 10 - filteredData.length))].map(
-                  (_, i) => {
+              <table
+                className="table table-bordered table-sm"
+                style={{ fontSize: "13px", marginBottom: 0 }}
+              >
+                <thead>
+                  <tr>
+                    <th style={{ padding: "8px" }}>
+                      <div style={{ display: "flex", alignItems: "center" }}>
+                        <span
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            cursor: "pointer",
+                          }}
+                          onClick={() => handleSort("civilite")}
+                        >
+                          <RiExpandUpDownFill size={14} />
+                        </span>
+                        <span style={{ flex: 1, textAlign: "center" }}>
+                          {searchActive.civilite ? (
+                            <input
+                              type="text"
+                              value={searchValues.civilite}
+                              onChange={(e) =>
+                                handleSearchChange("civilite", e.target.value)
+                              }
+                              style={{
+                                width: "100%",
+                                border: "1px solid #ccc",
+                                borderRadius: "3px",
+                                padding: "2px 5px",
+                                fontSize: "12px",
+                              }}
+                              placeholder="Rechercher..."
+                              autoFocus
+                            />
+                          ) : (
+                            "Civilité"
+                          )}
+                        </span>
+                        <span
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            cursor: "pointer",
+                          }}
+                          onClick={() => handleSearchClick("civilite")}
+                        >
+                          <IoIosSearch size={14} />
+                        </span>
+                      </div>
+                    </th>
+                    <th style={{ padding: "8px" }}>
+                      <div style={{ display: "flex", alignItems: "center" }}>
+                        <span
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            cursor: "pointer",
+                          }}
+                          onClick={() => handleSort("nom")}
+                        >
+                          <RiExpandUpDownFill size={14} />
+                        </span>
+                        <span style={{ flex: 1, textAlign: "center" }}>
+                          {searchActive.nom ? (
+                            <input
+                              type="text"
+                              value={searchValues.nom}
+                              onChange={(e) =>
+                                handleSearchChange("nom", e.target.value)
+                              }
+                              style={{
+                                width: "100%",
+                                border: "1px solid #ccc",
+                                borderRadius: "3px",
+                                padding: "2px 5px",
+                                fontSize: "12px",
+                              }}
+                              placeholder="Rechercher..."
+                              autoFocus
+                            />
+                          ) : (
+                            "Nom"
+                          )}
+                        </span>
+                        <span
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            cursor: "pointer",
+                          }}
+                          onClick={() => handleSearchClick("nom")}
+                        >
+                          <IoIosSearch size={14} />
+                        </span>
+                      </div>
+                    </th>
+                    <th style={{ padding: "8px" }}>
+                      <div style={{ display: "flex", alignItems: "center" }}>
+                        <span
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            cursor: "pointer",
+                          }}
+                          onClick={() => handleSort("prenoms")}
+                        >
+                          <RiExpandUpDownFill size={14} />
+                        </span>
+                        <span style={{ flex: 1, textAlign: "center" }}>
+                          {searchActive.prenoms ? (
+                            <input
+                              type="text"
+                              value={searchValues.prenoms}
+                              onChange={(e) =>
+                                handleSearchChange("prenoms", e.target.value)
+                              }
+                              style={{
+                                width: "100%",
+                                border: "1px solid #ccc",
+                                borderRadius: "3px",
+                                padding: "2px 5px",
+                                fontSize: "12px",
+                              }}
+                              placeholder="Rechercher..."
+                              autoFocus
+                            />
+                          ) : (
+                            "Prénoms"
+                          )}
+                        </span>
+                        <span
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            cursor: "pointer",
+                          }}
+                          onClick={() => handleSearchClick("prenoms")}
+                        >
+                          <IoIosSearch size={14} />
+                        </span>
+                      </div>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredData.map((intervenant, index) => {
                     const rowBg =
-                      (filteredData.length + i) % 2 === 0 ? "white" : "#f8f9fa";
+                      selectedRow === intervenant.id
+                        ? "#cce5ff"
+                        : index % 2 === 0
+                        ? "white"
+                        : "#f8f9fa";
                     return (
-                      <tr key={`empty-${i}`}>
+                      <tr
+                        key={intervenant.id}
+                        onClick={() => handleRowClick(intervenant.id)}
+                        style={{
+                          cursor: "pointer",
+                        }}
+                      >
                         <td style={{ padding: "8px", backgroundColor: rowBg }}>
-                          &nbsp;
+                          {intervenant.civilite}
                         </td>
                         <td style={{ padding: "8px", backgroundColor: rowBg }}>
-                          &nbsp;
+                          {intervenant.nom}
                         </td>
                         <td style={{ padding: "8px", backgroundColor: rowBg }}>
-                          &nbsp;
+                          {intervenant.prenoms}
                         </td>
                       </tr>
                     );
-                  }
-                )}
-              </tbody>
-            </table>
+                  })}
+                  {[...Array(Math.max(0, 10 - filteredData.length))].map(
+                    (_, i) => {
+                      const rowBg =
+                        (filteredData.length + i) % 2 === 0
+                          ? "white"
+                          : "#f8f9fa";
+                      return (
+                        <tr key={`empty-${i}`}>
+                          <td
+                            style={{ padding: "8px", backgroundColor: rowBg }}
+                          >
+                            &nbsp;
+                          </td>
+                          <td
+                            style={{ padding: "8px", backgroundColor: rowBg }}
+                          >
+                            &nbsp;
+                          </td>
+                          <td
+                            style={{ padding: "8px", backgroundColor: rowBg }}
+                          >
+                            &nbsp;
+                          </td>
+                        </tr>
+                      );
+                    }
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
-
           <div
-            style={{ display: "flex", flexDirection: "column", gap: "10px" }}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "10px",
+              margin: "5px",
+              flex: 1,
+            }}
+            className="right-buttons"
           >
             <button
               onClick={handleNouveau}
