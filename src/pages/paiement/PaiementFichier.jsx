@@ -72,7 +72,7 @@ const PaiementFichier = () => {
     };
     reader.readAsText(file);
   };
-//garder pour le tableau en bas plus tart
+//garder pour le tableau en bas plus tard
   const envoyerDemande = () => {
     alert("Demande de paiement envoyée !");
   };
