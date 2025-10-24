@@ -8,37 +8,34 @@ const PaiementFichier = () => {
   const [fichier, setFichier] = useState(null);
   const [donnees, setDonnees] = useState([]);
 
- const handleFileChange = (e) => {
-  // On stocke le fichier sans le lire
+  const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    setFichier(file); 
+    setFichier(file);
+    // ← lecture automatique dès sélection
+    ouvrirExcel(file); 
   };
 
-//garder pour le tableau en bas plus tart
-   const ouvrirExcel = () => {
-    if (!fichier) {
-      alert("Aucun fichier sélectionné !");
-      return;
-    }
 
-    const extension = fichier.name.split('.').pop().toLowerCase();
+    const ouvrirExcel = (fichierLocal) => {
+      const extension = fichierLocal.name.split('.').pop().toLowerCase();
 
-    switch (extension) {
-      case 'xlsx':
-      case 'xls':
-        lireExcel(fichier);
-        break;
-      case 'csv':
-        lireCSV(fichier);
-        break;
-      case 'json':
-        lireJSON(fichier);
-        break;
-      default:
-        alert("Format de fichier non pris en charge !");
-    }
-  };
+      switch (extension) {
+        case 'xlsx':
+        case 'xls':
+          lireExcel(fichierLocal);
+          break;
+        case 'csv':
+          lireCSV(fichierLocal);
+          break;
+        case 'json':
+          lireJSON(fichierLocal);
+          break;
+        default:
+          alert("Format de fichier non pris en charge !");
+      }
+    };
+
   const lireExcel = (file) => {
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -146,11 +143,37 @@ const PaiementFichier = () => {
         </button>
       </div>
 
-      {/* Zone centrale (placeholder) */}
-      <div className="mt-5 p-5 border border-light bg-light text-center">
-        <em>Aucune donnée affichée pour le moment</em>
-      </div>
-    </div>
+      {/* Zone centrale : tableau généré automatiquement */}
+        <div className="mt-5">
+          {donnees && donnees.length > 0 ? (
+            <div className="table-responsive" style={{ maxHeight: '60vh', overflowY: 'auto' }}>
+
+              <table className="table table-bordered table-striped table-sm w-100">
+                <thead className="table-light">
+                  <tr>
+                    {Object.keys(donnees[0]).map((col, idx) => (
+                      <th key={idx} className="text-nowrap">{col}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {donnees.map((row, rowIndex) => (
+                    <tr key={rowIndex}>
+                      {Object.values(row).map((val, colIndex) => (
+                        <td key={colIndex} className="text-nowrap">{val}</td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="p-5 border border-light bg-light text-center">
+              <em>Aucune donnée affichée pour le moment</em>
+            </div>
+          )}
+        </div>
+    </div> 
   );
 };
 

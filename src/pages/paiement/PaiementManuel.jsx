@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
 const PaiementManuel = () => {
   const today = new Date().toISOString().split('T')[0];
@@ -17,8 +17,51 @@ const PaiementManuel = () => {
   const [mntfht, setMntfht] = useState(0);
   const [mntfttc, setMntfttc] = useState(0);
 
-  const add = () => {
-    alert("Ajout simulé !");
+  // Liste déroulante tableau
+    const activites = ['304001', '304002', '304003'];
+    const unites = ['FORFAIT', 'HEURE', 'JOUR'];
+
+    const natures = [
+      { code: 'NAT001', libelle: 'Aide humaine' },
+      { code: 'NAT002', libelle: 'Transport accompagné' },
+      { code: 'NAT003', libelle: 'Assistance administrative' },
+    ];
+
+
+// Liste deroulante tableau 
+// Liste déroulante client
+  const clients = [
+    {
+      id: '24817128-0201-4591-a3ae-cd5d0d1e9f1c',
+      nom: 'SPOR',
+      naissance: '1987-07-28',
+      tiers: '80077701900038',
+    },
+    {
+      id: '12345678-0000-0000-0000-000000000000',
+      nom: 'RAKOTO',
+      naissance: '1990-01-15',
+      tiers: '80077701900099',
+    },
+  ]
+// Liste déroulante client
+  const add = (index) => {
+    const nouvelleLigne = {
+      ca: '',
+      cn: '',
+      libprest: '',
+      qte: 0,
+      unit: '',
+      mntunit: 0,
+      mntprestttc: 0,
+      mntprestht: 0,
+      mntpresttva: 0,
+      compl1: '',
+      compl2: '',
+    };
+    const updated = [...demandePaiement];
+    updated.splice(index + 1, 0, nouvelleLigne);
+    setDemandePaiement(updated);
   };
 
   const reset = () => {
@@ -29,15 +72,48 @@ const PaiementManuel = () => {
     alert("Demande de paiement envoyée !");
   };
 
+  const updateRow = (index, field, value) => {
+    const updated = [...demandePaiement];
+    updated[index][field] = value;
+    setDemandePaiement(updated);
+  };
+
+  const calculTotaux = () => {
+    let ttc = 0, ht = 0, tva = 0;
+    demandePaiement.forEach((row) => {
+      ttc += row.mntprestttc || 0;
+      ht += row.mntprestht || 0;
+      tva += row.mntpresttva || 0;
+    });
+    return { ttc, ht, tva };
+  };
+
   return (
     <div className="container mt-4">
       <h2 className="mb-4 text-center">DEMANDE DE PAIEMENT</h2>
 
+      {/* Formulaire client */}
       <div className="row g-3">
         <div className="col-md-6">
           <label className="form-label">Identifiant client</label>
-          <select className="form-select" value={clientId} onChange={(e) => setclientId(e.target.value)}>
+          <select
+            className="form-select"
+            value={clientId}
+            onChange={(e) => {
+              const selectedId = e.target.value;
+              setclientId(selectedId);
+              const client = clients.find(c => c.id === selectedId);
+              if (client) {
+                setNomclient(client.nom);
+                setSelectedDate(client.naissance);
+                setIdtiers(client.tiers);
+              }
+            }}
+          >
             <option value="">-- Sélectionner un id client --</option>
+            {clients.map((c) => (
+              <option key={c.id} value={c.id}>{c.id}</option>
+            ))}
           </select>
         </div>
 
@@ -97,46 +173,105 @@ const PaiementManuel = () => {
         </div>
       </div>
 
+      {/* Tableau des prestations */}
       <div className="mt-5">
         <h4 className="mb-3">Prestations</h4>
         <div className="table-responsive">
-          <table className="table table-bordered table-striped">
+            <table className="table table-bordered table-striped table-sm w-100">
+
             <thead className="table-light">
               <tr>
-                <th>Code Activity</th>
-                <th>Code Nature</th>
-                <th>Libellé prestation</th>
-                <th>Quantité</th>
-                <th>Unité</th>
-                <th>Mnt Unit TTC</th>
-                <th>Mnt Prestation TTC</th>
-                <th>Mnt Prestation HT</th>
-                <th>Mnt Prestation TVA</th>
-                <th>Complément 1</th>
-                <th>Complément 2</th>
+                <th className="w-10 text-nowrap">Code Activity</th>
+                <th className="w-30 text-nowrap">Code Nature</th>
+                <th className="w-25 text-nowrap">Libellé prestation</th>
+                <th className="w-10 text-nowrap">Quantité</th>
+                <th className="w-30 text-nowrap">Unité</th>
+                <th className="w-10 text-nowrap">Mnt Unit TTC</th>
+                <th className="w-10 text-nowrap">Mnt Prestation TTC</th>
+                <th className="w-10 text-nowrap">Mnt Prestation HT</th>
+                <th className="w-10 text-nowrap">Mnt Prestation TVA</th>
+                <th className="w-10 text-nowrap">Complément 1</th>
+                <th className="w-10 text-nowrap">Complément 2</th>
               </tr>
             </thead>
             <tbody>
-              {demandePaiement.map((cinput) => (
-                <tr key={cinput.id}>
-                  <td>{cinput.ca}</td>
-                  <td>{cinput.cn}</td>
-                  <td>{cinput.libprest}</td>
-                  <td>{cinput.qte}</td>
-                  <td>{cinput.unit.toFixed(2)} Ariary</td>
-                  <td>{cinput.mntunit.toFixed(2)} Ariary</td>
-                  <td>{cinput.mntprestttc.toFixed(2)} Ariary</td>
-                  <td>{cinput.mntprestht.toFixed(2)} Ariary</td>
-                  <td>{cinput.mntpresttva.toFixed(2)} Ariary</td>
-                  <td>{cinput.compl1}</td>
-                  <td>{cinput.compl2}</td>
-                </tr>
-              ))}
-            </tbody>
+                {demandePaiement.map((row, index) => (
+                  <tr key={index}>
+                     {/* Code Activité */}
+                     <td className="text-nowrap">
+                            <select
+                              className="form-select"
+                              value={row.ca}
+                              onChange={(e) => updateRow(index, 'ca', e.target.value)}
+                            >
+                              <option value="">-- Choisir --</option>
+                              {activites.map((code) => (
+                                <option key={code} value={code}>{code}</option>
+                              ))}
+                            </select>
+                          </td>
+
+                          {/* Code Nature */}
+                          <td className="text-nowrap">
+                            <select
+                              className="form-select"
+                              value={row.cn}
+                              onChange={(e) => {
+                                const selectedCode = e.target.value;
+                                const nature = natures.find(n => n.code === selectedCode);
+                                updateRow(index, 'cn', selectedCode);
+                                if (nature) {
+                                  updateRow(index, 'libprest', nature.libelle);
+                                }
+                              }}
+                            >
+                              <option value="">-- Choisir --</option>
+                              {natures.map((n) => (
+                                <option key={n.code} value={n.code}>{n.code}</option>
+                              ))}
+                            </select>
+                          </td>
+                    <td><input type="text" className="form-control" value={row.libprest} onChange={(e) => updateRow(index, 'libprest', e.target.value)} /></td>
+                    <td><input type="number" className="form-control" value={row.qte} onChange={(e) => updateRow(index, 'qte', parseFloat(e.target.value))} /></td>
+
+                    {/* Unité */}
+                      <td className="text-nowrap">
+                        <select
+                          className="form-select"
+                          value={row.unit}
+                          onChange={(e) => updateRow(index, 'unit', e.target.value)}
+                        >
+                          <option value="">-- Choisir --</option>
+                          {unites.map((u) => (
+                            <option key={u} value={u}>{u}</option>
+                          ))}
+                        </select>
+                      </td>
+
+                    <td><input type="number" className="form-control" value={row.mntunit} onChange={(e) => updateRow(index, 'mntunit', parseFloat(e.target.value))} /></td>
+                    <td><input type="number" className="form-control" value={row.mntprestttc} onChange={(e) => updateRow(index, 'mntprestttc', parseFloat(e.target.value))} /></td>
+                    <td><input type="number" className="form-control" value={row.mntprestht} onChange={(e) => updateRow(index, 'mntprestht', parseFloat(e.target.value))} /></td>
+                    <td><input type="number" className="form-control" value={row.mntpresttva} onChange={(e) => updateRow(index, 'mntpresttva', parseFloat(e.target.value))} /></td>
+                    <td><input type="text" className="form-control" value={row.compl1} onChange={(e) => updateRow(index, 'compl1', e.target.value)} /></td>
+                    <td><input type="text" className="form-control" value={row.compl2} onChange={(e) => updateRow(index, 'compl2', e.target.value)} /></td>
+                  </tr>
+                ))}
+              </tbody>
+
+            <tfoot>
+              <tr className="table-secondary fw-bold">
+                <td colSpan="6">Totaux</td>
+                <td>{calculTotaux().ttc.toFixed(2)} Ariary</td>
+                <td>{calculTotaux().ht.toFixed(2)} Ariary</td>
+                <td>{calculTotaux().tva.toFixed(2)} Ariary</td>
+                <td colSpan="2"></td>
+              </tr>
+            </tfoot>
           </table>
         </div>
       </div>
 
+      {/* Boutons */}
       <div className="d-flex justify-content-end gap-3 mt-4">
         <button className="btn btn-success" onClick={add}>+ Ajouter</button>
         <button className="btn btn-danger" onClick={reset}>Supprimer</button>
