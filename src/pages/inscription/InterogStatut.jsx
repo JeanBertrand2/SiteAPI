@@ -429,7 +429,6 @@ const InterogStatut = () => {
                                 fontSize: "12px",
                                 position: "relative",
                                 bottom: "2rem",
-                                width: "8rem",
                                 width: "7rem",
                               }}
                             />
