@@ -261,7 +261,7 @@ const InscriptClient = () => {
     ],
     [{ label: "Nom Naissance", name: "nomNaissance" }],
     [{ label: "Nom Usage", name: "nomUsage" }],
-    [{ label: "Prénom s", name: "prenoms" }],
+    [{ label: "Prénoms", name: "prenoms" }],
     [{ label: "Date de naissance", name: "dateNaissance", type: "date" }],
     [
       {
