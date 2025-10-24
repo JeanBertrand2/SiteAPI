@@ -1,12 +1,14 @@
+import React from 'react';
+import PaiementFichier from '../paiement/PaiementFichier';
 
-import React from 'react'
 
 function BddFacture() {
   return (
     <div>
-      Ajout des factures déjà envoyées.
+      
+      <PaiementFichier showDemandeBtn={false} showMigrationBtn={true} />
     </div>
-  )
+  );
 }
 
-export default BddFacture
+export default BddFacture;

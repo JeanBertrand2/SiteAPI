@@ -1,13 +1,21 @@
 import React, { useState } from 'react';
+import { useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import * as XLSX from 'xlsx';
 
-const PaiementFichier = () => {
+ const PaiementFichier = ({ showDemandeBtn = true, showMigrationBtn = false }) => {
   const [sourceExcel, setSourceExcel] = useState(false);
   const [sourceDolibarr, setSourceDolibarr] = useState(false);
   const [fichier, setFichier] = useState(null);
   const [donnees, setDonnees] = useState([]);
-
+ //actives les tooltips
+  useEffect(() => {
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    [...tooltipTriggerList].forEach((tooltipTriggerEl) => {
+      new window.bootstrap.Tooltip(tooltipTriggerEl);
+    });
+  }, []);
+//actives les tooltips
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -78,102 +86,125 @@ const PaiementFichier = () => {
   };
 
   return (
-    <div className="container mt-4">
-      <h2 className="mb-4 text-center">Demande de Paiement</h2>
+   <div className="container mt-4">
+      <h2 className="text-center mb-4 fw-semibold text-primary">
+        Demande de Paiement
+      </h2>
 
-      {/* Cases à cocher */}
-      <div className="mb-3">
-        <div className="form-check">
-          <input
-            className="form-check-input"
-            type="checkbox"
-            id="sourceExcel"
-            checked={sourceExcel}
-            onChange={(e) => setSourceExcel(e.target.checked)}
-          />
-          <label className="form-check-label" htmlFor="sourceExcel">
-            Ajouter une demande de paiement à partir d’un fichier Excel
-          </label>
-        </div>
 
-        <div className="form-check mt-2">
-          <input
-            className="form-check-input"
-            type="checkbox"
-            id="sourceDolibarr"
-            checked={sourceDolibarr}
-            onChange={(e) => setSourceDolibarr(e.target.checked)}
-          />
-          <label className="form-check-label" htmlFor="sourceDolibarr">
-            Ajouter une demande de paiement à partir d’une Exportation Dolibarr
-          </label>
-        </div>
-      </div>
-
-      {/* Champ fichier */}
-      <div className="mb-4">
-        <label className="form-label">Fichier Excel:</label>
+  <div className="card shadow-sm mb-4">
+    <div className="card-body">
+      <h5 className="card-title mb-3">Source de la demande</h5>
+      <div className="form-check">
         <input
-          type="file"
-          className="form-control"
-          accept=".xlsx,.xls,.csv,.json"
-          onChange={handleFileChange}
+          className="form-check-input"
+          type="checkbox"
+          id="sourceExcel"
+          checked={sourceExcel}
+          onChange={(e) => setSourceExcel(e.target.checked)}
         />
-        {fichier && (
-          <div className="mt-2 alert alert-info">
-            Fichier sélectionné : {fichier.name}
-          </div>
-        )}
+        <label className="form-check-label" htmlFor="sourceExcel">
+          Fichier Excel
+        </label>
       </div>
+      <div className="form-check mt-2">
+        <input
+          className="form-check-input"
+          type="checkbox"
+          id="sourceDolibarr"
+          checked={sourceDolibarr}
+          onChange={(e) => setSourceDolibarr(e.target.checked)}
+        />
+        <label className="form-check-label" htmlFor="sourceDolibarr">
+          Exportation Dolibarr
+        </label>
+      </div>
+    </div>
+  </div>
 
-      {/* Boutons */}
-      <div className="d-flex justify-content-end gap-3">
-         {fichier && (
-          <a
-            href={URL.createObjectURL(fichier)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn btn-secondary"
-          >
-            Ouvrir Excel
-          </a>
-        )}
-        <button className="btn btn-primary" onClick={envoyerDemande}>
-          Demande Paiement
+  <div className="card shadow-sm mb-4">
+    <div className="card-body">
+      <h5 className="card-title mb-3">Importer un fichier</h5>
+      <input
+        type="file"
+        className="form-control"
+        accept=".xlsx,.xls,.csv,.json"
+        onChange={handleFileChange}
+      />
+      {fichier && (
+        <div className="mt-2 alert alert-info">
+          Fichier sélectionné : {fichier.name}
+        </div>
+      )}
+    </div>
+  </div>
+
+  <div className="d-flex justify-content-end gap-3 mb-4">
+    {fichier && (
+      <a
+        href={URL.createObjectURL(fichier)}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="btn btn-success"
+      >
+        Ouvrir Excel
+      </a>
+
+    )}
+
+    {showDemandeBtn && (
+      <button className="btn btn-primary" onClick={envoyerDemande}>
+        Demande Paiement
+      </button>
+    )}
+
+    {showMigrationBtn && (
+      <div className="d-flex flex-column align-items-end gap-2">
+        <button
+          className="btn btn-danger"
+          data-bs-toggle="tooltip"
+          data-bs-placement="bottom"
+          title="Utiliser le format import demande de paiement"
+        >
+          Migration anciennes factures AI Base de donnée
         </button>
       </div>
+    )}
+  </div>
 
-      {/* Zone centrale : tableau généré automatiquement */}
-        <div className="mt-5">
-          {donnees && donnees.length > 0 ? (
-            <div className="table-responsive" style={{ maxHeight: '60vh', overflowY: 'auto' }}>
-
-              <table className="table table-bordered table-striped table-sm w-100">
-                <thead className="table-light">
-                  <tr>
-                    {Object.keys(donnees[0]).map((col, idx) => (
-                      <th key={idx} className="text-nowrap">{col}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {donnees.map((row, rowIndex) => (
-                    <tr key={rowIndex}>
-                      {Object.values(row).map((val, colIndex) => (
-                        <td key={colIndex} className="text-nowrap">{val}</td>
-                      ))}
-                    </tr>
+  <div className="card shadow-sm">
+    <div className="card-body">
+      <h5 className="card-title mb-3">Aperçu des données</h5>
+      {donnees.length > 0 ? (
+        <div className="table-responsive" style={{ maxHeight: '60vh', overflowY: 'auto' }}>
+          <table className="table table-bordered table-sm align-middle">
+            <thead className="table-light">
+              <tr>
+                {Object.keys(donnees[0]).map((col, idx) => (
+                  <th key={idx} className="text-nowrap">{col}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {donnees.map((row, rowIndex) => (
+                <tr key={rowIndex}>
+                  {Object.values(row).map((val, colIndex) => (
+                    <td key={colIndex} className="text-nowrap">{val}</td>
                   ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <div className="p-5 border border-light bg-light text-center">
-              <em>Aucune donnée affichée pour le moment</em>
-            </div>
-          )}
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-    </div> 
+      ) : (
+        <div className="text-muted text-center py-5">
+          <em>Aucune donnée affichée pour le moment</em>
+        </div>
+      )}
+    </div>
+  </div>
+</div>
+
   );
 };
 

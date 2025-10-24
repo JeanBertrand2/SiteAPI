@@ -40,3 +40,14 @@
 .read-the-docs {
   color: #888;
 } */
+.tooltip .tooltip-inner {
+  color: #dc3545; /* rouge Bootstrap */
+  font-size: 1.1rem; /* plus grand */
+  background-color: #fff; /* fond blanc pour contraste */
+  border: 1px solid #dc3545;
+  padding: 8px 12px;
+}
+
+.tooltip.bs-tooltip-bottom .tooltip-arrow::before {
+  border-bottom-color: #fff;
+}
