@@ -139,38 +139,42 @@ import * as XLSX from 'xlsx';
     </div>
   </div>
 
-  <div className="d-flex justify-content-end gap-3 mb-4">
-    {fichier && (
-      <a
-        href={URL.createObjectURL(fichier)}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="btn btn-success"
-      >
-        Ouvrir Excel
-      </a>
+      <div className="row g-2 mb-4">
+      {fichier && (
+        <div className="col-12 col-sm-auto">
+          <a
+            href={URL.createObjectURL(fichier)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-success w-100"
+          >
+            Ouvrir Excel
+          </a>
+        </div>
+      )}
 
-    )}
+      {showDemandeBtn && (
+        <div className="col-12 col-sm-auto">
+          <button className="btn btn-primary w-100" onClick={envoyerDemande}>
+            Demande Paiement
+          </button>
+        </div>
+      )}
 
-    {showDemandeBtn && (
-      <button className="btn btn-primary" onClick={envoyerDemande}>
-        Demande Paiement
-      </button>
-    )}
+      {showMigrationBtn && (
+        <div className="col-12 col-sm-auto">
+          <button
+            className="btn btn-danger w-100"
+            data-bs-toggle="tooltip"
+            data-bs-placement="bottom"
+            title="Utiliser le format import demande de paiement"
+          >
+            Migration anciennes factures AI Base de donnée
+          </button>
+        </div>
+      )}
+    </div>
 
-    {showMigrationBtn && (
-      <div className="d-flex flex-column align-items-end gap-2">
-        <button
-          className="btn btn-danger"
-          data-bs-toggle="tooltip"
-          data-bs-placement="bottom"
-          title="Utiliser le format import demande de paiement"
-        >
-          Migration anciennes factures AI Base de donnée
-        </button>
-      </div>
-    )}
-  </div>
 
   <div className="card shadow-sm">
     <div className="card-body">
