@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+
 
 const Stautut = () =>  {
   const today = new Date().toISOString().split('T')[0];
@@ -6,7 +7,7 @@ const Stautut = () =>  {
   const [dateFin, setDateFin] = useState(today);
   const [factures, setFactures] = useState("");
   const [resultats, setResultats] = useState([]);
-
+ 
   const afficherResultat = () => {
      console.log('Afficher résultat avec :', { dateDebut, dateFin, factures });
      setResultats([
@@ -27,14 +28,14 @@ const Stautut = () =>  {
   ]);
   console.log('Résultats mis à jour');
   };
-
+ 
   const interroger = () => {
      console.log('Interrogation avec :', { dateDebut, dateFin, factures });
   };
   return (
     <div className="container mt-4">
       <h3 className="mb-4 text-center">INTERROGATION PAIEMENT</h3>
-
+ 
       {/* Filtres */}
       <div className="row mb-3">
         <div className="col-md-3">
@@ -66,7 +67,7 @@ const Stautut = () =>  {
           />
         </div>
       </div>
-
+ 
       {/* Boutons */}
       <div className="d-flex justify-content-end gap-3 mb-4">
         <button className="btn btn-primary" onClick={afficherResultat}>
@@ -76,7 +77,7 @@ const Stautut = () =>  {
           Interrogation
         </button>
       </div>
-
+ 
       {/* Tableau des résultats */}
       {resultats.length > 0 ? (
         <div className="table-responsive">
@@ -128,5 +129,5 @@ const Stautut = () =>  {
     </div>
   );
 };
-
+ 
 export default Stautut;
