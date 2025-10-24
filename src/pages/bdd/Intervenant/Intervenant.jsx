@@ -8,6 +8,7 @@ import {
 import { IoIosSearch } from "react-icons/io";
 import { RiExpandUpDownFill } from "react-icons/ri";
 import ModalIntervenant from "./ModalIntervenant";
+import Confirmation from "./Confirmation"; // <-- added
 
 const Intervenant = () => {
   const [intervenants, setIntervenants] = useState([
@@ -34,6 +35,10 @@ const Intervenant = () => {
   });
   const [showModal, setShowModal] = useState(false);
   const [modalMode, setModalMode] = useState("add");
+
+  // confirmation states
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmLoading, setConfirmLoading] = useState(false);
 
   const handleRowClick = (id) => {
     setSelectedRow(id);
@@ -121,14 +126,24 @@ const Intervenant = () => {
         prev.map((i) => (i.id === selectedRow ? { ...formData, id: i.id } : i))
       );
     }
-    setShowModal(false); 
+    setShowModal(false);
   };
 
+  // open confirmation dialog instead of immediate deletion
   const handleSupprimer = () => {
     if (selectedRow) {
-      setIntervenants((prev) => prev.filter((i) => i.id !== selectedRow));
-      setSelectedRow(null);
+      setConfirmOpen(true);
     }
+  };
+
+  // actual deletion performed after confirmation
+  const handleConfirmDelete = async () => {
+    setConfirmLoading(true);
+    // simulate async if needed, otherwise perform immediate deletion
+    setIntervenants((prev) => prev.filter((i) => i.id !== selectedRow));
+    setSelectedRow(null);
+    setConfirmLoading(false);
+    setConfirmOpen(false);
   };
 
   const getSelectedData = () => {
@@ -146,11 +161,11 @@ const Intervenant = () => {
       <div
         style={{
           backgroundColor: "white",
-          border: "2px solid #5a7a9c",
+          border: "1px solid #7f9ebe85",
           borderRadius: "8px",
           maxWidth: "900px",
           margin: "50px auto",
-          boxShadow: "0 4px 6px rgba(0,0,0,0.3)",
+          boxShadow: "0 4px 6px rgba(133, 116, 116, 0.1)",
         }}
       >
         <div
@@ -166,18 +181,7 @@ const Intervenant = () => {
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <span
-              style={{
-                backgroundColor: "#ffd700",
-                color: "black",
-                padding: "2px 8px",
-                borderRadius: "3px",
-                fontWeight: "bold",
-                fontSize: "11px",
-              }}
-            >
-              WP
-            </span>
+       
             <span style={{ fontSize: "13px", fontWeight: "bold" }}>
               LISTE : INTERVENANTS
             </span>
@@ -484,6 +488,22 @@ const Intervenant = () => {
         mode={modalMode}
         data={modalMode === "edit" ? getSelectedData() : null}
         onSave={handleSave}
+      />
+
+      <Confirmation
+        isOpen={confirmOpen}
+        onClose={() => setConfirmOpen(false)}
+        onConfirm={handleConfirmDelete}
+        loading={confirmLoading}
+        title="Confirmer la suppression"
+        message={
+          getSelectedData()
+            ? `Voulez-vous vraiment supprimer ${getSelectedData().civilite} ${getSelectedData().nom} ${getSelectedData().prenoms} ?`
+            : "Voulez-vous vraiment supprimer cet élément ?"
+        }
+        confirmLabel="Supprimer"
+        cancelLabel="Annuler"
+        destructive={true}
       />
     </div>
   );
