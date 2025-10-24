@@ -34,6 +34,36 @@ const InscriptClient = () => {
     titulaire: "",
     idParticulier: "",
   };
+  const typesVoie = [
+    { key: "ALL", label: "Allée" },
+    { key: "AVE", label: "Avenue" },
+    { key: "BLVD", label: "Boulevard" },
+    { key: "CHE", label: "Chemin" },
+    { key: "CIT", label: "Cité" },
+    { key: "CLOS", label: "Clos" },
+    { key: "COR", label: "Corniche" },
+    { key: "COURS", label: "Cours" },
+    { key: "DOM", label: "Domaine" },
+    { key: "ESP", label: "Esplanade" },
+    { key: "IMP", label: "Impasse" },
+    { key: "JARD", label: "Jardin" },
+    { key: "LOT", label: "Lotissement" },
+    { key: "PASS", label: "Passage" },
+    { key: "PLC", label: "Place" },
+    { key: "PLN", label: "Plaine" },
+    { key: "PONT", label: "Pont" },
+    { key: "PORT", label: "Port" },
+    { key: "QUAI", label: "Quai" },
+    { key: "RUEL", label: "Ruelle" },
+    { key: "ROUTE", label: "Route" },
+    { key: "RUE", label: "Rue" },
+    { key: "SQ", label: "Square" },
+    { key: "TERR", label: "Terrasse" },
+    { key: "TRAV", label: "Traverse" },
+    { key: "VILLA", label: "Villa" },
+    { key: "VOIE", label: "Voie" },
+    { key: "ZONE", label: "Zone" },
+  ];
 
   const [formData, setFormData] = useState(initial);
   const [selectedFile, setSelectedFile] = useState("");
@@ -120,7 +150,7 @@ const InscriptClient = () => {
     ],
     [{ label: "Nom Naissance", name: "nomNaissance" }],
     [{ label: "Nom Usage", name: "nomUsage" }],
-    [{ label: "Prénoms", name: "prenoms" }],
+    [{ label: "Prénom s", name: "prenoms" }],
     [{ label: "Date de naissance", name: "dateNaissance", type: "date" }],
     [
       {
@@ -169,7 +199,7 @@ const InscriptClient = () => {
         label: "Code Type Voie",
         name: "codeTypeVoie",
         type: "select",
-        options: [],
+        options: typesVoie,
       },
     ],
     [{ label: "Libelle Voie", name: "libelleVoie" }],

@@ -10,13 +10,30 @@ const Field = ({ field, value, onChange }) => {
 
   if (field.type === "select") {
     return (
-      <select {...common} className="form-select form-select-sm">
-        <option value=""></option>
-        {(field.options || []).map((opt) => (
-          <option key={opt} value={opt}>
-            {opt}
-          </option>
-        ))}
+      <select
+        {...common}
+        className="form-select form-select-sm"
+        style={{ fontFamily: "monospace", whiteSpace: "pre" }}
+      >
+        <option value="">Sélectionnez</option>
+        {(field.options || []).map((opt) => {
+          if (opt.key && opt.label) {
+            const keyStr = String(opt.key);
+            const labelStr = String(opt.label);
+            const totalChars = 10;
+            const paddedKey = keyStr.padEnd(totalChars, "\u00A0");
+            return (
+              <option key={opt.key} value={opt.key}>
+                {paddedKey + labelStr}
+              </option>
+            );
+          }
+          return (
+            <option key={opt} value={opt}>
+              {opt}
+            </option>
+          );
+        })}
       </select>
     );
   }
