@@ -229,7 +229,7 @@ const Intervenant = () => {
               style={{
                 fontSize: "13px",
                 marginBottom: 0,
-                backgroundColor: "red",
+                backgroundColor: "white",
               }}
             >
               <thead style={{ backgroundColor: "#174777ff" }}>
