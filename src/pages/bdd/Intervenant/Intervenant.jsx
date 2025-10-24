@@ -8,7 +8,7 @@ import {
 import { IoIosSearch } from "react-icons/io";
 import { RiExpandUpDownFill } from "react-icons/ri";
 import ModalIntervenant from "./ModalIntervenant";
-import Confirmation from "./Confirmation"; // <-- added
+import Confirmation from "./Confirmation";
 import "./Intervenant.css";
 const Intervenant = () => {
   const [intervenants, setIntervenants] = useState([
@@ -36,7 +36,6 @@ const Intervenant = () => {
   const [showModal, setShowModal] = useState(false);
   const [modalMode, setModalMode] = useState("add");
 
-  // confirmation states
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
 
@@ -100,7 +99,6 @@ const Intervenant = () => {
   const filteredData = getFilteredAndSortedData();
   const [modalData, setModalData] = useState(null);
 
-  // update handlers
   const handleNouveau = () => {
     setModalMode("add");
     setModalData(null);
@@ -112,7 +110,7 @@ const Intervenant = () => {
       const selected = getSelectedData();
       if (!selected) return;
       setModalMode("edit");
-      setModalData(selected); // <-- set the data to edit
+      setModalData(selected); 
       setShowModal(true);
     }
   };
@@ -129,17 +127,14 @@ const Intervenant = () => {
     setShowModal(false);
   };
 
-  // open confirmation dialog instead of immediate deletion
   const handleSupprimer = () => {
     if (selectedRow) {
       setConfirmOpen(true);
     }
   };
 
-  // actual deletion performed after confirmation
   const handleConfirmDelete = async () => {
     setConfirmLoading(true);
-    // simulate async if needed, otherwise perform immediate deletion
     setIntervenants((prev) => prev.filter((i) => i.id !== selectedRow));
     setSelectedRow(null);
     setConfirmLoading(false);
@@ -224,7 +219,7 @@ const Intervenant = () => {
         <div
           style={{
             display: "flex",
-            margin: "20px 15px", // default: stack vertically on mobile
+            margin: "20px 15px", 
           }}
           className="desktop-flex"
         >
