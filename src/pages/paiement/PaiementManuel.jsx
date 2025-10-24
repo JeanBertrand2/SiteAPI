@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const PaiementManuel = () => {
   const today = new Date().toISOString().split('T')[0];
@@ -17,35 +17,29 @@ const PaiementManuel = () => {
   const [mntfht, setMntfht] = useState(0);
   const [mntfttc, setMntfttc] = useState(0);
 
-  // Liste déroulante tableau
-    const activites = ['304001', '304002', '304003'];
-    const unites = ['FORFAIT', 'HEURE', 'JOUR'];
+  const activites = ['304001', '304002', '304003'];
+  const unites = ['FORFAIT', 'HEURE', 'JOUR'];
+  const natures = [
+    { code: 'NAT001', libelle: 'Aide humaine' },
+    { code: 'NAT002', libelle: 'Transport accompagné' },
+    { code: 'NAT003', libelle: 'Assistance administrative' },
+  ];
 
-    const natures = [
-      { code: 'NAT001', libelle: 'Aide humaine' },
-      { code: 'NAT002', libelle: 'Transport accompagné' },
-      { code: 'NAT003', libelle: 'Assistance administrative' },
-    ];
+  useEffect(() => {
+    const handleMessage = (event) => {
+      if (event.data?.type === 'CLIENT_SELECTION') {
+        const { id, nom, naissance, tiers } = event.data.payload;
+        setclientId(id);
+        setNomclient(nom);
+        setSelectedDate(naissance);
+        setIdtiers(tiers);
+      }
+    };
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
 
-
-// Liste deroulante tableau 
-// Liste déroulante client
-  const clients = [
-    {
-      id: '24817128-0201-4591-a3ae-cd5d0d1e9f1c',
-      nom: 'SPOR',
-      naissance: '1987-07-28',
-      tiers: '80077701900038',
-    },
-    {
-      id: '12345678-0000-0000-0000-000000000000',
-      nom: 'RAKOTO',
-      naissance: '1990-01-15',
-      tiers: '80077701900099',
-    },
-  ]
-// Liste déroulante client
-  const add = (index) => {
+  const add = () => {
     const nouvelleLigne = {
       ca: '',
       cn: '',
@@ -59,18 +53,12 @@ const PaiementManuel = () => {
       compl1: '',
       compl2: '',
     };
-    const updated = [...demandePaiement];
-    updated.splice(index + 1, 0, nouvelleLigne);
-    setDemandePaiement(updated);
+    setDemandePaiement([...demandePaiement, nouvelleLigne]);
   };
 
-  const reset = () => {
-    setDemandePaiement([]);
-  };
+  const reset = () => setDemandePaiement([]);
 
-  const dem_paiement = () => {
-    alert("Demande de paiement envoyée !");
-  };
+  const dem_paiement = () => alert("Demande de paiement envoyée !");
 
   const updateRow = (index, field, value) => {
     const updated = [...demandePaiement];
@@ -92,29 +80,25 @@ const PaiementManuel = () => {
     <div className="container mt-4">
       <h2 className="mb-4 text-center">DEMANDE DE PAIEMENT</h2>
 
-      {/* Formulaire client */}
       <div className="row g-3">
         <div className="col-md-6">
           <label className="form-label">Identifiant client</label>
-          <select
-            className="form-select"
-            value={clientId}
-            onChange={(e) => {
-              const selectedId = e.target.value;
-              setclientId(selectedId);
-              const client = clients.find(c => c.id === selectedId);
-              if (client) {
-                setNomclient(client.nom);
-                setSelectedDate(client.naissance);
-                setIdtiers(client.tiers);
-              }
-            }}
-          >
-            <option value="">-- Sélectionner un id client --</option>
-            {clients.map((c) => (
-              <option key={c.id} value={c.id}>{c.id}</option>
-            ))}
-          </select>
+        <div className="input-group">
+            <input
+              type="text"
+              className="form-control"
+              value={clientId}
+              onChange={(e) => setclientId(e.target.value)}
+            />
+            <button
+              className="btn btn-outline-secondary"
+              type="button"
+              onClick={() => window.open('/src/pages/inscription/InterogStatut.jsx', '_blank')}
+            >
+              🔍
+            </button>
+          </div>
+
         </div>
 
         <div className="col-md-6">
@@ -173,25 +157,23 @@ const PaiementManuel = () => {
         </div>
       </div>
 
-      {/* Tableau des prestations */}
       <div className="mt-5">
         <h4 className="mb-3">Prestations</h4>
         <div className="table-responsive">
-            <table className="table table-bordered table-striped table-sm w-100">
-
+          <table className="table table-bordered table-striped table-sm w-100">
             <thead className="table-light">
               <tr>
-                <th className="w-10 text-nowrap">Code Activity</th>
-                <th className="w-30 text-nowrap">Code Nature</th>
-                <th className="w-25 text-nowrap">Libellé prestation</th>
-                <th className="w-10 text-nowrap">Quantité</th>
-                <th className="w-30 text-nowrap">Unité</th>
-                <th className="w-10 text-nowrap">Mnt Unit TTC</th>
-                <th className="w-10 text-nowrap">Mnt Prestation TTC</th>
-                <th className="w-10 text-nowrap">Mnt Prestation HT</th>
-                <th className="w-10 text-nowrap">Mnt Prestation TVA</th>
-                <th className="w-10 text-nowrap">Complément 1</th>
-                <th className="w-10 text-nowrap">Complément 2</th>
+                <th className="text-nowrap">Code Activity</th>
+                <th className="text-nowrap">Code Nature</th>
+                <th className="text-nowrap">Libellé prestation</th>
+                <th className="text-nowrap">Quantité</th>
+                <th className="text-nowrap">Unité</th>
+                <th className="text-nowrap">Mnt Unit TTC</th>
+                <th className="text-nowrap">Mnt Prestation TTC</th>
+                <th className="text-nowrap">Mnt Prestation HT</th>
+                <th className="text-nowrap">Mnt Prestation TVA</th>
+                <th className="text-nowrap">Complément 1</th>
+                <th className="text-nowrap">Complément 2</th>
               </tr>
             </thead>
             <tbody>
