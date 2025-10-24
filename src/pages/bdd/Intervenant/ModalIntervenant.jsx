@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   MdClose as X,
   MdMinimize as Minimize2,
@@ -9,6 +9,12 @@ const ModalIntervenant = ({ show, onClose, mode, data, onSave }) => {
   const [formData, setFormData] = useState(
     data || { civilite: "", nom: "", prenoms: "" }
   );
+
+  useEffect(() => {
+    if (show) {
+      setFormData(data || { civilite: "", nom: "", prenoms: "" });
+    }
+  }, [data, show]);
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -70,7 +76,7 @@ const ModalIntervenant = ({ show, onClose, mode, data, onSave }) => {
                 fontSize: "11px",
               }}
             >
-              WP
+              WD
             </span>
             <span style={{ fontSize: "13px", fontWeight: "bold" }}>
               FICHE INTERVENANT

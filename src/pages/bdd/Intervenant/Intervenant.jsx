@@ -1,4 +1,4 @@
-import  { useState } from "react";
+import { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import {
   MdClose as X,
@@ -9,8 +9,7 @@ import { IoIosSearch } from "react-icons/io";
 import { RiExpandUpDownFill } from "react-icons/ri";
 import ModalIntervenant from "./ModalIntervenant";
 
-
-function Intervenant() {
+const Intervenant = () => {
   const [intervenants, setIntervenants] = useState([
     { id: 1, civilite: "Madame", nom: "CANABY", prenoms: "Karine" },
     { id: 2, civilite: "Monsieur", nom: "DUPONT", prenoms: "Jean" },
@@ -94,23 +93,22 @@ function Intervenant() {
   };
 
   const filteredData = getFilteredAndSortedData();
+  const [modalData, setModalData] = useState(null);
 
+  // update handlers
   const handleNouveau = () => {
     setModalMode("add");
+    setModalData(null);
     setShowModal(true);
   };
 
   const handleModifier = () => {
     if (selectedRow) {
+      const selected = getSelectedData();
+      if (!selected) return;
       setModalMode("edit");
+      setModalData(selected); // <-- set the data to edit
       setShowModal(true);
-    }
-  };
-
-  const handleSupprimer = () => {
-    if (selectedRow) {
-      setIntervenants((prev) => prev.filter((i) => i.id !== selectedRow));
-      setSelectedRow(null);
     }
   };
 
@@ -122,6 +120,14 @@ function Intervenant() {
       setIntervenants((prev) =>
         prev.map((i) => (i.id === selectedRow ? { ...formData, id: i.id } : i))
       );
+    }
+    setShowModal(false); 
+  };
+
+  const handleSupprimer = () => {
+    if (selectedRow) {
+      setIntervenants((prev) => prev.filter((i) => i.id !== selectedRow));
+      setSelectedRow(null);
     }
   };
 
@@ -220,9 +226,10 @@ function Intervenant() {
               style={{
                 fontSize: "13px",
                 marginBottom: 0,
+                backgroundColor: "red",
               }}
             >
-              <thead style={{ backgroundColor: "#f8f9fa" }}>
+              <thead style={{ backgroundColor: "#174777ff" }}>
                 <tr>
                   <th style={{ padding: "8px" }}>
                     <div style={{ display: "flex", alignItems: "center" }}>
@@ -365,41 +372,51 @@ function Intervenant() {
                 </tr>
               </thead>
               <tbody>
-                {filteredData.map((intervenant, index) => (
-                  <tr
-                    key={intervenant.id}
-                    onClick={() => handleRowClick(intervenant.id)}
-                    style={{
-                      cursor: "pointer",
-                      backgroundColor:
-                        selectedRow === intervenant.id
-                          ? "#cce5ff"
-                          : index % 2 === 0
-                          ? "white"
-                          : "#f8f9fa",
-                    }}
-                  >
-                    <td style={{ padding: "8px" }}>{intervenant.civilite}</td>
-                    <td style={{ padding: "8px" }}>{intervenant.nom}</td>
-                    <td style={{ padding: "8px" }}>{intervenant.prenoms}</td>
-                  </tr>
-                ))}
-                {[...Array(Math.max(0, 10 - filteredData.length))].map(
-                  (_, i) => (
+                {filteredData.map((intervenant, index) => {
+                  const rowBg =
+                    selectedRow === intervenant.id
+                      ? "#cce5ff"
+                      : index % 2 === 0
+                      ? "white"
+                      : "#f8f9fa";
+                  return (
                     <tr
-                      key={`empty-${i}`}
+                      key={intervenant.id}
+                      onClick={() => handleRowClick(intervenant.id)}
                       style={{
-                        backgroundColor:
-                          (filteredData.length + i) % 2 === 0
-                            ? "white"
-                            : "#f8f9fa",
+                        cursor: "pointer",
                       }}
                     >
-                      <td style={{ padding: "8px" }}>&nbsp;</td>
-                      <td style={{ padding: "8px" }}>&nbsp;</td>
-                      <td style={{ padding: "8px" }}>&nbsp;</td>
+                      <td style={{ padding: "8px", backgroundColor: rowBg }}>
+                        {intervenant.civilite}
+                      </td>
+                      <td style={{ padding: "8px", backgroundColor: rowBg }}>
+                        {intervenant.nom}
+                      </td>
+                      <td style={{ padding: "8px", backgroundColor: rowBg }}>
+                        {intervenant.prenoms}
+                      </td>
                     </tr>
-                  )
+                  );
+                })}
+                {[...Array(Math.max(0, 10 - filteredData.length))].map(
+                  (_, i) => {
+                    const rowBg =
+                      (filteredData.length + i) % 2 === 0 ? "white" : "#f8f9fa";
+                    return (
+                      <tr key={`empty-${i}`}>
+                        <td style={{ padding: "8px", backgroundColor: rowBg }}>
+                          &nbsp;
+                        </td>
+                        <td style={{ padding: "8px", backgroundColor: rowBg }}>
+                          &nbsp;
+                        </td>
+                        <td style={{ padding: "8px", backgroundColor: rowBg }}>
+                          &nbsp;
+                        </td>
+                      </tr>
+                    );
+                  }
                 )}
               </tbody>
             </table>
@@ -470,6 +487,6 @@ function Intervenant() {
       />
     </div>
   );
-}
+};
 
 export default Intervenant;
