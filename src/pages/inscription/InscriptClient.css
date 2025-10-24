@@ -104,16 +104,307 @@
   margin-bottom: 1rem !important;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 991.98px) {
+  .inscription-container .inscription-card .card-body .row > .col-10,
+  .inscription-container .inscription-card .card-body .row > .col-2 {
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+  }
+
+  .inscription-container .inscription-card .card-body .col-md-6 {
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+  }
+
+  .inscription-container .inscription-card .card-body .row.mb-2 {
+    display: block;
+  }
+  .inscription-container .inscription-card .card-body .row.mb-2 .col-4,
+  .inscription-container .inscription-card .card-body .row.mb-2 .col-8 {
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    display: block;
+  }
+  .inscription-container .inscription-card .card-body .row.mb-2 label {
+    margin-bottom: 6px;
+  }
+
+  .inscription-container .inscription-card .card-body .input-group {
+    flex-direction: column;
+    gap: 6px;
+  }
+  .inscription-container
+    .inscription-card
+    .card-body
+    .input-group
+    .form-control {
+    width: 100% !important;
+  }
+
+  .inscription-container .inscription-card .card-body .btn,
+  .inscription-container .inscription-card .card-footer .btn {
+    width: 100% !important;
+  }
+  .inscription-container
+    .inscription-card
+    .card-body
+    button.btn.btn-primary.btn-sm.mb-3 {
+    width: auto !important;
+    min-width: 64px;
+  }
+
+  .inscription-container .inscription-card {
+    margin: 0 8px;
+  }
+  .inscription-container .inscription-card .card-body {
+    padding: 12px;
+  }
+
+  .inscription-container .inscription-card .section-title {
+    font-size: 0.95rem;
+  }
+
+  .inscription-container .inscription-card .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .inscription-container .inscription-card .card-header .d-flex.gap-1 {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .inscription-container,
+  .inscription-container * {
+    box-sizing: border-box;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+@import url("https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css");
+
+.inscription-container {
+  padding: 1rem;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.inscription-card {
+  width: 100%;
+  max-width: 100%;
+}
+
+.inscription-header {
+  overflow: hidden;
+}
+
+.header-title {
+  font-size: clamp(0.8rem, 2vw, 1rem);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.inscription-body {
+  width: 100%;
+}
+
+.filter-toggle {
+  display: none;
+}
+
+.filter-input {
+  display: none;
+  margin-top: 6px;
+}
+
+.filter-toggle:checked + .th-main + .filter-input {
+  display: block !important;
+}
+
+.th-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.filter-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  padding: 4px;
+}
+
+@media (max-width: 1024px) {
   .inscription-container {
-    padding: 10px;
+    padding: 0.5rem;
   }
 
-  .inscription-body {
-    padding: 15px;
+  .card-body.inscription-body {
+    padding: 1rem !important;
   }
 
+  .section-title {
+    font-size: 1rem !important;
+  }
+
+  .field-label {
+    font-size: 0.75rem !important;
+    width: 7rem !important;
+  }
+
+  .form-control-sm {
+    font-size: 0.8rem !important;
+  }
+
+  .btn-sm {
+    font-size: 0.75rem !important;
+    padding: 0.25rem 0.5rem !important;
+  }
+
+  th {
+    font-size: 11px !important;
+    padding: 0.5rem !important;
+  }
+
+  td {
+    font-size: 11px !important;
+    padding: 0.4rem !important;
+  }
+
+  .side-button-container {
+    width: 6rem !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-content-wrapper {
+    flex-direction: column !important;
+  }
+
+  .side-button-container {
+    width: 100% !important;
+    margin-top: 1rem;
+  }
+
+  .side-button-container .text-end {
+    text-align: center !important;
+  }
+
+  .search-criteria-container {
+    flex-direction: column !important;
+    height: auto !important;
+  }
+
+  .search-fields-container {
+    width: 100% !important;
+  }
+
+  .field-label {
+    width: 100% !important;
+    text-align: left !important;
+    margin-bottom: 0.25rem !important;
+  }
+
+  .d-flex.align-items-center[style*="gap: 0.75rem"] {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.25rem !important;
+  }
+
+  .form-control-sm {
+    width: 100% !important;
+  }
+
+  .search-buttons-container {
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-top: 1rem !important;
+  }
+
+  .btn {
+    width: 100%;
+  }
+
+  .table-responsive {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  table {
+    min-width: 800px;
+  }
+
+  th {
+    min-width: 120px !important;
+    white-space: nowrap;
+  }
+
+  .id-email-section .d-flex {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  .id-email-section .d-flex > div {
+    min-width: 100% !important;
+    width: 100% !important;
+  }
+
+  .id-email-section .form-label {
+    width: 100% !important;
+    margin-bottom: 0.25rem !important;
+  }
+
+  .id-email-section input {
+    width: 100% !important;
+  }
+
+  .id-email-section .btn {
+    width: 100%;
+    margin-top: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
   .header-title {
-    font-size: 14px;
+    font-size: 0.75rem !important;
+  }
+
+  .btn-sm {
+    font-size: 0.7rem !important;
+    padding: 0.2rem 0.4rem !important;
+  }
+
+  .section-title {
+    font-size: 0.9rem !important;
+  }
+
+  th,
+  td {
+    font-size: 10px !important;
+    padding: 0.3rem !important;
+    min-width: 100px !important;
+  }
+
+  table {
+    min-width: 700px;
+  }
+}
+@media (max-width: 768px) {
+  .responsive-field {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+
+  .responsive-field label {
+    margin-bottom: 0.25rem !important;
+  }
+
+  .responsive-field input {
+    width: 100%;
   }
 }

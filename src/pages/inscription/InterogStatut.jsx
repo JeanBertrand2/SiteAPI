@@ -1,9 +1,6 @@
 import { useState } from "react";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "./InscriptClient.css";
 import { FaFilter } from "react-icons/fa";
-import { RiExpandUpDownFill } from "react-icons/ri";
-
+import "./InscriptClient.css";
 const InterogStatut = () => {
   const staticData = [
     {
@@ -105,15 +102,12 @@ const InterogStatut = () => {
 
   const handleGetStatus = () => {
     console.log("Obtenir statut:", searchByIdOrEmail);
-    // Add get status logic here
   };
 
   const handleRowClick = (row) => {
     console.log("Obtenir statut from row", row);
-    // Add logic to get status when row is clicked
   };
 
-  // Column filters for each table column
   const [columnFilters, setColumnFilters] = useState({
     statutInscription: "",
     nomNaissance: "",
@@ -123,10 +117,7 @@ const InterogStatut = () => {
     dateNaissance: "",
   });
 
-  // global search across all columns
   const [globalSearch, setGlobalSearch] = useState("");
-
-  // sort configuration: key = column, direction = 'asc' | 'desc' | null
   const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
 
   const handleGlobalSearchChange = (e) => {
@@ -170,7 +161,6 @@ const InterogStatut = () => {
 
     if (!columnsOk) return false;
 
-    // global search across all cells (if provided)
     if (!globalSearch) return true;
     const q = globalSearch.toLowerCase();
     return Object.values(row).some((cell) =>
@@ -180,17 +170,14 @@ const InterogStatut = () => {
     );
   });
 
-  // sorting logic
   const compareRowsByKey = (a, b, key) => {
     const va = a?.[key] ?? "";
     const vb = b?.[key] ?? "";
 
-    // try to compare as dates if both parse
     const da = Date.parse(va);
     const db = Date.parse(vb);
     if (!isNaN(da) && !isNaN(db)) return da - db;
 
-    // fallback to string compare
     const sa = String(va).toLowerCase();
     const sb = String(vb).toLowerCase();
     if (sa < sb) return -1;
@@ -232,6 +219,7 @@ const InterogStatut = () => {
           </div>
         </div>
         <div
+          className="main-content-wrapper"
           style={{
             display: "flex ",
             justifyContent: "center",
@@ -247,6 +235,7 @@ const InterogStatut = () => {
               Critères de recherche
             </h3>
             <div
+              className="search-criteria-container"
               style={{
                 display: "flex",
                 flexDirection: "row",
@@ -258,7 +247,7 @@ const InterogStatut = () => {
               }}
             >
               <div
-                className="mb-3 col-6"
+                className="mb-3 col-6 search-fields-container"
                 style={{
                   display: "flex",
                   flexDirection: "column",
@@ -266,7 +255,7 @@ const InterogStatut = () => {
                 }}
               >
                 <div
-                  className="d-flex align-items-center"
+                  className="d-flex align-items-center responsive-field"
                   style={{ gap: "0.75rem", marginBottom: "0.25rem" }}
                 >
                   <label
@@ -290,7 +279,7 @@ const InterogStatut = () => {
                 </div>
 
                 <div
-                  className="d-flex align-items-center"
+                  className="d-flex align-items-center responsive-field"
                   style={{ gap: "0.75rem", marginBottom: "0.25rem" }}
                 >
                   <label
@@ -315,7 +304,7 @@ const InterogStatut = () => {
               </div>
 
               <div
-                className="d-flex mb-3 justify-content-end gap-2"
+                className="d-flex mb-3 justify-content-end gap-2 search-buttons-container"
                 style={{
                   display: "flex",
                   flexDirection: "column",
@@ -352,14 +341,6 @@ const InterogStatut = () => {
                         zIndex: 1,
                       }}
                     >
-                      <style>{`
-    .filter-toggle { display: none; }
-    .filter-input { display: none; margin-top: 6px; }
-    .filter-toggle:checked + .th-main + .filter-input { display: block !important; }
-    .th-main { display: flex; align-items: center; justify-content: space-between; gap: 8px; cursor: pointer; }
-    .filter-label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; padding: 4px; }
-  `}</style>
-
                       <tr>
                         {columns.map((col) => (
                           <th
@@ -491,13 +472,11 @@ const InterogStatut = () => {
               Obtenir statut à partir de l'id client ou son adresse mail
             </h3>
 
-            <div className="row mb-3">
+            <div className="row mb-3 id-email-section">
               <div className="col-12">
-                <div
-                  className="d-flex flex-wrap align-items-center gap-3 border rounded p-3"
-                  style={{ alignItems: "center" }}
-                >
+                <div className="d-flex flex-wrap align-items-center gap-3 border rounded p-3">
                   <div
+                    className="responsive-field"
                     style={{
                       minWidth: 400,
                       display: "flex",
@@ -523,6 +502,7 @@ const InterogStatut = () => {
                   </div>
 
                   <div
+                    className="responsive-field"
                     style={{
                       minWidth: 300,
                       display: "flex",
@@ -561,8 +541,8 @@ const InterogStatut = () => {
             </div>
           </div>
 
-          <div className=" mb-3" style={{ width: "8rem" }}>
-            <div className=" text-end">
+          <div className="mb-3 side-button-container" style={{ width: "8rem" }}>
+            <div className="text-end">
               <button
                 className="btn btn-primary inscrire-btn"
                 onClick={handleRowClick}
