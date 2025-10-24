@@ -5,6 +5,49 @@ import { FaFilter } from "react-icons/fa";
 import { RiExpandUpDownFill } from "react-icons/ri";
 
 const InterogStatut = () => {
+  const staticData = [
+    {
+      statutInscription: "Validé",
+      nomNaissance: "Dupont",
+      nomUsage: "Dupont",
+      prenoms: "Jean",
+      adresseMail: "jean.dupont@example.com",
+      dateNaissance: "1980-01-12",
+    },
+    {
+      statutInscription: "En attente",
+      nomNaissance: "Martin",
+      nomUsage: "Martin",
+      prenoms: "Sophie",
+      adresseMail: "sophie.martin@example.com",
+      dateNaissance: "1990-05-21",
+    },
+    {
+      statutInscription: "Refusé",
+      nomNaissance: "Nguyen",
+      nomUsage: "Nguyen",
+      prenoms: "Thi",
+      adresseMail: "thi.nguyen@example.com",
+      dateNaissance: "1975-09-09",
+    },
+    {
+      statutInscription: "Validé",
+      nomNaissance: "Bernard",
+      nomUsage: "Bernard",
+      prenoms: "Luc",
+      adresseMail: "luc.bernard@example.com",
+      dateNaissance: "1988-11-30",
+    },
+    {
+      statutInscription: "En cours",
+      nomNaissance: "Moreau",
+      nomUsage: "Moreau",
+      prenoms: "Claire",
+      adresseMail: "claire.moreau@example.com",
+      dateNaissance: "1995-07-14",
+    },
+  ];
+
   const [searchCriteria, setSearchCriteria] = useState({
     nomNaissance: "",
     prenoms: "",
@@ -29,7 +72,28 @@ const InterogStatut = () => {
 
   const handleSearch = () => {
     console.log("Rechercher:", searchCriteria);
-    // Add search logic here
+    const { nomNaissance, prenoms } = searchCriteria;
+
+    if (!nomNaissance.trim() && !prenoms.trim()) {
+      setSearchResults(staticData);
+      return;
+    }
+
+    const filtered = staticData.filter((row) => {
+      const matchesNom =
+        !nomNaissance.trim() ||
+        String(row.nomNaissance || "")
+          .toLowerCase()
+          .includes(nomNaissance.toLowerCase());
+      const matchesPrenoms =
+        !prenoms.trim() ||
+        String(row.prenoms || "")
+          .toLowerCase()
+          .includes(prenoms.toLowerCase());
+      return matchesNom && matchesPrenoms;
+    });
+
+    setSearchResults(filtered);
   };
 
   const handleClearCriteria = () => {

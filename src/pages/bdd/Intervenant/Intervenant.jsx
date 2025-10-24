@@ -181,7 +181,6 @@ const Intervenant = () => {
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-       
             <span style={{ fontSize: "13px", fontWeight: "bold" }}>
               LISTE : INTERVENANTS
             </span>
@@ -498,7 +497,9 @@ const Intervenant = () => {
         title="Confirmer la suppression"
         message={
           getSelectedData()
-            ? `Voulez-vous vraiment supprimer ${getSelectedData().civilite} ${getSelectedData().nom} ${getSelectedData().prenoms} ?`
+            ? `Voulez-vous vraiment supprimer ${getSelectedData().civilite} ${
+                getSelectedData().nom
+              } ${getSelectedData().prenoms} ?`
             : "Voulez-vous vraiment supprimer cet élément ?"
         }
         confirmLabel="Supprimer"

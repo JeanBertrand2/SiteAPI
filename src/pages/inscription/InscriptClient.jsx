@@ -111,15 +111,88 @@ const InscriptClient = () => {
     const { name, value } = e.target;
     setFormData((p) => ({ ...p, [name]: value }));
   };
-
   const handleFileImport = (e) => {
     const f = e.target.files?.[0];
     if (f) {
       setSelectedFile(f.name);
-      setFormData((p) => ({ ...p, fichierJson: f.name }));
+
+      // Read and parse the JSON file
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const jsonData = JSON.parse(event.target.result);
+
+          // Helper function to map civilite
+          const mapCivilite = (value) => {
+            if (value === "1" || value === "M") return "M";
+            if (value === "2" || value === "MME") return "MME";
+            return "";
+          };
+
+          // Map nested JSON to flat form structure
+          const mappedData = {
+            fichierJson: f.name,
+            civilite: mapCivilite(jsonData.civilite),
+            nomNaissance: jsonData.nomNaissance || "",
+            nomUsage: jsonData.nomUsage || "",
+            prenoms: jsonData.prenoms || "",
+            dateNaissance: jsonData.dateNaissance
+              ? jsonData.dateNaissance.split("T")[0]
+              : "",
+
+            // Lieu naissance
+            nomPays: jsonData.lieuNaissance?.codePaysNaissance || "",
+            departement: jsonData.lieuNaissance?.departementNaissance || "",
+            commune:
+              jsonData.lieuNaissance?.communeNaissance?.libelleCommune || "",
+            codeCommune:
+              jsonData.lieuNaissance?.communeNaissance?.codeCommune || "",
+            nomCommune:
+              jsonData.lieuNaissance?.communeNaissance?.libelleCommune || "",
+
+            // Contact
+            numTelPortable: jsonData.numeroTelephonePortable || "",
+            adresseMail: jsonData.adresseMail || "",
+
+            // Adresse Postale
+            numeroVoie: jsonData.adressePostale?.numeroVoie || "",
+            lettreVoie: jsonData.adressePostale?.lettreVoie || "",
+            codeTypeVoie: jsonData.adressePostale?.codeTypeVoie || "",
+            libelleVoie: jsonData.adressePostale?.libelleVoie || "",
+            complement: jsonData.adressePostale?.complement || "",
+            lieuDit: jsonData.adressePostale?.lieuDit || "",
+            nomCommune2: jsonData.adressePostale?.libelleCommune || "",
+            codeInsee: jsonData.adressePostale?.codeCommune || "",
+            codePostal: jsonData.adressePostale?.codePostal || "",
+            nomPays2: "FRANCE",
+            codePays: jsonData.adressePostale?.codePays || "99100",
+
+            // Coordonnée Bancaire
+            bic: jsonData.coordonneeBancaire?.bic || "",
+            iban: jsonData.coordonneeBancaire?.iban || "",
+            titulaire: jsonData.coordonneeBancaire?.titulaire || "",
+
+            idParticulier: jsonData.idParticulier || "",
+          };
+
+          setFormData(mappedData);
+          console.log("JSON imported successfully:", mappedData);
+        } catch (err) {
+          console.error("Error parsing JSON:", err);
+          alert(
+            "Erreur lors de la lecture du fichier JSON. Veuillez vérifier le format."
+          );
+        }
+      };
+
+      reader.onerror = () => {
+        console.error("Error reading file");
+        alert("Erreur lors de la lecture du fichier.");
+      };
+
+      reader.readAsText(f);
     }
   };
-
   const openFile = () => document.getElementById("fileInput").click();
   const submit = () => console.log("Form submitted:", formData);
 
