@@ -488,7 +488,7 @@ const InterogStatut = () => {
               className="form-label section-title"
               style={{ color: "gray", textDecoration: "underline" }}
             >
-              Obtenir statut à partir de l'id client où son adresse mail
+              Obtenir statut à partir de l'id client ou son adresse mail
             </h3>
 
             <div className="row mb-3">
