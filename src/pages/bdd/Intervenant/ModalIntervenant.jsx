@@ -10,9 +10,7 @@ const ModalIntervenant = ({ show, onClose, mode, data, onSave }) => {
     data || { civilite: "", nom: "", prenoms: "" }
   );
 
-  const [isMobile, setIsMobile] = useState(
-    typeof window !== "undefined" ? window.matchMedia("(max-width:600px)").matches : false
-  );
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     if (show) {
