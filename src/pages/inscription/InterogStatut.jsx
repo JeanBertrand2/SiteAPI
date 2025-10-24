@@ -101,7 +101,6 @@ const InterogStatut = () => {
       nomNaissance: "",
       prenoms: "",
     });
-    setSearchResults([]);
   };
 
   const handleGetStatus = () => {
@@ -372,7 +371,6 @@ const InterogStatut = () => {
                               position: "relative",
                               verticalAlign: "top",
                               width: "16rem",
-                              
                             }}
                           >
                             <input
