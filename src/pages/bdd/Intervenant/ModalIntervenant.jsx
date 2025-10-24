@@ -230,7 +230,7 @@ const ModalIntervenant = ({ show, onClose, mode, data, onSave }) => {
               className="btn btn-primary btn-sm"
               style={saveButtonStyle}
             >
-              <span style={{ fontSize: isMobile ? "16px" : "16px" }}>💾</span>
+              <span style={{ fontSize: "16px" }}>💾</span>
               Enregistrer
             </button>
           </div>
