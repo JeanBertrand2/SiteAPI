@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import  { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import {
   MdClose as X,
@@ -7,6 +7,8 @@ import {
 } from "react-icons/md";
 import { IoIosSearch } from "react-icons/io";
 import { RiExpandUpDownFill } from "react-icons/ri";
+import ModalIntervenant from "./ModalIntervenant";
+
 
 function Intervenant() {
   const [intervenants, setIntervenants] = useState([
@@ -31,6 +33,8 @@ function Intervenant() {
     key: null,
     direction: null,
   });
+  const [showModal, setShowModal] = useState(false);
+  const [modalMode, setModalMode] = useState("add");
 
   const handleRowClick = (id) => {
     setSelectedRow(id);
@@ -90,6 +94,40 @@ function Intervenant() {
   };
 
   const filteredData = getFilteredAndSortedData();
+
+  const handleNouveau = () => {
+    setModalMode("add");
+    setShowModal(true);
+  };
+
+  const handleModifier = () => {
+    if (selectedRow) {
+      setModalMode("edit");
+      setShowModal(true);
+    }
+  };
+
+  const handleSupprimer = () => {
+    if (selectedRow) {
+      setIntervenants((prev) => prev.filter((i) => i.id !== selectedRow));
+      setSelectedRow(null);
+    }
+  };
+
+  const handleSave = (formData) => {
+    if (modalMode === "add") {
+      const newId = Math.max(...intervenants.map((i) => i.id), 0) + 1;
+      setIntervenants((prev) => [...prev, { ...formData, id: newId }]);
+    } else {
+      setIntervenants((prev) =>
+        prev.map((i) => (i.id === selectedRow ? { ...formData, id: i.id } : i))
+      );
+    }
+  };
+
+  const getSelectedData = () => {
+    return intervenants.find((i) => i.id === selectedRow);
+  };
 
   return (
     <div
@@ -207,7 +245,7 @@ function Intervenant() {
                               handleSearchChange("civilite", e.target.value)
                             }
                             style={{
-                              width: "60%",
+                              width: "100%",
                               border: "1px solid #ccc",
                               borderRadius: "3px",
                               padding: "2px 5px",
@@ -253,7 +291,7 @@ function Intervenant() {
                               handleSearchChange("nom", e.target.value)
                             }
                             style={{
-                              width: "60%",
+                              width: "100%",
                               border: "1px solid #ccc",
                               borderRadius: "3px",
                               padding: "2px 5px",
@@ -299,7 +337,7 @@ function Intervenant() {
                               handleSearchChange("prenoms", e.target.value)
                             }
                             style={{
-                              width: "60%",
+                              width: "100%",
                               border: "1px solid #ccc",
                               borderRadius: "3px",
                               padding: "2px 5px",
@@ -371,6 +409,7 @@ function Intervenant() {
             style={{ display: "flex", flexDirection: "column", gap: "10px" }}
           >
             <button
+              onClick={handleNouveau}
               className="btn btn-primary btn-sm"
               style={{
                 minWidth: "100px",
@@ -385,6 +424,7 @@ function Intervenant() {
               Nouveau
             </button>
             <button
+              onClick={handleModifier}
               className="btn btn-primary btn-sm"
               style={{
                 minWidth: "100px",
@@ -393,12 +433,15 @@ function Intervenant() {
                 display: "flex",
                 alignItems: "center",
                 gap: "8px",
+                opacity: selectedRow ? 1 : 0.5,
               }}
+              disabled={!selectedRow}
             >
               <span style={{ fontSize: "16px" }}>✏️</span>
               Modifier
             </button>
             <button
+              onClick={handleSupprimer}
               className="btn btn-danger btn-sm"
               style={{
                 minWidth: "100px",
@@ -407,7 +450,9 @@ function Intervenant() {
                 display: "flex",
                 alignItems: "center",
                 gap: "8px",
+                opacity: selectedRow ? 1 : 0.5,
               }}
+              disabled={!selectedRow}
             >
               <span style={{ fontSize: "16px" }}>🗑️</span>
               Supprimer
@@ -415,6 +460,14 @@ function Intervenant() {
           </div>
         </div>
       </div>
+
+      <ModalIntervenant
+        show={showModal}
+        onClose={() => setShowModal(false)}
+        mode={modalMode}
+        data={modalMode === "edit" ? getSelectedData() : null}
+        onSave={handleSave}
+      />
     </div>
   );
 }
