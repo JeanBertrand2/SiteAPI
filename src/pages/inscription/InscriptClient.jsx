@@ -38,25 +38,39 @@ const InscriptClient = () => {
   const [formData, setFormData] = useState(initial);
   const [selectedFile, setSelectedFile] = useState("");
   const [countries, setCountries] = useState([]);
+  const [departments, setDepartments] = useState([]);
+
   useEffect(() => {
     const fetchCountries = async () => {
       try {
-        const response = await fetch(
+        const res = await fetch(
           "https://restcountries.com/v3.1/all?fields=name"
         );
-        const data = await response.json();
-
+        const data = await res.json();
         const countryNames = data
-          .map((country) => country.name.common)
+          .map((c) => c.name.common)
           .sort((a, b) => a.localeCompare(b));
-
         setCountries(countryNames);
-      } catch (error) {
-        console.error("Erreur de chargement des pays :", error);
+      } catch (err) {
+        console.error("Erreur pays :", err);
+      }
+    };
+
+    const fetchDepartments = async () => {
+      try {
+        const res = await fetch("https://geo.api.gouv.fr/departements");
+        const data = await res.json();
+        const deptNames = data
+          .map((d) => d.nom)
+          .sort((a, b) => a.localeCompare(b));
+        setDepartments(deptNames);
+      } catch (err) {
+        console.error("Erreur départements :", err);
       }
     };
 
     fetchCountries();
+    fetchDepartments();
   }, []);
 
   const handleInputChange = (e) => {
@@ -121,7 +135,7 @@ const InscriptClient = () => {
         label: "Département",
         name: "departement",
         type: "select",
-        options: [],
+        options: departments,
       },
     ],
     [{ label: "Commune", name: "commune", readOnly: false }],
