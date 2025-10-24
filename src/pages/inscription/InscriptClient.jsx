@@ -12,6 +12,7 @@ const InscriptClient = () => {
     prenoms: "",
     dateNaissance: "",
     nomPays: "",
+    codePays: "",
     departement: "",
     commune: "",
     codeCommune: "",
@@ -28,7 +29,7 @@ const InscriptClient = () => {
     codeInsee: "",
     codePostal: "",
     nomPays2: "FRANCE",
-    codePays: "99100",
+    codePays2: "99100",
     bic: "",
     iban: "",
     titulaire: "",
@@ -73,18 +74,26 @@ const InscriptClient = () => {
   const [selectedFile, setSelectedFile] = useState("");
   const [countries, setCountries] = useState([]);
   const [departments, setDepartments] = useState([]);
-
+  // --- useEffect: fetch countries as "Name - ccn3" strings and departments as before
   useEffect(() => {
     const fetchCountries = async () => {
       try {
         const res = await fetch(
-          "https://restcountries.com/v3.1/all?fields=name"
+          "https://restcountries.com/v3.1/all?fields=name,ccn3,cca2"
         );
         const data = await res.json();
-        const countryNames = data
-          .map((c) => c.name.common)
+
+        const countryList = data
+          .map((c) => {
+            const name = c.name?.common || "";
+            // prefer numeric ISO code (ccn3). fallback to cca2 if missing.
+            const code = c.ccn3 || c.cca2 || "";
+            return `${name} - ${code}`.trim();
+          })
+          .filter(Boolean)
           .sort((a, b) => a.localeCompare(b));
-        setCountries(countryNames);
+
+        setCountries(countryList);
       } catch (err) {
         console.error("Erreur pays :", err);
       }
@@ -107,29 +116,54 @@ const InscriptClient = () => {
     fetchDepartments();
   }, []);
 
+  // --- handleInputChange: parse country select values and update code fields automatically
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+
+    // If user selected a country option like "France - 250"
+    if (name === "nomPays" || name === "nomPays2") {
+      // split by the separator " - " (trim whitespace)
+      const parts = value.split(" - ").map((p) => p?.trim?.() || "");
+      const countryName = parts[0] || "";
+      const countryCode = parts[1] || "";
+
+      if (name === "nomPays") {
+        setFormData((p) => ({
+          ...p,
+          nomPays: countryName,
+          codePays: countryCode || p.codePays,
+        }));
+      } else {
+        // nomPays2
+        setFormData((p) => ({
+          ...p,
+          nomPays2: countryName,
+          codePays2: countryCode || p.codePays2,
+        }));
+      }
+      return;
+    }
+
+    // normal inputs
     setFormData((p) => ({ ...p, [name]: value }));
   };
+
   const handleFileImport = (e) => {
     const f = e.target.files?.[0];
     if (f) {
       setSelectedFile(f.name);
 
-      // Read and parse the JSON file
       const reader = new FileReader();
       reader.onload = (event) => {
         try {
           const jsonData = JSON.parse(event.target.result);
 
-          // Helper function to map civilite
           const mapCivilite = (value) => {
             if (value === "1" || value === "M") return "M";
             if (value === "2" || value === "MME") return "MME";
             return "";
           };
 
-          // Map nested JSON to flat form structure
           const mappedData = {
             fichierJson: f.name,
             civilite: mapCivilite(jsonData.civilite),
@@ -142,6 +176,7 @@ const InscriptClient = () => {
 
             // Lieu naissance
             nomPays: jsonData.lieuNaissance?.codePaysNaissance || "",
+            codePays: jsonData.adressePostale?.codePays || "",
             departement: jsonData.lieuNaissance?.departementNaissance || "",
             commune:
               jsonData.lieuNaissance?.communeNaissance?.libelleCommune || "",
@@ -150,11 +185,9 @@ const InscriptClient = () => {
             nomCommune:
               jsonData.lieuNaissance?.communeNaissance?.libelleCommune || "",
 
-            // Contact
             numTelPortable: jsonData.numeroTelephonePortable || "",
             adresseMail: jsonData.adresseMail || "",
 
-            // Adresse Postale
             numeroVoie: jsonData.adressePostale?.numeroVoie || "",
             lettreVoie: jsonData.adressePostale?.lettreVoie || "",
             codeTypeVoie: jsonData.adressePostale?.codeTypeVoie || "",
@@ -165,7 +198,7 @@ const InscriptClient = () => {
             codeInsee: jsonData.adressePostale?.codeCommune || "",
             codePostal: jsonData.adressePostale?.codePostal || "",
             nomPays2: "FRANCE",
-            codePays: jsonData.adressePostale?.codePays || "99100",
+            codePays2: jsonData.adressePostale?.codePays || "99100",
 
             // Coordonnée Bancaire
             bic: jsonData.coordonneeBancaire?.bic || "",
@@ -202,6 +235,7 @@ const InscriptClient = () => {
     "prenoms",
     "dateNaissance",
     "nomPays",
+    "codePays",
     "codeCommune",
     "nomCommune",
     "numTelPortable",
@@ -210,7 +244,7 @@ const InscriptClient = () => {
     "codeInsee",
     "codePostal",
     "nomPays2",
-    "codePays",
+    "codePays2",
     "bic",
     "iban",
     "titulaire",
@@ -235,6 +269,10 @@ const InscriptClient = () => {
         name: "nomPays",
         type: "select",
         options: countries,
+      },
+      {
+        label: "Code Pays",
+        name: "codePays",
       },
     ],
     [
@@ -295,7 +333,7 @@ const InscriptClient = () => {
         options: countries,
       },
 
-      { label: "Code pays", name: "codePays", col: "col-6" },
+      { label: "Code pays", name: "codePays2", col: "col-6" },
     ],
     [{ label: "Bic", name: "bic", placeholder: "(Sans espace)" }],
     [{ label: "IBAN", name: "iban", placeholder: "(Sans espace)" }],
@@ -315,6 +353,17 @@ const InscriptClient = () => {
             f.label
           );
 
+          let fieldValue = formData[f.name];
+          if (f.name === "nomPays") {
+            fieldValue = `${formData.nomPays || ""}${
+              formData.codePays ? " - " + formData.codePays : ""
+            }`.trim();
+          } else if (f.name === "nomPays2") {
+            fieldValue = `${formData.nomPays2 || ""}${
+              formData.codePays2 ? " - " + formData.codePays2 : ""
+            }`.trim();
+          }
+
           return (
             <div className="row mb-2" key={fieldIdx}>
               <div className="col-4">
@@ -329,7 +378,7 @@ const InscriptClient = () => {
               <div className="col-8">
                 <Field
                   field={f}
-                  value={formData[f.name]}
+                  value={fieldValue}
                   onChange={handleInputChange}
                 />
               </div>
