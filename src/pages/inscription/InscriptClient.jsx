@@ -1,6 +1,5 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import Row from "../../components/inscription/Row";
 import Field from "../../components/inscription/Field";
 import "./InscriptClient.css";
 
@@ -38,6 +37,27 @@ const InscriptClient = () => {
 
   const [formData, setFormData] = useState(initial);
   const [selectedFile, setSelectedFile] = useState("");
+  const [countries, setCountries] = useState([]);
+  useEffect(() => {
+    const fetchCountries = async () => {
+      try {
+        const response = await fetch(
+          "https://restcountries.com/v3.1/all?fields=name"
+        );
+        const data = await response.json();
+
+        const countryNames = data
+          .map((country) => country.name.common)
+          .sort((a, b) => a.localeCompare(b));
+
+        setCountries(countryNames);
+      } catch (error) {
+        console.error("Erreur de chargement des pays :", error);
+      }
+    };
+
+    fetchCountries();
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -93,7 +113,7 @@ const InscriptClient = () => {
         label: "Nom Pays",
         name: "nomPays",
         type: "select",
-        options: ["FRANCE"],
+        options: countries,
       },
     ],
     [
@@ -150,8 +170,9 @@ const InscriptClient = () => {
         name: "nomPays2",
         col: "col-6",
         type: "select",
-        options: ["FRANCE"],
+        options: countries,
       },
+
       { label: "Code pays", name: "codePays", col: "col-6" },
     ],
     [{ label: "Bic", name: "bic", placeholder: "(Sans espace)" }],
@@ -205,7 +226,7 @@ const InscriptClient = () => {
   const idParticulierField = rightFields.slice(12); // Field for Id Particulier
 
   return (
-    <div className="inscription-container ">
+    <div className="inscription-container">
       <div className="card shadow-sm inscription-card">
         <div className="card-header d-flex justify-content-between align-items-center inscription-header">
           <span className="header-title">📋 INSCRIPTION PARTICULIER</span>
@@ -213,10 +234,11 @@ const InscriptClient = () => {
             <button
               className="btn btn-sm"
               style={{
-                padding: "0 8px",
+                padding: "4px 8px",
                 fontSize: "12px",
                 backgroundColor: "#d4e3f3",
                 border: "1px solid gray",
+                margin: "2px",
               }}
             >
               ─
@@ -224,17 +246,22 @@ const InscriptClient = () => {
             <button
               className="btn btn-sm"
               style={{
-                padding: "0 8px",
+                padding: "4px 8px",
                 fontSize: "12px",
                 backgroundColor: "#d4e3f3",
                 border: "1px solid gray",
+                margin: "2px",
               }}
             >
               □
             </button>
             <button
               className="btn btn-sm btn-danger"
-              style={{ padding: "0 8px", fontSize: "12px" }}
+              style={{
+                padding: "4px 8px",
+                fontSize: "12px",
+                margin: "2px",
+              }}
             >
               ✕
             </button>
@@ -242,155 +269,161 @@ const InscriptClient = () => {
         </div>
 
         <div className="card-body inscription-body">
-          <div>
-            <div className="row mb-3">
-              <div
-                className="col-md-6"
-                style={{
-                  display: "flex",
-                  width: "80%",
-                  gap: "1rem",
-                }}
-              >
-                <label className="form-label label-style">Fichier Json</label>
+          <div className="row">
+            {/* Form Column - 5/6 width */}
+            <div className="col-10">
+              <div className="row mb-3">
                 <div
-                  className="input-group"
+                  className="col-md-12"
                   style={{
-                    width: "45rem",
+                    display: "flex",
+                    width: "100%",
+                    gap: "1rem",
                   }}
                 >
-                  <input
-                    className="form-control form-control-sm"
-                    readOnly
-                    value={selectedFile || ""}
-                  />
-                  <button
-                    className="btn btn-primary btn-sm ml-3  rounded "
+                  <label className="form-label label-style">Fichier Json</label>
+
+                  <div
+                    className="input-group"
                     style={{
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
+                      width: "100%",
                     }}
+                  >
+                    <input
+                      className="form-control form-control-sm"
+                      readOnly
+                      value={selectedFile || ""}
+                    />
+                    <input
+                      id="fileInput"
+                      type="file"
+                      accept=".json"
+                      style={{ display: "none" }}
+                      onChange={handleFileImport}
+                    />
+                  </div>
+                  <button
+                    className="btn btn-primary btn-sm mb-3"
+                    style={{ width: "5%" }}
                     onClick={openFile}
                   >
-                    ....
+                    ...
                   </button>
-                  <input
-                    id="fileInput"
-                    type="file"
-                    accept=".json"
-                    style={{ display: "none" }}
-                    onChange={handleFileImport}
-                  />
                 </div>
               </div>
-              <div
-                className="col-md-6 d-flex align-items-end justify-content-end gap-2"
-                style={{
-                  width: "20%",
-                }}
+              <h3
+                className="form-label section-title"
+                style={{ color: "gray", textDecoration: "underline" }}
               >
-                <button className="btn btn-primary btn-sm" onClick={openFile}>
-                  Import Particulier
-                </button>
-                <a href="#" className="file-link">
-                  Fichier.json
-                </a>
+                Particulier
+              </h3>
+
+              <div style={{ border: "1px solid lightgray ", padding: "10px" }}>
+                <div className="row">
+                  <div className="col-md-6">
+                    {renderConfig(personalInfoFields)}
+
+                    <h3
+                      className="form-label section-title"
+                      style={{ color: "gray", textDecoration: "underline" }}
+                    >
+                      Lieu naissance
+                    </h3>
+
+                    <div
+                      style={{
+                        border: "1px solid lightgray",
+                        padding: "10px",
+                        marginBottom: "15px",
+                      }}
+                    >
+                      {renderConfig(birthplaceFields)}
+
+                      <h3
+                        className="form-label section-title"
+                        style={{ color: "gray", textDecoration: "underline" }}
+                      >
+                        Commune
+                      </h3>
+                      <div
+                        style={{
+                          border: "1px solid lightgray",
+                          padding: "10px",
+                          marginBottom: "15px",
+                        }}
+                      >
+                        {renderConfig(communeFields)}
+                      </div>
+                    </div>
+
+                    {renderConfig(contactFields)}
+                  </div>
+
+                  <div className="col-md-6">
+                    <h3
+                      className="form-label section-title"
+                      style={{ color: "gray", textDecoration: "underline" }}
+                    >
+                      Adresse Postale
+                    </h3>
+                    <div
+                      style={{
+                        border: "1px solid lightgray",
+                        padding: "10px",
+                        marginBottom: "15px",
+                      }}
+                    >
+                      {renderConfig(adressePostaleFields)}
+                      <h3
+                        className="form-label section-title"
+                        style={{ color: "gray", textDecoration: "underline" }}
+                      >
+                        Coordonnée Bancaire
+                      </h3>
+                      <div
+                        style={{
+                          border: "1px solid lightgray",
+                          padding: "10px",
+                          marginBottom: "15px",
+                        }}
+                      >
+                        {renderConfig(banqueFields)}
+                      </div>
+                    </div>
+                    {renderConfig(idParticulierField)}
+                  </div>
+                </div>
               </div>
             </div>
-            <h3
-              className="form-label section-title"
-              style={{ color: "gray", textDecoration: "underline" }}
+
+            {/* Buttons Column - 1/6 width */}
+            <div
+              className="col-2 d-flex flex-column justify-content-start"
+              style={{ paddingTop: "20px" }}
             >
-              Particulier
-            </h3>
+              <button
+                className="btn btn-primary btn-sm mb-3"
+                onClick={openFile}
+                style={{ width: "100%" }}
+              >
+                Import Particulier
+              </button>
 
-            <div style={{ border: "1px solid lightgray ", padding: "10px" }}>
-              <div className="row">
-                <div className="col-md-6">
-                  {renderConfig(personalInfoFields)}
+              <a
+                href="#"
+                className="file-link mb-3"
+                style={{ display: "block", textAlign: "center" }}
+              >
+                Fichier.json
+              </a>
 
-                  <h3
-                    className="form-label section-title"
-                    style={{ color: "gray", textDecoration: "underline" }}
-                  >
-                    Lieu naissance
-                  </h3>
-
-                  <div
-                    style={{
-                      border: "1px solid lightgray",
-                      padding: "10px",
-                      marginBottom: "15px",
-                    }}
-                  >
-                    {renderConfig(birthplaceFields)}
-
-                    <h3
-                      className="form-label section-title"
-                      style={{ color: "gray", textDecoration: "underline" }}
-                    >
-                      Commune
-                    </h3>
-                    <div
-                      style={{
-                        border: "1px solid lightgray",
-                        padding: "10px",
-                        marginBottom: "15px",
-                      }}
-                    >
-                      {renderConfig(communeFields)}
-                    </div>
-                  </div>
-
-                  {renderConfig(contactFields)}
-                </div>
-
-                <div className="col-md-6">
-                  <h3
-                    className="form-label section-title"
-                    style={{ color: "gray", textDecoration: "underline" }}
-                  >
-                    Adresse Postale
-                  </h3>
-                  <div
-                    style={{
-                      border: "1px solid lightgray",
-                      padding: "10px",
-                      marginBottom: "15px",
-                    }}
-                  >
-                    {renderConfig(adressePostaleFields)}
-                    <h3
-                      className="form-label section-title"
-                      style={{ color: "gray", textDecoration: "underline" }}
-                    >
-                      Coordonnée Bancaire
-                    </h3>
-                    <div
-                      style={{
-                        border: "1px solid lightgray",
-                        padding: "10px",
-                        marginBottom: "15px",
-                      }}
-                    >
-                      {renderConfig(banqueFields)}
-                    </div>
-                  </div>
-                  {renderConfig(idParticulierField)}
-                </div>
-              </div>
-            </div>
-
-            <div className="row mt-3">
-              <div className="col-12 text-end">
-                <button
-                  className="btn btn-primary inscrire-btn"
-                  onClick={submit}
-                >
-                  Inscrire
-                </button>
-              </div>
+              <button
+                className="btn btn-primary inscrire-btn"
+                onClick={submit}
+                style={{ width: "100%" }}
+              >
+                Inscrire
+              </button>
             </div>
           </div>
         </div>
