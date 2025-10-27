@@ -138,7 +138,7 @@ const PaiementManuel = () => {
 
         <div className="col-md-6">
           <label className="form-label">Montant acompte</label>
-          <input type="number" step="0.01" className="form-control" value={mntacompte} onChange={(e) => setMntacompte(parseFloat(e.target.value))} />
+          <input type="number" step="0.01" className="form-control"   value={mntacompte} onChange={(e) => setMntacompte(parseFloat(e.target.value))} />
         </div>
 
         <div className="col-md-6">
@@ -153,12 +153,12 @@ const PaiementManuel = () => {
 
         <div className="col-md-6">
           <label className="form-label">Montant facture HT</label>
-          <input type="number" step="0.01" className="form-control" value={mntfht} onChange={(e) => setMntfht(parseFloat(e.target.value))} />
+          <input type="number" step="0.01" className="form-control"   value={mntfht} onChange={(e) => setMntfht(parseFloat(e.target.value))} />
         </div>
 
         <div className="col-md-6">
           <label className="form-label">Montant facture TTC</label>
-          <input type="number" step="0.01" className="form-control" value={mntfttc} onChange={(e) => setMntfttc(parseFloat(e.target.value))} />
+          <input type="number" step="0.01" className="form-control"   value={mntfttc} onChange={(e) => setMntfttc(parseFloat(e.target.value))} />
         </div>
       </div>
 

@@ -160,7 +160,7 @@ import * as XLSX from 'xlsx';
           </button>
         </div>
       )}
-
+      {/*utilisation tooltip*/}
       {showMigrationBtn && (
         <div className="col-12 col-sm-auto">
           <button
@@ -173,6 +173,7 @@ import * as XLSX from 'xlsx';
           </button>
         </div>
       )}
+      {/*utilisation tooltip*/}
     </div>
 
 
