@@ -110,7 +110,7 @@ const Intervenant = () => {
       const selected = getSelectedData();
       if (!selected) return;
       setModalMode("edit");
-      setModalData(selected); 
+      setModalData(selected);
       setShowModal(true);
     }
   };
@@ -180,46 +180,11 @@ const Intervenant = () => {
               LISTE : INTERVENANTS
             </span>
           </div>
-          <div style={{ display: "flex", gap: "8px" }}>
-            <button
-              style={{
-                border: "1px solid #999",
-                backgroundColor: "white",
-                padding: "3px 10px",
-                cursor: "pointer",
-                borderRadius: "3px",
-              }}
-            >
-              <Minimize2 size={14} />
-            </button>
-            <button
-              style={{
-                border: "1px solid #999",
-                backgroundColor: "white",
-                padding: "3px 10px",
-                cursor: "pointer",
-                borderRadius: "3px",
-              }}
-            >
-              <Maximize2 size={14} />
-            </button>
-            <button
-              style={{
-                border: "1px solid #999",
-                backgroundColor: "white",
-                padding: "3px 10px",
-                cursor: "pointer",
-                borderRadius: "3px",
-              }}
-            >
-              <X size={14} />
-            </button>
-          </div>
         </div>
         <div
           style={{
             display: "flex",
-            margin: "20px 15px", 
+            margin: "20px 15px",
           }}
           className="desktop-flex"
         >

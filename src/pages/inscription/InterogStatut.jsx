@@ -209,14 +209,10 @@ const InterogStatut = () => {
     <div className="inscription-container">
       <div className="card shadow-sm inscription-card">
         <div className="card-header d-flex justify-content-between align-items-center inscription-header">
-          <span className="header-title">
-            📋 Obtenir le statut d'inscription d'un client
-          </span>
-          <div className="d-flex gap-2">
-            <button className="btn btn-sm btn-secondary">─</button>
-            <button className="btn btn-sm btn-secondary">□</button>
-            <button className="btn btn-sm btn-danger">✕</button>
-          </div>
+          <h1 className="header-title">
+            Obtenir le statut d'inscription d'un client
+          </h1>
+
         </div>
         <div
           className="main-content-wrapper"
