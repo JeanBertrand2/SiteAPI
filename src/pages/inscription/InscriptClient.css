@@ -11,19 +11,12 @@
 }
 
 .inscription-header {
-  background-color: #6342f441;
+  background-color: #9e8ee241;
   border-bottom: 2px solid #999;
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 8px 15px;
-}
-
-.header-title {
-  font-size: 25px;
-  font-weight: bold;
-  color: #333;
-  text-align: center;
 }
 
 .window-btn {
@@ -201,14 +194,12 @@
 }
 
 .header-title {
-  font-size: clamp(0.8rem, 2vw, 1rem);
+  font-size: clamp(1.4rem, 2vw, 1rem);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.inscription-body {
-  width: 100%;
+  font-weight: bold;
+  text-align: center;
 }
 
 .filter-toggle {
@@ -372,7 +363,7 @@
 
 @media (max-width: 480px) {
   .header-title {
-    font-size: 0.75rem !important;
+    font-size: 0.9rem !important;
   }
 
   .btn-sm {
@@ -390,7 +381,11 @@
     padding: 0.3rem !important;
     min-width: 100px !important;
   }
-
+  .inscription-card {
+    border: 0px solid #ccc;
+    width: 70rem;
+    margin-top: 2rem;
+  }
   table {
     min-width: 700px;
   }
@@ -400,7 +395,9 @@
     flex-direction: column !important;
     align-items: flex-start !important;
   }
-
+  .mobile-width {
+    width: 21rem;
+  }
   .responsive-field label {
     margin-bottom: 0.25rem !important;
   }
@@ -408,4 +405,9 @@
   .responsive-field input {
     width: 100%;
   }
+  .inscription-body2 {
+    width: 21rem;
+  }
 }
+
+

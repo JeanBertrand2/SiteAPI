@@ -207,12 +207,14 @@ const InterogStatut = () => {
 
   return (
     <div className="inscription-container">
-      <div className="card shadow-sm inscription-card">
-        <div className="card-header d-flex justify-content-between align-items-center inscription-header">
+      <div className="card inscription-card shadow-sm-desktop">
+        <div
+          className="card-header d-flex justify-content-center align-items-center inscription-header"
+          style={{ padding: "1rem 10px" }}
+        >
           <h1 className="header-title">
             Obtenir le statut d'inscription d'un client
           </h1>
-
         </div>
         <div
           className="main-content-wrapper"
@@ -223,7 +225,7 @@ const InterogStatut = () => {
             padding: "0.5rem",
           }}
         >
-          <div className="card-body inscription-body">
+          <div className="card-body inscription-body2">
             <h3
               className="form-label section-title"
               style={{ color: "gray", textDecoration: "underline" }}

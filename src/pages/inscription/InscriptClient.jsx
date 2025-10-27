@@ -392,14 +392,24 @@ const InscriptClient = () => {
 
   return (
     <div className="inscription-container">
-      <div className="card shadow-sm inscription-card">
-        <div className="card-header d-flex justify-content-between align-items-center inscription-header">
+      <div className="card inscription-card">
+        <div
+          className="card-header d-flex justify-content-center align-items-center inscription-header"
+          style={{ padding: "1rem 10px" }}
+        >
           <h1 className="header-title">INSCRIPTION PARTICULIER</h1>
         </div>
 
-        <div className="card-body inscription-body">
+        <div
+          className="card-body inscription-body"
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
           <div className="row">
-            <div className="col-10">
+            <div className="col-10 mobile-width">
               <div className="row mb-3">
                 <div
                   className="col-md-12"
