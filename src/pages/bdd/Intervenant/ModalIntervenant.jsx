@@ -10,9 +10,7 @@ const ModalIntervenant = ({ show, onClose, mode, data, onSave }) => {
     data || { civilite: "", nom: "", prenoms: "" }
   );
 
-  const [isMobile, setIsMobile] = useState(
-    typeof window !== "undefined" ? window.matchMedia("(max-width:600px)").matches : false
-  );
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     if (show) {
@@ -231,7 +229,7 @@ const ModalIntervenant = ({ show, onClose, mode, data, onSave }) => {
               className="btn btn-primary btn-sm"
               style={saveButtonStyle}
             >
-              <span style={{ fontSize: isMobile ? "16px" : "16px" }}>💾</span>
+              <span style={{ fontSize: "16px" }}>💾</span>
               Enregistrer
             </button>
           </div>

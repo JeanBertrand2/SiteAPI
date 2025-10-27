@@ -44,7 +44,7 @@ const Confirmation = ({
         onClick={onClose}
       >
         <div
-          className="modal-dialog modal-dialog-centered modal-fullscreen-sm-down"
+          className="modal-dialog modal-dialog-centered modal-fullscreen-md-down"
           role="document"
           onClick={(e) => e.stopPropagation()}
         >
