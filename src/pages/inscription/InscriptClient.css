@@ -194,7 +194,7 @@
 }
 
 .header-title {
-  font-size: clamp(1.4rem, 2vw, 1rem);
+  font-size: clamp(1rem, 2vw, 1.4rem);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
