@@ -406,7 +406,6 @@ const InscriptClient = () => {
                       className="form-control form-control-sm"
                       readOnly
                       value={selectedFile || ""}
-                      required
                     />
                     <input
                       id="fileInput"
