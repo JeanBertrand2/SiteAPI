@@ -176,7 +176,6 @@ const InscriptClient = () => {
     }
   };
   const openFile = () => document.getElementById("fileInput").click();
-  const submit = () => console.log("Form submitted:", formData);
 
   const greenFieldNames = [
     "civilite",
@@ -289,6 +288,26 @@ const InscriptClient = () => {
     [{ label: "Titulaire", name: "titulaire" }],
     [{ label: "Id Particulier", name: "idParticulier", readOnly: true }],
   ];
+  const fieldConfigs = [...leftFields.flat(), ...rightFields.flat()];
+  const labelMap = Object.fromEntries(
+    fieldConfigs.map((f) => [f.name, f.label || f.name])
+  );
+
+  const submit = () => {
+    const requiredFields = greenFieldNames;
+    const missing = requiredFields.filter((name) => {
+      const val = formData[name];
+      return val === undefined || val === null || String(val).trim() === "";
+    });
+
+    if (missing.length > 0) {
+      const labels = missing.map((n) => labelMap[n] || n).join(", ");
+      alert("Veuillez remplir les champs obligatoires : " + labels);
+      return;
+    }
+
+    console.log("Form submitted:", formData);
+  };
 
   const renderConfig = (config) =>
     config.map((row, idx) => (
@@ -329,6 +348,7 @@ const InscriptClient = () => {
                   field={f}
                   value={fieldValue}
                   onChange={handleInputChange}
+                  required
                 />
               </div>
             </div>
@@ -386,6 +406,7 @@ const InscriptClient = () => {
                       className="form-control form-control-sm"
                       readOnly
                       value={selectedFile || ""}
+                      required
                     />
                     <input
                       id="fileInput"
@@ -393,6 +414,7 @@ const InscriptClient = () => {
                       accept=".json"
                       style={{ display: "none" }}
                       onChange={handleFileImport}
+                      required
                     />
                   </div>
                   <button
@@ -489,7 +511,6 @@ const InscriptClient = () => {
               </div>
             </div>
 
-            {/* Buttons Column - 1/6 width */}
             <div
               className="col-2 d-flex flex-column justify-content-start"
               style={{ paddingTop: "20px" }}
