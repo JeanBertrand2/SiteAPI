@@ -78,26 +78,31 @@ const PaiementManuel = () => {
 
   return (
     <div className="container mt-4">
-      <h2 className="mb-4 text-center">DEMANDE DE PAIEMENT</h2>
+      <h2 className="text-center mb-4 fw-semibold text-primary">
+        Demande de Paiement
+      </h2>
+
 
       <div className="row g-3">
         <div className="col-md-6">
           <label className="form-label">Identifiant client</label>
-        <div className="input-group">
-            <input
-              type="text"
-              className="form-control"
-              value={clientId}
-              onChange={(e) => setclientId(e.target.value)}
-            />
-            <button
-              className="btn btn-outline-secondary"
-              type="button"
-              onClick={() => window.open('/src/pages/inscription/InterogStatut.jsx', '_blank')}
-            >
-              🔍
-            </button>
-          </div>
+            <div className="input-group">
+                <input
+                  type="text"
+                  className="form-control"
+                  value={clientId}
+                  onChange={(e) => setclientId(e.target.value)}
+                />
+                <button
+                className="btn btn-outline-secondary"
+                type="button"
+                onClick={() => window.open(`${window.location.origin}/inscription/statut`, '_blank')}
+                title="Voir le statut d'inscription"
+              >
+                <i className="bi bi-box-arrow-up-right"></i>
+              </button>
+
+              </div>
 
         </div>
 
@@ -133,7 +138,7 @@ const PaiementManuel = () => {
 
         <div className="col-md-6">
           <label className="form-label">Montant acompte</label>
-          <input type="number" step="0.01" className="form-control" value={mntacompte} onChange={(e) => setMntacompte(parseFloat(e.target.value))} />
+          <input type="number" step="0.01" className="form-control"   value={mntacompte} onChange={(e) => setMntacompte(parseFloat(e.target.value))} />
         </div>
 
         <div className="col-md-6">
@@ -148,12 +153,12 @@ const PaiementManuel = () => {
 
         <div className="col-md-6">
           <label className="form-label">Montant facture HT</label>
-          <input type="number" step="0.01" className="form-control" value={mntfht} onChange={(e) => setMntfht(parseFloat(e.target.value))} />
+          <input type="number" step="0.01" className="form-control"   value={mntfht} onChange={(e) => setMntfht(parseFloat(e.target.value))} />
         </div>
 
         <div className="col-md-6">
           <label className="form-label">Montant facture TTC</label>
-          <input type="number" step="0.01" className="form-control" value={mntfttc} onChange={(e) => setMntfttc(parseFloat(e.target.value))} />
+          <input type="number" step="0.01" className="form-control"   value={mntfttc} onChange={(e) => setMntfttc(parseFloat(e.target.value))} />
         </div>
       </div>
 
