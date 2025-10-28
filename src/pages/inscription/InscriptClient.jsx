@@ -413,7 +413,6 @@ const InscriptClient = () => {
                       accept=".json"
                       style={{ display: "none" }}
                       onChange={handleFileImport}
-                      required
                     />
                   </div>
                   <button
