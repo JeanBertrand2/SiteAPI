@@ -2,6 +2,335 @@ import { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Field from "../../components/inscription/Field";
 import "./InscriptClient.css";
+const typesVoie = [
+  { key: "ALL", label: "Allée" },
+  { key: "AVE", label: "Avenue" },
+  { key: "BLVD", label: "Boulevard" },
+  { key: "CHE", label: "Chemin" },
+  { key: "CIT", label: "Cité" },
+  { key: "CLOS", label: "Clos" },
+  { key: "COR", label: "Corniche" },
+  { key: "COURS", label: "Cours" },
+  { key: "DOM", label: "Domaine" },
+  { key: "ESP", label: "Esplanade" },
+  { key: "IMP", label: "Impasse" },
+  { key: "JARD", label: "Jardin" },
+  { key: "LOT", label: "Lotissement" },
+  { key: "PASS", label: "Passage" },
+  { key: "PLC", label: "Place" },
+  { key: "PLN", label: "Plaine" },
+  { key: "PONT", label: "Pont" },
+  { key: "PORT", label: "Port" },
+  { key: "QUAI", label: "Quai" },
+  { key: "RUEL", label: "Ruelle" },
+  { key: "ROUTE", label: "Route" },
+  { key: "RUE", label: "Rue" },
+  { key: "SQ", label: "Square" },
+  { key: "TERR", label: "Terrasse" },
+  { key: "TRAV", label: "Traverse" },
+  { key: "VILLA", label: "Villa" },
+  { key: "VOIE", label: "Voie" },
+  { key: "ZONE", label: "Zone" },
+];
+const COUNTRIES_COG = [
+  { name: "Afghanistan", code: "99101" },
+  { name: "Albania", code: "99102" },
+  { name: "Algeria", code: "99103" },
+  { name: "Andorra", code: "99104" },
+  { name: "Angola", code: "99105" },
+  { name: "Antigua and Barbuda", code: "99106" },
+  { name: "Argentina", code: "99107" },
+  { name: "Armenia", code: "99108" },
+  { name: "Australia", code: "99109" },
+  { name: "Austria", code: "99110" },
+  { name: "Azerbaijan", code: "99111" },
+  { name: "Bahamas", code: "99112" },
+  { name: "Bahrain", code: "99113" },
+  { name: "Bangladesh", code: "99114" },
+  { name: "Barbados", code: "99115" },
+  { name: "Belarus", code: "99116" },
+  { name: "Belgium", code: "99117" },
+  { name: "Belize", code: "99118" },
+  { name: "Benin", code: "99119" },
+  { name: "Bhutan", code: "99120" },
+  { name: "Bolivia", code: "99121" },
+  { name: "Bosnia and Herzegovina", code: "99122" },
+  { name: "Botswana", code: "99123" },
+  { name: "Brazil", code: "99124" },
+  { name: "Brunei Darussalam", code: "99125" },
+  { name: "Bulgaria", code: "99126" },
+  { name: "Burkina Faso", code: "99127" },
+  { name: "Burundi", code: "99128" },
+  { name: "Cabo Verde", code: "99129" },
+  { name: "Cambodia", code: "99130" },
+  { name: "Cameroon", code: "99131" },
+  { name: "Canada", code: "99132" },
+  { name: "Central African Republic", code: "99133" },
+  { name: "Chad", code: "99134" },
+  { name: "Chile", code: "99135" },
+  { name: "China", code: "99136" },
+  { name: "Colombia", code: "99137" },
+  { name: "Comoros", code: "99138" },
+  { name: "Congo (Congo-Brazzaville)", code: "99139" },
+  { name: "Costa Rica", code: "99140" },
+  { name: "Croatia", code: "99141" },
+  { name: "Cuba", code: "99142" },
+  { name: "Cyprus", code: "99143" },
+  { name: "Czech Republic", code: "99144" },
+  { name: "Democratic People's Republic of Korea", code: "99145" },
+  { name: "Democratic Republic of the Congo", code: "99146" },
+  { name: "Denmark", code: "99147" },
+  { name: "Djibouti", code: "99148" },
+  { name: "Dominica", code: "99149" },
+  { name: "Dominican Republic", code: "99150" },
+  { name: "Ecuador", code: "99151" },
+  { name: "Egypt", code: "99152" },
+  { name: "El Salvador", code: "99153" },
+  { name: "Equatorial Guinea", code: "99154" },
+  { name: "Eritrea", code: "99155" },
+  { name: "Estonia", code: "99156" },
+  { name: "Eswatini", code: "99157" },
+  { name: "Ethiopia", code: "99158" },
+  { name: "Fiji", code: "99159" },
+  { name: "Finland", code: "99160" },
+  { name: "France", code: "99100" },
+  { name: "Gabon", code: "99161" },
+  { name: "Gambia", code: "99162" },
+  { name: "Georgia", code: "99163" },
+  { name: "Germany", code: "99164" },
+  { name: "Ghana", code: "99165" },
+  { name: "Greece", code: "99166" },
+  { name: "Grenada", code: "99167" },
+  { name: "Guatemala", code: "99168" },
+  { name: "Guinea", code: "99169" },
+  { name: "Guinea-Bissau", code: "99170" },
+  { name: "Guyana", code: "99171" },
+  { name: "Haiti", code: "99172" },
+  { name: "Honduras", code: "99173" },
+  { name: "Hungary", code: "99174" },
+  { name: "Iceland", code: "99175" },
+  { name: "India", code: "99176" },
+  { name: "Indonesia", code: "99177" },
+  { name: "Iran", code: "99178" },
+  { name: "Iraq", code: "99179" },
+  { name: "Ireland", code: "99180" },
+  { name: "Israel", code: "99181" },
+  { name: "Italy", code: "99182" },
+  { name: "Jamaica", code: "99183" },
+  { name: "Japan", code: "99184" },
+  { name: "Jordan", code: "99185" },
+  { name: "Kazakhstan", code: "99186" },
+  { name: "Kenya", code: "99187" },
+  { name: "Kiribati", code: "99188" },
+  { name: "Korea (Republic of)", code: "99189" },
+  { name: "Kuwait", code: "99190" },
+  { name: "Kyrgyzstan", code: "99191" },
+  { name: "Laos", code: "99192" },
+  { name: "Latvia", code: "99193" },
+  { name: "Lebanon", code: "99194" },
+  { name: "Lesotho", code: "99195" },
+  { name: "Liberia", code: "99196" },
+  { name: "Libya", code: "99197" },
+  { name: "Liechtenstein", code: "99198" },
+  { name: "Lithuania", code: "99199" },
+  { name: "Luxembourg", code: "99200" },
+  { name: "Madagascar", code: "99201" },
+  { name: "Malawi", code: "99202" },
+  { name: "Malaysia", code: "99203" },
+  { name: "Maldives", code: "99204" },
+  { name: "Mali", code: "99205" },
+  { name: "Malta", code: "99206" },
+  { name: "Marshall Islands", code: "99207" },
+  { name: "Mauritania", code: "99208" },
+  { name: "Mauritius", code: "99209" },
+  { name: "Mexico", code: "99210" },
+  { name: "Micronesia (Federated States of)", code: "99211" },
+  { name: "Moldova", code: "99212" },
+  { name: "Monaco", code: "99213" },
+  { name: "Mongolia", code: "99214" },
+  { name: "Montenegro", code: "99215" },
+  { name: "Morocco", code: "99216" },
+  { name: "Mozambique", code: "99217" },
+  { name: "Myanmar", code: "99218" },
+  { name: "Namibia", code: "99219" },
+  { name: "Nauru", code: "99220" },
+  { name: "Nepal", code: "99221" },
+  { name: "Netherlands", code: "99222" },
+  { name: "New Zealand", code: "99223" },
+  { name: "Nicaragua", code: "99224" },
+  { name: "Niger", code: "99225" },
+  { name: "Nigeria", code: "99226" },
+  { name: "North Macedonia", code: "99227" },
+  { name: "Norway", code: "99228" },
+  { name: "Oman", code: "99229" },
+  { name: "Pakistan", code: "99230" },
+  { name: "Palau", code: "99231" },
+  { name: "Panama", code: "99232" },
+  { name: "Papua New Guinea", code: "99233" },
+  { name: "Paraguay", code: "99234" },
+  { name: "Peru", code: "99235" },
+  { name: "Philippines", code: "99236" },
+  { name: "Poland", code: "99237" },
+  { name: "Portugal", code: "99238" },
+  { name: "Qatar", code: "99239" },
+  { name: "Romania", code: "99240" },
+  { name: "Russia", code: "99241" },
+  { name: "Rwanda", code: "99242" },
+  { name: "Saint Kitts and Nevis", code: "99243" },
+  { name: "Saint Lucia", code: "99244" },
+  { name: "Saint Vincent and the Grenadines", code: "99245" },
+  { name: "Samoa", code: "99246" },
+  { name: "San Marino", code: "99247" },
+  { name: "Sao Tome and Principe", code: "99248" },
+  { name: "Saudi Arabia", code: "99249" },
+  { name: "Senegal", code: "99250" },
+  { name: "Serbia", code: "99251" },
+  { name: "Seychelles", code: "99252" },
+  { name: "Sierra Leone", code: "99253" },
+  { name: "Singapore", code: "99254" },
+  { name: "Slovakia", code: "99255" },
+  { name: "Slovenia", code: "99256" },
+  { name: "Solomon Islands", code: "99257" },
+  { name: "Somalia", code: "99258" },
+  { name: "South Africa", code: "99259" },
+  { name: "South Sudan", code: "99260" },
+  { name: "Spain", code: "99261" },
+  { name: "Sri Lanka", code: "99262" },
+  { name: "Sudan", code: "99263" },
+  { name: "Suriname", code: "99264" },
+  { name: "Sweden", code: "99265" },
+  { name: "Switzerland", code: "99266" },
+  { name: "Syria", code: "99267" },
+  { name: "Taiwan", code: "99268" },
+  { name: "Tajikistan", code: "99269" },
+  { name: "Tanzania", code: "99270" },
+  { name: "Thailand", code: "99271" },
+  { name: "Timor-Leste", code: "99272" },
+  { name: "Togo", code: "99273" },
+  { name: "Tonga", code: "99274" },
+  { name: "Trinidad and Tobago", code: "99275" },
+  { name: "Tunisia", code: "99276" },
+  { name: "Turkey", code: "99277" },
+  { name: "Turkmenistan", code: "99278" },
+  { name: "Tuvalu", code: "99279" },
+  { name: "Uganda", code: "99280" },
+  { name: "Ukraine", code: "99281" },
+  { name: "United Arab Emirates", code: "99282" },
+  { name: "United Kingdom", code: "99283" },
+  { name: "United States", code: "99284" },
+  { name: "Uruguay", code: "99285" },
+  { name: "Uzbekistan", code: "99286" },
+  { name: "Vanuatu", code: "99287" },
+  { name: "Vatican City", code: "99288" },
+  { name: "Venezuela", code: "99289" },
+  { name: "Vietnam", code: "99290" },
+  { name: "Yemen", code: "99291" },
+  { name: "Zambia", code: "99292" },
+  { name: "Zimbabwe", code: "99293" },
+];
+const departementCode = [
+  { code: "001", name: "Ain" },
+  { code: "002", name: "Aisne" },
+  { code: "003", name: "Allier" },
+  { code: "004", name: "Alpes-de-Haute-Provence" },
+  { code: "005", name: "Hautes-Alpes" },
+  { code: "006", name: "Alpes-Maritimes" },
+  { code: "007", name: "Ardèche" },
+  { code: "008", name: "Ardennes" },
+  { code: "009", name: "Ariège" },
+  { code: "010", name: "Aube" },
+  { code: "011", name: "Aude" },
+  { code: "012", name: "Aveyron" },
+  { code: "013", name: "Bouches-du-Rhône" },
+  { code: "014", name: "Calvados" },
+  { code: "015", name: "Cantal" },
+  { code: "016", name: "Charente" },
+  { code: "017", name: "Charente-Maritime" },
+  { code: "018", name: "Cher" },
+  { code: "019", name: "Corrèze" },
+  { code: "02A", name: "Corse-du-Sud" },
+  { code: "02B", name: "Haute-Corse" },
+  { code: "021", name: "Côte-d'Or" },
+  { code: "022", name: "Côtes-d'Armor" },
+  { code: "023", name: "Creuse" },
+  { code: "024", name: "Dordogne" },
+  { code: "025", name: "Doubs" },
+  { code: "026", name: "Drôme" },
+  { code: "027", name: "Eure" },
+  { code: "028", name: "Eure-et-Loir" },
+  { code: "029", name: "Finistère" },
+  { code: "030", name: "Gard" },
+  { code: "031", name: "Haute-Garonne" },
+  { code: "032", name: "Gers" },
+  { code: "033", name: "Gironde" },
+  { code: "034", name: "Hérault" },
+  { code: "035", name: "Ille-et-Vilaine" },
+  { code: "036", name: "Indre" },
+  { code: "037", name: "Indre-et-Loire" },
+  { code: "038", name: "Isère" },
+  { code: "039", name: "Jura" },
+  { code: "040", name: "Landes" },
+  { code: "041", name: "Loir-et-Cher" },
+  { code: "042", name: "Loire" },
+  { code: "043", name: "Haute-Loire" },
+  { code: "044", name: "Loire-Atlantique" },
+  { code: "045", name: "Loiret" },
+  { code: "046", name: "Lot" },
+  { code: "047", name: "Lot-et-Garonne" },
+  { code: "048", name: "Lozère" },
+  { code: "049", name: "Maine-et-Loire" },
+  { code: "050", name: "Manche" },
+  { code: "051", name: "Marne" },
+  { code: "052", name: "Haute-Marne" },
+  { code: "053", name: "Mayenne" },
+  { code: "054", name: "Meurthe-et-Moselle" },
+  { code: "055", name: "Meuse" },
+  { code: "056", name: "Morbihan" },
+  { code: "057", name: "Moselle" },
+  { code: "058", name: "Nièvre" },
+  { code: "059", name: "Nord" },
+  { code: "060", name: "Oise" },
+  { code: "061", name: "Orne" },
+  { code: "062", name: "Pas-de-Calais" },
+  { code: "063", name: "Puy-de-Dôme" },
+  { code: "064", name: "Pyrénées-Atlantiques" },
+  { code: "065", name: "Hautes-Pyrénées" },
+  { code: "066", name: "Pyrénées-Orientales" },
+  { code: "067", name: "Bas-Rhin" },
+  { code: "068", name: "Haut-Rhin" },
+  { code: "069", name: "Rhône" },
+  { code: "070", name: "Haute-Saône" },
+  { code: "071", name: "Saône-et-Loire" },
+  { code: "072", name: "Sarthe" },
+  { code: "073", name: "Savoie" },
+  { code: "074", name: "Haute-Savoie" },
+  { code: "075", name: "Paris" },
+  { code: "076", name: "Seine-Maritime" },
+  { code: "077", name: "Seine-et-Marne" },
+  { code: "078", name: "Yvelines" },
+  { code: "079", name: "Deux-Sèvres" },
+  { code: "080", name: "Somme" },
+  { code: "081", name: "Tarn" },
+  { code: "082", name: "Tarn-et-Garonne" },
+  { code: "083", name: "Var" },
+  { code: "084", name: "Vaucluse" },
+  { code: "085", name: "Vendée" },
+  { code: "086", name: "Vienne" },
+  { code: "087", name: "Haute-Vienne" },
+  { code: "088", name: "Vosges" },
+  { code: "089", name: "Yonne" },
+  { code: "090", name: "Territoire de Belfort" },
+  { code: "091", name: "Essonne" },
+  { code: "092", name: "Hauts-de-Seine" },
+  { code: "093", name: "Seine-Saint-Denis" },
+  { code: "094", name: "Val-de-Marne" },
+  { code: "095", name: "Val-d'Oise" },
+  { code: "971", name: "Guadeloupe" },
+  { code: "972", name: "Martinique" },
+  { code: "973", name: "Guyane" },
+  { code: "974", name: "La Réunion" },
+  { code: "976", name: "Mayotte" },
+];
 
 const InscriptClient = () => {
   const initial = {
@@ -29,6 +358,7 @@ const InscriptClient = () => {
     codeInsee: "",
     codePostal: "",
     nomPays2: "FRANCE",
+
     codePays2: "99100",
     bic: "",
     iban: "",
@@ -39,106 +369,46 @@ const InscriptClient = () => {
     String.fromCharCode(65 + i)
   );
 
-  const typesVoie = [
-    { key: "ALL", label: "Allée" },
-    { key: "AVE", label: "Avenue" },
-    { key: "BLVD", label: "Boulevard" },
-    { key: "CHE", label: "Chemin" },
-    { key: "CIT", label: "Cité" },
-    { key: "CLOS", label: "Clos" },
-    { key: "COR", label: "Corniche" },
-    { key: "COURS", label: "Cours" },
-    { key: "DOM", label: "Domaine" },
-    { key: "ESP", label: "Esplanade" },
-    { key: "IMP", label: "Impasse" },
-    { key: "JARD", label: "Jardin" },
-    { key: "LOT", label: "Lotissement" },
-    { key: "PASS", label: "Passage" },
-    { key: "PLC", label: "Place" },
-    { key: "PLN", label: "Plaine" },
-    { key: "PONT", label: "Pont" },
-    { key: "PORT", label: "Port" },
-    { key: "QUAI", label: "Quai" },
-    { key: "RUEL", label: "Ruelle" },
-    { key: "ROUTE", label: "Route" },
-    { key: "RUE", label: "Rue" },
-    { key: "SQ", label: "Square" },
-    { key: "TERR", label: "Terrasse" },
-    { key: "TRAV", label: "Traverse" },
-    { key: "VILLA", label: "Villa" },
-    { key: "VOIE", label: "Voie" },
-    { key: "ZONE", label: "Zone" },
-  ];
-
   const [formData, setFormData] = useState(initial);
   const [selectedFile, setSelectedFile] = useState("");
   const [countries, setCountries] = useState([]);
-  const [departments, setDepartments] = useState([]);
-  useEffect(() => {
-    const fetchCountries = async () => {
-      try {
-        const res = await fetch(
-          "https://restcountries.com/v3.1/all?fields=name,ccn3,cca2"
-        );
-        const data = await res.json();
-
-        const countryList = data
-          .map((c) => {
-            const name = c.name?.common || "";
-            const code = c.ccn3 || c.cca2 || "";
-            return `${name} - ${code}`.trim();
-          })
-          .filter(Boolean)
-          .sort((a, b) => a.localeCompare(b));
-
-        setCountries(countryList);
-      } catch (err) {
-        console.error("Erreur pays :", err);
-      }
-    };
-
-    const fetchDepartments = async () => {
-      try {
-        const res = await fetch("https://geo.api.gouv.fr/departements");
-        const data = await res.json();
-        const deptNames = data
-          .map((d) => d.nom)
-          .sort((a, b) => a.localeCompare(b));
-        setDepartments(deptNames);
-      } catch (err) {
-        console.error("Erreur départements :", err);
-      }
-    };
-
-    fetchCountries();
-    fetchDepartments();
-  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
     if (name === "nomPays" || name === "nomPays2") {
-      const parts = value.split(" - ").map((p) => p?.trim?.() || "");
-      const countryName = parts[0] || "";
-      const countryCode = parts[1] || "";
+      const selectedCountry = COUNTRIES_COG.find(
+        (c) => `${c.name} - ${c.code}` === value
+      );
 
       if (name === "nomPays") {
         setFormData((p) => ({
           ...p,
-          nomPays: countryName,
-          codePays: countryCode || p.codePays,
+          nomPays: selectedCountry?.name || "",
+          codePays: selectedCountry?.code || "",
         }));
       } else {
         setFormData((p) => ({
           ...p,
-          nomPays2: countryName,
-          codePays2: countryCode || p.codePays2,
+          nomPays2: selectedCountry?.name || "",
+          codePays2: selectedCountry?.code || "",
         }));
       }
       return;
     }
+    if (name === "departement") {
+      const selectedDep = departementCode.find(
+        (d) => `${d.name} - ${d.code}` === value
+      );
+      setFormData((p) => ({
+        ...p,
+        departement: selectedDep
+          ? `${selectedDep.name} - ${selectedDep.code}`
+          : "",
+      }));
+      return;
+    }
 
-    // normal inputs
     setFormData((p) => ({ ...p, [name]: value }));
   };
 
@@ -169,9 +439,17 @@ const InscriptClient = () => {
               : "",
 
             // Lieu naissance
-            nomPays: jsonData.lieuNaissance?.codePaysNaissance || "",
-            codePays: jsonData.adressePostale?.codePays || "",
-            departement: jsonData.lieuNaissance?.departementNaissance || "",
+            nomPays:
+              COUNTRIES_COG.find(
+                (c) => c.code === jsonData.lieuNaissance?.codePaysNaissance
+              )?.name || "",
+            codePays: jsonData.lieuNaissance?.codePaysNaissance || "",
+            departement: (() => {
+              const dep = departementCode.find(
+                (d) => d.code === jsonData.lieuNaissance?.departementNaissance
+              );
+              return dep ? `${dep.name} - ${dep.code}` : "";
+            })(),
             commune:
               jsonData.lieuNaissance?.communeNaissance?.libelleCommune || "",
             codeCommune:
@@ -191,7 +469,10 @@ const InscriptClient = () => {
             nomCommune2: jsonData.adressePostale?.libelleCommune || "",
             codeInsee: jsonData.adressePostale?.codeCommune || "",
             codePostal: jsonData.adressePostale?.codePostal || "",
-            nomPays2: "FRANCE",
+            nomPays2:
+              COUNTRIES_COG.find(
+                (c) => c.code === jsonData.lieuNaissance?.codePaysNaissance
+              )?.name || "FRANCE",
             codePays2: jsonData.adressePostale?.codePays || "99100",
 
             // Coordonnée Bancaire
@@ -262,7 +543,7 @@ const InscriptClient = () => {
         label: "Nom Pays",
         name: "nomPays",
         type: "select",
-        options: countries,
+        options: COUNTRIES_COG.map((c) => `${c.name} - ${c.code}`),
       },
       {
         label: "Code Pays",
@@ -274,7 +555,7 @@ const InscriptClient = () => {
         label: "Département",
         name: "departement",
         type: "select",
-        options: departments,
+        options: departementCode.map((d) => `${d.name} - ${d.code}`),
       },
     ],
     [{ label: "Commune", name: "commune", readOnly: false }],
@@ -324,7 +605,7 @@ const InscriptClient = () => {
         name: "nomPays2",
         col: "col-6",
         type: "select",
-        options: countries,
+        options: COUNTRIES_COG.map((c) => `${c.name} - ${c.code}`),
       },
 
       { label: "Code pays", name: "codePays2", col: "col-6" },
