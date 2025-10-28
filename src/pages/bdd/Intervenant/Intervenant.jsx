@@ -1,14 +1,12 @@
 import { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import {
-  MdClose as X,
-  MdMinimize as Minimize2,
-  MdCropSquare as Maximize2,
-} from "react-icons/md";
 import { IoIosSearch } from "react-icons/io";
 import { RiExpandUpDownFill } from "react-icons/ri";
 import ModalIntervenant from "./ModalIntervenant";
 import Confirmation from "./Confirmation";
+import { MdEdit } from "react-icons/md";
+import { MdDelete } from "react-icons/md";
+import { IoIosAddCircle } from "react-icons/io";
 import "./Intervenant.css";
 const Intervenant = () => {
   const [intervenants, setIntervenants] = useState([
@@ -153,40 +151,13 @@ const Intervenant = () => {
         fontFamily: "Arial, sans-serif",
       }}
     >
-      <div
-        style={{
-          backgroundColor: "white",
-          border: "1px solid #7f9ebe85",
-          borderRadius: "8px",
-          maxWidth: "900px",
-          margin: "50px auto",
-          boxShadow: "0 4px 6px rgba(133, 116, 116, 0.1)",
-        }}
-      >
-        <div
-          style={{
-            background: "#9e8ee241",
-            padding: "8px 15px",
-            borderBottom: "1px solid #9e8ee241",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            borderTopLeftRadius: "6px",
-            borderTopRightRadius: "6px",
-          }}
-        >
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-  <span className="titre-intervenants">LISTE : INTERVENANTS</span>
-</div>
-
+      <div className="intervenant-card">
+        <div className="intervenant-header">
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <span className="titre-intervenants">LISTE : INTERVENANTS</span>
+          </div>
         </div>
-        <div
-          style={{
-            display: "flex",
-            margin: "20px 15px",
-          }}
-          className="desktop-flex"
-        >
+        <div className="intervenant-content">
           <div
             style={{
               display: "flex",
@@ -426,7 +397,7 @@ const Intervenant = () => {
                 gap: "8px",
               }}
             >
-              <span style={{ fontSize: "16px" }}>📄</span>
+              <span style={{ fontSize: "16px" }}><IoIosAddCircle /></span>
               Nouveau
             </button>
             <button
@@ -443,7 +414,7 @@ const Intervenant = () => {
               }}
               disabled={!selectedRow}
             >
-              <span style={{ fontSize: "16px" }}>✏️</span>
+              <span style={{ fontSize: "16px" }}><MdEdit /></span>
               Modifier
             </button>
             <button
@@ -460,7 +431,7 @@ const Intervenant = () => {
               }}
               disabled={!selectedRow}
             >
-              <span style={{ fontSize: "16px" }}>🗑️</span>
+              <span style={{ fontSize: "16px" }}><MdDelete /></span>
               Supprimer
             </button>
           </div>

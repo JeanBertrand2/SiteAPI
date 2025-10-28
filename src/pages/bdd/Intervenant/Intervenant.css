@@ -1,8 +1,53 @@
-@media (max-width: 599px) {
-  .desktop-flex {
+/* Desktop card styling */
+.intervenant-card {
+  background-color: white;
+  border: 1px solid #7f9ebe85;
+  border-radius: 8px;
+  max-width: 900px;
+  margin: 50px auto;
+  box-shadow: 0 4px 6px rgba(133, 116, 116, 0.1);
+}
+
+.intervenant-header {
+  background: #9e8ee241;
+  padding: 8px 15px;
+  border-bottom: 1px solid #9e8ee241;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+}
+
+.intervenant-content {
+  display: flex;
+  margin: 20px 15px;
+}
+
+/* Mobile layout - remove card, full width */
+@media (max-width: 768px) {
+  .intervenant-card {
+    background-color: transparent;
+    border: none;
+    border-radius: 0;
+    max-width: 100%;
+    margin: 0;
+    box-shadow: none;
+  }
+
+  .intervenant-header {
+    background: #9e8ee241;
+    padding: 12px 15px;
+    border-bottom: none;
+    border-radius: 0;
+    margin-bottom: 15px;
+  }
+
+  .intervenant-content {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 15px;
+    margin: 0;
   }
 
   .left-table,
@@ -12,10 +57,33 @@
 
   .right-buttons {
     display: flex;
-    gap: 8px;
-    justify-content: space-between;
+    flex-direction: row;
+    gap: 10px;
+    justify-content: stretch;
+  }
+
+  .right-buttons button {
+    flex: 1;
+    justify-content: center;
+    font-size: 14px !important;
+    padding: 10px 8px !important;
+    min-width: auto !important;
+  }
+
+  /* Make table scrollable on mobile */
+  .left-table {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid #7f9ebe85;
+    border-radius: 8px;
+    background-color: white;
+  }
+
+  .left-table table {
+    min-width: 100%;
   }
 }
+
 .titre-intervenants {
   font-size: 25px;
   font-weight: bold;
@@ -23,6 +91,6 @@
 
 @media (max-width: 768px) {
   .titre-intervenants {
-    font-size: 20px;
+    font-size: 18px;
   }
 }
