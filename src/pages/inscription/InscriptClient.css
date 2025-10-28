@@ -383,7 +383,7 @@
   }
   .inscription-card {
     border: 0px solid #ccc;
-    width: 70rem;
+    width: 100%;
     margin-top: 2rem;
   }
   table {
