@@ -16,3 +16,13 @@
     justify-content: space-between;
   }
 }
+.titre-intervenants {
+  font-size: 25px;
+  font-weight: bold;
+}
+
+@media (max-width: 768px) {
+  .titre-intervenants {
+    font-size: 20px;
+  }
+}

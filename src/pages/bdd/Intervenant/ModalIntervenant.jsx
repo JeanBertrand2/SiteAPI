@@ -5,7 +5,7 @@ import {
   MdCropSquare as Maximize2,
 } from "react-icons/md";
 
-const ModalIntervenant = ({ show, onClose, mode, data, onSave }) => {
+const ModalIntervenant = ({ show, onClose,  data, onSave }) => {
   const [formData, setFormData] = useState(
     data || { civilite: "", nom: "", prenoms: "" }
   );

@@ -165,21 +165,20 @@ const Intervenant = () => {
       >
         <div
           style={{
-            backgroundColor: "#e6f2ff",
+            background: "#9e8ee241",
             padding: "8px 15px",
-            borderBottom: "1px solid #5a7a9c",
+            borderBottom: "1px solid #9e8ee241",
             display: "flex",
-            justifyContent: "space-between",
+            justifyContent: "center",
             alignItems: "center",
             borderTopLeftRadius: "6px",
             borderTopRightRadius: "6px",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <span style={{ fontSize: "13px", fontWeight: "bold" }}>
-              LISTE : INTERVENANTS
-            </span>
-          </div>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+  <span className="titre-intervenants">LISTE : INTERVENANTS</span>
+</div>
+
         </div>
         <div
           style={{
