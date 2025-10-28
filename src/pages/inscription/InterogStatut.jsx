@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { FaFilter } from "react-icons/fa";
+import { FaSearch } from "react-icons/fa";
+import { MdDeleteOutline } from "react-icons/md";
+
 import "./InscriptClient.css";
 const InterogStatut = () => {
   const staticData = [
@@ -310,16 +313,16 @@ const InterogStatut = () => {
                 }}
               >
                 <button
-                  className="btn btn-primary btn-sm"
+                  className="btn btn-primary btn-sm text-center text-lg-start"
                   onClick={handleSearch}
                 >
-                  🔍 Rechercher
+                  <FaSearch /> Rechercher
                 </button>
                 <button
-                  className="btn btn-secondary btn-sm"
+                  className="btn btn-primary btn-sm text-center text-lg-start"
                   onClick={handleClearCriteria}
                 >
-                  🗑️ Effacer critères
+                  <MdDeleteOutline /> Effacer critères
                 </button>
               </div>
             </div>
