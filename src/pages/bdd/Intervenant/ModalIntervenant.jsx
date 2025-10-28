@@ -5,7 +5,7 @@ import {
   MdCropSquare as Maximize2,
 } from "react-icons/md";
 
-const ModalIntervenant = ({ show, onClose, mode, data, onSave }) => {
+const ModalIntervenant = ({ show, onClose,  data, onSave }) => {
   const [formData, setFormData] = useState(
     data || { civilite: "", nom: "", prenoms: "" }
   );
@@ -171,7 +171,6 @@ const ModalIntervenant = ({ show, onClose, mode, data, onSave }) => {
       <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
         <div style={headerStyle}>
           <div style={leftHeaderStyle}>
-            <span style={badgeStyle}>WD</span>
             <span style={titleStyle}>FICHE INTERVENANT</span>
           </div>
           <div style={headerButtonsStyle}>

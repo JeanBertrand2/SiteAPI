@@ -74,7 +74,6 @@ const InscriptClient = () => {
   const [selectedFile, setSelectedFile] = useState("");
   const [countries, setCountries] = useState([]);
   const [departments, setDepartments] = useState([]);
-  // --- useEffect: fetch countries as "Name - ccn3" strings and departments as before
   useEffect(() => {
     const fetchCountries = async () => {
       try {
@@ -86,7 +85,6 @@ const InscriptClient = () => {
         const countryList = data
           .map((c) => {
             const name = c.name?.common || "";
-            // prefer numeric ISO code (ccn3). fallback to cca2 if missing.
             const code = c.ccn3 || c.cca2 || "";
             return `${name} - ${code}`.trim();
           })
@@ -116,13 +114,10 @@ const InscriptClient = () => {
     fetchDepartments();
   }, []);
 
-  // --- handleInputChange: parse country select values and update code fields automatically
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
-    // If user selected a country option like "France - 250"
     if (name === "nomPays" || name === "nomPays2") {
-      // split by the separator " - " (trim whitespace)
       const parts = value.split(" - ").map((p) => p?.trim?.() || "");
       const countryName = parts[0] || "";
       const countryCode = parts[1] || "";
@@ -134,7 +129,6 @@ const InscriptClient = () => {
           codePays: countryCode || p.codePays,
         }));
       } else {
-        // nomPays2
         setFormData((p) => ({
           ...p,
           nomPays2: countryName,
@@ -398,51 +392,24 @@ const InscriptClient = () => {
 
   return (
     <div className="inscription-container">
-      <div className="card shadow-sm inscription-card">
-        <div className="card-header d-flex justify-content-between align-items-center inscription-header">
-          <span className="header-title">📋 INSCRIPTION PARTICULIER</span>
-          <div className="d-flex gap-1">
-            <button
-              className="btn btn-sm"
-              style={{
-                padding: "4px 8px",
-                fontSize: "12px",
-                backgroundColor: "#d4e3f3",
-                border: "1px solid gray",
-                margin: "2px",
-              }}
-            >
-              ─
-            </button>
-            <button
-              className="btn btn-sm"
-              style={{
-                padding: "4px 8px",
-                fontSize: "12px",
-                backgroundColor: "#d4e3f3",
-                border: "1px solid gray",
-                margin: "2px",
-              }}
-            >
-              □
-            </button>
-            <button
-              className="btn btn-sm btn-danger"
-              style={{
-                padding: "4px 8px",
-                fontSize: "12px",
-                margin: "2px",
-              }}
-            >
-              ✕
-            </button>
-          </div>
+      <div className="card inscription-card">
+        <div
+          className="card-header d-flex justify-content-center align-items-center inscription-header"
+          style={{ padding: "1rem 10px" }}
+        >
+          <h1 className="header-title">INSCRIPTION PARTICULIER</h1>
         </div>
 
-        <div className="card-body inscription-body">
+        <div
+          className="card-body inscription-body"
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
           <div className="row">
-            {/* Form Column - 5/6 width */}
-            <div className="col-10">
+            <div className="col-10 mobile-width">
               <div className="row mb-3">
                 <div
                   className="col-md-12"

@@ -110,7 +110,7 @@ const Intervenant = () => {
       const selected = getSelectedData();
       if (!selected) return;
       setModalMode("edit");
-      setModalData(selected); 
+      setModalData(selected);
       setShowModal(true);
     }
   };
@@ -165,61 +165,25 @@ const Intervenant = () => {
       >
         <div
           style={{
-            backgroundColor: "#e6f2ff",
+            background: "#9e8ee241",
             padding: "8px 15px",
-            borderBottom: "1px solid #5a7a9c",
+            borderBottom: "1px solid #9e8ee241",
             display: "flex",
-            justifyContent: "space-between",
+            justifyContent: "center",
             alignItems: "center",
             borderTopLeftRadius: "6px",
             borderTopRightRadius: "6px",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <span style={{ fontSize: "13px", fontWeight: "bold" }}>
-              LISTE : INTERVENANTS
-            </span>
-          </div>
-          <div style={{ display: "flex", gap: "8px" }}>
-            <button
-              style={{
-                border: "1px solid #999",
-                backgroundColor: "white",
-                padding: "3px 10px",
-                cursor: "pointer",
-                borderRadius: "3px",
-              }}
-            >
-              <Minimize2 size={14} />
-            </button>
-            <button
-              style={{
-                border: "1px solid #999",
-                backgroundColor: "white",
-                padding: "3px 10px",
-                cursor: "pointer",
-                borderRadius: "3px",
-              }}
-            >
-              <Maximize2 size={14} />
-            </button>
-            <button
-              style={{
-                border: "1px solid #999",
-                backgroundColor: "white",
-                padding: "3px 10px",
-                cursor: "pointer",
-                borderRadius: "3px",
-              }}
-            >
-              <X size={14} />
-            </button>
-          </div>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+  <span className="titre-intervenants">LISTE : INTERVENANTS</span>
+</div>
+
         </div>
         <div
           style={{
             display: "flex",
-            margin: "20px 15px", 
+            margin: "20px 15px",
           }}
           className="desktop-flex"
         >
