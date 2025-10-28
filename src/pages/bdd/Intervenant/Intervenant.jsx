@@ -162,17 +162,16 @@ const Intervenant = () => {
             style={{
               display: "flex",
               flex: 4,
-              marginRight: "10px",
             }}
             className="responsive-container"
           >
             <div
-              style={{ overflowX: "auto", width: "100%" }}
+              style={{ overflowX: "auto", width: "100%", marginRight: "1rem" }}
               className="left-table"
             >
               <table
                 className="table table-bordered table-sm"
-                style={{ fontSize: "13px", marginBottom: 0 }}
+                style={{ fontSize: "15px", marginBottom: 0 }}
               >
                 <thead>
                   <tr>
@@ -391,13 +390,15 @@ const Intervenant = () => {
               style={{
                 minWidth: "100px",
                 padding: "8px",
-                fontSize: "13px",
+                fontSize: "16px",
                 display: "flex",
                 alignItems: "center",
                 gap: "8px",
               }}
             >
-              <span style={{ fontSize: "16px" }}><IoIosAddCircle /></span>
+              <span style={{ fontSize: "20px" }}>
+                <IoIosAddCircle />
+              </span>
               Nouveau
             </button>
             <button
@@ -406,7 +407,7 @@ const Intervenant = () => {
               style={{
                 minWidth: "100px",
                 padding: "8px",
-                fontSize: "13px",
+                fontSize: "16px",
                 display: "flex",
                 alignItems: "center",
                 gap: "8px",
@@ -414,7 +415,9 @@ const Intervenant = () => {
               }}
               disabled={!selectedRow}
             >
-              <span style={{ fontSize: "16px" }}><MdEdit /></span>
+              <span style={{ fontSize: "20px" }}>
+                <MdEdit />
+              </span>
               Modifier
             </button>
             <button
@@ -423,7 +426,7 @@ const Intervenant = () => {
               style={{
                 minWidth: "100px",
                 padding: "8px",
-                fontSize: "13px",
+                fontSize: "16px",
                 display: "flex",
                 alignItems: "center",
                 gap: "8px",
@@ -431,7 +434,9 @@ const Intervenant = () => {
               }}
               disabled={!selectedRow}
             >
-              <span style={{ fontSize: "16px" }}><MdDelete /></span>
+              <span style={{ fontSize: "20px" }}>
+                <MdDelete />
+              </span>
               Supprimer
             </button>
           </div>

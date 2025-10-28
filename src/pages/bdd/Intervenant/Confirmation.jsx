@@ -24,13 +24,11 @@ const Confirmation = ({
   return (
     <>
       <style>{`
-        /* make this footer stack on mobile and switch to flex row on desktop */
         .confirm-footer { display: block; gap: 0.5rem; }
         .confirm-footer > div { margin-bottom: 0.5rem; }
         @media (min-width: 768px) {
           .confirm-footer { display: flex; flex-direction: row; justify-content: flex-end; align-items: center; gap: 0.5rem; }
           .confirm-footer > div { margin-bottom: 0; }
-          /* override .w-100 so buttons are full-width on mobile but auto on desktop */
           .confirm-footer .w-100 { width: auto !important; }
         }
       `}</style>

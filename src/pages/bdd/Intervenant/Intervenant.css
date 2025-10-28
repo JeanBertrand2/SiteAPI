@@ -21,7 +21,7 @@
 
 .intervenant-content {
   display: flex;
-  margin: 20px 15px;
+  margin: 2rem;
 }
 
 /* Mobile layout - remove card, full width */
@@ -70,7 +70,6 @@
     min-width: auto !important;
   }
 
-  /* Make table scrollable on mobile */
   .left-table {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
