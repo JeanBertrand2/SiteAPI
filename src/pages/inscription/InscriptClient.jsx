@@ -2,6 +2,9 @@ import { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Field from "../../components/inscription/Field";
 import "./InscriptClient.css";
+import { typesVoie } from "../../constants/typesVoie";
+import { COUNTRIES_COG } from "../../constants/countries";
+import { departementCode } from "../../constants/departements";
 
 const InscriptClient = () => {
   const initial = {
@@ -29,6 +32,7 @@ const InscriptClient = () => {
     codeInsee: "",
     codePostal: "",
     nomPays2: "FRANCE",
+
     codePays2: "99100",
     bic: "",
     iban: "",
@@ -39,112 +43,46 @@ const InscriptClient = () => {
     String.fromCharCode(65 + i)
   );
 
-  const typesVoie = [
-    { key: "ALL", label: "Allée" },
-    { key: "AVE", label: "Avenue" },
-    { key: "BLVD", label: "Boulevard" },
-    { key: "CHE", label: "Chemin" },
-    { key: "CIT", label: "Cité" },
-    { key: "CLOS", label: "Clos" },
-    { key: "COR", label: "Corniche" },
-    { key: "COURS", label: "Cours" },
-    { key: "DOM", label: "Domaine" },
-    { key: "ESP", label: "Esplanade" },
-    { key: "IMP", label: "Impasse" },
-    { key: "JARD", label: "Jardin" },
-    { key: "LOT", label: "Lotissement" },
-    { key: "PASS", label: "Passage" },
-    { key: "PLC", label: "Place" },
-    { key: "PLN", label: "Plaine" },
-    { key: "PONT", label: "Pont" },
-    { key: "PORT", label: "Port" },
-    { key: "QUAI", label: "Quai" },
-    { key: "RUEL", label: "Ruelle" },
-    { key: "ROUTE", label: "Route" },
-    { key: "RUE", label: "Rue" },
-    { key: "SQ", label: "Square" },
-    { key: "TERR", label: "Terrasse" },
-    { key: "TRAV", label: "Traverse" },
-    { key: "VILLA", label: "Villa" },
-    { key: "VOIE", label: "Voie" },
-    { key: "ZONE", label: "Zone" },
-  ];
-
   const [formData, setFormData] = useState(initial);
   const [selectedFile, setSelectedFile] = useState("");
   const [countries, setCountries] = useState([]);
-  const [departments, setDepartments] = useState([]);
-  // --- useEffect: fetch countries as "Name - ccn3" strings and departments as before
-  useEffect(() => {
-    const fetchCountries = async () => {
-      try {
-        const res = await fetch(
-          "https://restcountries.com/v3.1/all?fields=name,ccn3,cca2"
-        );
-        const data = await res.json();
 
-        const countryList = data
-          .map((c) => {
-            const name = c.name?.common || "";
-            // prefer numeric ISO code (ccn3). fallback to cca2 if missing.
-            const code = c.ccn3 || c.cca2 || "";
-            return `${name} - ${code}`.trim();
-          })
-          .filter(Boolean)
-          .sort((a, b) => a.localeCompare(b));
-
-        setCountries(countryList);
-      } catch (err) {
-        console.error("Erreur pays :", err);
-      }
-    };
-
-    const fetchDepartments = async () => {
-      try {
-        const res = await fetch("https://geo.api.gouv.fr/departements");
-        const data = await res.json();
-        const deptNames = data
-          .map((d) => d.nom)
-          .sort((a, b) => a.localeCompare(b));
-        setDepartments(deptNames);
-      } catch (err) {
-        console.error("Erreur départements :", err);
-      }
-    };
-
-    fetchCountries();
-    fetchDepartments();
-  }, []);
-
-  // --- handleInputChange: parse country select values and update code fields automatically
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
-    // If user selected a country option like "France - 250"
     if (name === "nomPays" || name === "nomPays2") {
-      // split by the separator " - " (trim whitespace)
-      const parts = value.split(" - ").map((p) => p?.trim?.() || "");
-      const countryName = parts[0] || "";
-      const countryCode = parts[1] || "";
+      const selectedCountry = COUNTRIES_COG.find(
+        (c) => `${c.name} - ${c.code}` === value
+      );
 
       if (name === "nomPays") {
         setFormData((p) => ({
           ...p,
-          nomPays: countryName,
-          codePays: countryCode || p.codePays,
+          nomPays: selectedCountry?.name || "",
+          codePays: selectedCountry?.code || "",
         }));
       } else {
-        // nomPays2
         setFormData((p) => ({
           ...p,
-          nomPays2: countryName,
-          codePays2: countryCode || p.codePays2,
+          nomPays2: selectedCountry?.name || "",
+          codePays2: selectedCountry?.code || "",
         }));
       }
       return;
     }
+    if (name === "departement") {
+      const selectedDep = departementCode.find(
+        (d) => `${d.name} - ${d.code}` === value
+      );
+      setFormData((p) => ({
+        ...p,
+        departement: selectedDep
+          ? `${selectedDep.name} - ${selectedDep.code}`
+          : "",
+      }));
+      return;
+    }
 
-    // normal inputs
     setFormData((p) => ({ ...p, [name]: value }));
   };
 
@@ -175,9 +113,17 @@ const InscriptClient = () => {
               : "",
 
             // Lieu naissance
-            nomPays: jsonData.lieuNaissance?.codePaysNaissance || "",
-            codePays: jsonData.adressePostale?.codePays || "",
-            departement: jsonData.lieuNaissance?.departementNaissance || "",
+            nomPays:
+              COUNTRIES_COG.find(
+                (c) => c.code === jsonData.lieuNaissance?.codePaysNaissance
+              )?.name || "",
+            codePays: jsonData.lieuNaissance?.codePaysNaissance || "",
+            departement: (() => {
+              const dep = departementCode.find(
+                (d) => d.code === jsonData.lieuNaissance?.departementNaissance
+              );
+              return dep ? `${dep.name} - ${dep.code}` : "";
+            })(),
             commune:
               jsonData.lieuNaissance?.communeNaissance?.libelleCommune || "",
             codeCommune:
@@ -197,7 +143,10 @@ const InscriptClient = () => {
             nomCommune2: jsonData.adressePostale?.libelleCommune || "",
             codeInsee: jsonData.adressePostale?.codeCommune || "",
             codePostal: jsonData.adressePostale?.codePostal || "",
-            nomPays2: "FRANCE",
+            nomPays2:
+              COUNTRIES_COG.find(
+                (c) => c.code === jsonData.lieuNaissance?.codePaysNaissance
+              )?.name || "FRANCE",
             codePays2: jsonData.adressePostale?.codePays || "99100",
 
             // Coordonnée Bancaire
@@ -227,7 +176,6 @@ const InscriptClient = () => {
     }
   };
   const openFile = () => document.getElementById("fileInput").click();
-  const submit = () => console.log("Form submitted:", formData);
 
   const greenFieldNames = [
     "civilite",
@@ -268,7 +216,7 @@ const InscriptClient = () => {
         label: "Nom Pays",
         name: "nomPays",
         type: "select",
-        options: countries,
+        options: COUNTRIES_COG.map((c) => `${c.name} - ${c.code}`),
       },
       {
         label: "Code Pays",
@@ -280,7 +228,7 @@ const InscriptClient = () => {
         label: "Département",
         name: "departement",
         type: "select",
-        options: departments,
+        options: departementCode.map((d) => `${d.name} - ${d.code}`),
       },
     ],
     [{ label: "Commune", name: "commune", readOnly: false }],
@@ -330,7 +278,7 @@ const InscriptClient = () => {
         name: "nomPays2",
         col: "col-6",
         type: "select",
-        options: countries,
+        options: COUNTRIES_COG.map((c) => `${c.name} - ${c.code}`),
       },
 
       { label: "Code pays", name: "codePays2", col: "col-6" },
@@ -340,6 +288,26 @@ const InscriptClient = () => {
     [{ label: "Titulaire", name: "titulaire" }],
     [{ label: "Id Particulier", name: "idParticulier", readOnly: true }],
   ];
+  const fieldConfigs = [...leftFields.flat(), ...rightFields.flat()];
+  const labelMap = Object.fromEntries(
+    fieldConfigs.map((f) => [f.name, f.label || f.name])
+  );
+
+  const submit = () => {
+    const requiredFields = greenFieldNames;
+    const missing = requiredFields.filter((name) => {
+      const val = formData[name];
+      return val === undefined || val === null || String(val).trim() === "";
+    });
+
+    if (missing.length > 0) {
+      const labels = missing.map((n) => labelMap[n] || n).join(", ");
+      alert("Veuillez remplir les champs obligatoires : " + labels);
+      return;
+    }
+
+    console.log("Form submitted:", formData);
+  };
 
   const renderConfig = (config) =>
     config.map((row, idx) => (
@@ -380,6 +348,7 @@ const InscriptClient = () => {
                   field={f}
                   value={fieldValue}
                   onChange={handleInputChange}
+                  required
                 />
               </div>
             </div>
@@ -398,51 +367,24 @@ const InscriptClient = () => {
 
   return (
     <div className="inscription-container">
-      <div className="card shadow-sm inscription-card">
-        <div className="card-header d-flex justify-content-between align-items-center inscription-header">
-          <span className="header-title">📋 INSCRIPTION PARTICULIER</span>
-          <div className="d-flex gap-1">
-            <button
-              className="btn btn-sm"
-              style={{
-                padding: "4px 8px",
-                fontSize: "12px",
-                backgroundColor: "#d4e3f3",
-                border: "1px solid gray",
-                margin: "2px",
-              }}
-            >
-              ─
-            </button>
-            <button
-              className="btn btn-sm"
-              style={{
-                padding: "4px 8px",
-                fontSize: "12px",
-                backgroundColor: "#d4e3f3",
-                border: "1px solid gray",
-                margin: "2px",
-              }}
-            >
-              □
-            </button>
-            <button
-              className="btn btn-sm btn-danger"
-              style={{
-                padding: "4px 8px",
-                fontSize: "12px",
-                margin: "2px",
-              }}
-            >
-              ✕
-            </button>
-          </div>
+      <div className="card inscription-card">
+        <div
+          className="card-header d-flex justify-content-center align-items-center inscription-header"
+          style={{ padding: "1rem 10px" }}
+        >
+          <h1 className="header-title">INSCRIPTION PARTICULIER</h1>
         </div>
 
-        <div className="card-body inscription-body">
+        <div
+          className="card-body inscription-body"
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
           <div className="row">
-            {/* Form Column - 5/6 width */}
-            <div className="col-10">
+            <div className="col-10 mobile-width">
               <div className="row mb-3">
                 <div
                   className="col-md-12"
@@ -567,7 +509,6 @@ const InscriptClient = () => {
               </div>
             </div>
 
-            {/* Buttons Column - 1/6 width */}
             <div
               className="col-2 d-flex flex-column justify-content-start"
               style={{ paddingTop: "20px" }}

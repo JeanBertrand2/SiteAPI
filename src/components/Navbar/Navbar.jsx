@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import "./Navbar.css";
 import { EModeOuverture } from "../../Model/EModeOuverture";
 
-
 const Navbar = () => {
   const [isNavCollapsed, setIsNavCollapsed] = useState(true);
   const [scrolled, setScrolled] = useState(false);
@@ -15,7 +14,7 @@ const Navbar = () => {
 
   const handleNavCollapse = () => setIsNavCollapsed(!isNavCollapsed);
 
-  //  Vérifie s’il existe un prestataire au chargement
+  // Vérifie s’il existe un prestataire au chargement
   useEffect(() => {
     fetch("http://localhost:2083/api/prestataires/existe")
       .then((res) => {
@@ -32,7 +31,7 @@ const Navbar = () => {
       .catch((err) => console.error("Erreur API prestataire :", err));
   }, []);
 
-  //  Scroll et responsive
+  // Scroll et responsive
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
@@ -95,13 +94,13 @@ const Navbar = () => {
               DEMANDE DE PAIEMENT
             </a>
             <div className="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-              <Link className="nav-link" to="/paiment/manuel" style={{ color: "black" }} onClick={handleNavCollapse}>
+              <Link className="nav-link" to="/paiement/manuel" style={{ color: "black" }} onClick={handleNavCollapse}>
                 PAIEMENT MANUELLE
               </Link>
-              <Link className="nav-link" to="/paiment/fichier" style={{ color: "black" }} onClick={handleNavCollapse}>
-                PAIMENT A PARTIR D'UN FICHIER
+              <Link className="nav-link" to="/paiement/fichier" style={{ color: "black" }} onClick={handleNavCollapse}>
+                PAIEMENT A PARTIR D'UN FICHIER
               </Link>
-              <Link className="nav-link" to="/paiment/statut" style={{ color: "black" }} onClick={handleNavCollapse}>
+              <Link className="nav-link" to="/paiement/statut" style={{ color: "black" }} onClick={handleNavCollapse}>
                 STATUT
               </Link>
             </div>
@@ -136,24 +135,24 @@ const Navbar = () => {
             </a>
             <div className="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
               <button
-                  className="dropdown-item nav-link btn btn-link"
-                  style={{ color: "black", textAlign: "left", textDecoration: "none" }}
-                  onClick={() => {
-                    handleNavCollapse();
-                    if (modeOuverture) {
-                      console.log(
-                        modeOuverture === EModeOuverture.E_MODIFIER
-                          ? " Mode MODIFIER : un prestataire existe déjà"
-                          : " Mode NOUVEAU : aucun prestataire enregistré"
-                      );
-                      navigate(`/param/prestataire?mode=${modeOuverture}&id=${idPrestataire}`);
-                    } else {
-                      console.warn(" modeOuverture est null, navigation annulée");
-                    }
-                  }}
-                >
-                  PRESTATAIRE
-                </button>
+                className="dropdown-item nav-link btn btn-link"
+                style={{ color: "black", textAlign: "left", textDecoration: "none" }}
+                onClick={() => {
+                  handleNavCollapse();
+                  if (modeOuverture) {
+                    console.log(
+                      modeOuverture === EModeOuverture.E_MODIFIER
+                        ? "Mode MODIFIER : un prestataire existe déjà"
+                        : "Mode NOUVEAU : aucun prestataire enregistré"
+                    );
+                    navigate(`/param/prestataire?mode=${modeOuverture}&id=${idPrestataire}`);
+                  } else {
+                    console.warn("modeOuverture est null, navigation annulée");
+                  }
+                }}
+              >
+                PRESTATAIRE
+              </button>
 
               <Link className="nav-link" to="/param/util" style={{ color: "black" }} onClick={handleNavCollapse}>
                 UTILISER VERSION SANDBOX

@@ -1,47 +1,62 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { FaFilter } from "react-icons/fa";
+import { FaSearch } from "react-icons/fa";
+import { MdDeleteOutline } from "react-icons/md";
+
 import "./InscriptClient.css";
 const InterogStatut = () => {
+  const navigate = useNavigate();
   const staticData = [
     {
+      id: "CLI001",
       statutInscription: "Validé",
       nomNaissance: "Dupont",
       nomUsage: "Dupont",
       prenoms: "Jean",
       adresseMail: "jean.dupont@example.com",
       dateNaissance: "1980-01-12",
+      identifiantTiers: "TIERS001",
     },
     {
+      id: "CLI002",
       statutInscription: "En attente",
       nomNaissance: "Martin",
       nomUsage: "Martin",
       prenoms: "Sophie",
       adresseMail: "sophie.martin@example.com",
       dateNaissance: "1990-05-21",
+      identifiantTiers: "TIERS002",
     },
     {
+      id: "CLI003",
       statutInscription: "Refusé",
       nomNaissance: "Nguyen",
       nomUsage: "Nguyen",
       prenoms: "Thi",
       adresseMail: "thi.nguyen@example.com",
       dateNaissance: "1975-09-09",
+      identifiantTiers: "TIERS003",
     },
     {
+      id: "CLI004",
       statutInscription: "Validé",
       nomNaissance: "Bernard",
       nomUsage: "Bernard",
       prenoms: "Luc",
       adresseMail: "luc.bernard@example.com",
       dateNaissance: "1988-11-30",
+      identifiantTiers: "TIERS004",
     },
     {
+      id: "CLI005",
       statutInscription: "En cours",
       nomNaissance: "Moreau",
       nomUsage: "Moreau",
       prenoms: "Claire",
       adresseMail: "claire.moreau@example.com",
       dateNaissance: "1995-07-14",
+      identifiantTiers: "TIERS005",
     },
   ];
 
@@ -108,6 +123,19 @@ const InterogStatut = () => {
     console.log("Obtenir statut from row", row);
   };
 
+  const handleSelectClient = (client) => {
+    navigate("/paiement/manuel", {
+      state: {
+        clientData: {
+          id: client.id,
+          nom: `${client.prenoms} ${client.nomNaissance}`,
+          naissance: client.dateNaissance,
+          tiers: client.identifiantTiers,
+        },
+      },
+    });
+  };
+
   const [columnFilters, setColumnFilters] = useState({
     statutInscription: "",
     nomNaissance: "",
@@ -146,6 +174,8 @@ const InterogStatut = () => {
     prenoms: "",
     adresseMail: "",
     dateNaissance: "",
+    id: "",
+    identifiantTiers: "",
   }));
 
   const dataToDisplay = searchResults.length > 0 ? searchResults : defaultRows;
@@ -203,20 +233,19 @@ const InterogStatut = () => {
     { key: "prenoms", label: "Prénoms" },
     { key: "adresseMail", label: "Adresse mail" },
     { key: "dateNaissance", label: "Date naissance" },
+    { key: "actions", label: "Actions" },
   ];
 
   return (
     <div className="inscription-container">
-      <div className="card shadow-sm inscription-card">
-        <div className="card-header d-flex justify-content-between align-items-center inscription-header">
-          <span className="header-title">
-            📋 Obtenir le statut d'inscription d'un client
-          </span>
-          <div className="d-flex gap-2">
-            <button className="btn btn-sm btn-secondary">─</button>
-            <button className="btn btn-sm btn-secondary">□</button>
-            <button className="btn btn-sm btn-danger">✕</button>
-          </div>
+      <div className="card inscription-card shadow-sm-desktop">
+        <div
+          className="card-header d-flex justify-content-center align-items-center inscription-header"
+          style={{ padding: "1rem 10px" }}
+        >
+          <h1 className="header-title">
+            Obtenir le statut d'inscription d'un client
+          </h1>
         </div>
         <div
           className="main-content-wrapper"
@@ -227,7 +256,7 @@ const InterogStatut = () => {
             padding: "0.5rem",
           }}
         >
-          <div className="card-body inscription-body">
+          <div className="card-body inscription-body2">
             <h3
               className="form-label section-title"
               style={{ color: "gray", textDecoration: "underline" }}
@@ -312,16 +341,16 @@ const InterogStatut = () => {
                 }}
               >
                 <button
-                  className="btn btn-primary btn-sm"
+                  className="btn btn-primary btn-sm text-center text-lg-start"
                   onClick={handleSearch}
                 >
-                  🔍 Rechercher
+                  <FaSearch /> Rechercher
                 </button>
                 <button
-                  className="btn btn-secondary btn-sm"
+                  className="btn btn-primary btn-sm text-center text-lg-start"
                   onClick={handleClearCriteria}
                 >
-                  🗑️ Effacer critères
+                  <MdDeleteOutline /> Effacer critères
                 </button>
               </div>
             </div>
@@ -351,68 +380,76 @@ const InterogStatut = () => {
                               userSelect: "none",
                               position: "relative",
                               verticalAlign: "top",
-                              width: "16rem",
+                              width: col.key === "actions" ? "8rem" : "16rem",
                             }}
                           >
-                            <input
-                              type="checkbox"
-                              id={`filter-toggle-${col.key}`}
-                              className="filter-toggle"
-                            />
-
-                            <div
-                              className="th-main"
-                              onClick={() => toggleSort(col.key)}
-                              aria-hidden
-                            >
-                              <span
-                                style={{
-                                  display: "inline-flex",
-                                  alignItems: "center",
-                                  gap: 8,
-                                }}
-                              >
+                            {col.key === "actions" ? (
+                              <div style={{ padding: "8px 4px" }}>
                                 <span>{col.label}</span>
-                                <span
-                                  style={{
-                                    fontSize: "10px",
-                                    userSelect: "none",
-                                  }}
+                              </div>
+                            ) : (
+                              <>
+                                <input
+                                  type="checkbox"
+                                  id={`filter-toggle-${col.key}`}
+                                  className="filter-toggle"
+                                />
+
+                                <div
+                                  className="th-main"
+                                  onClick={() => toggleSort(col.key)}
+                                  aria-hidden
                                 >
-                                  {sortConfig.key === col.key
-                                    ? sortConfig.direction === "asc"
-                                      ? "▲"
-                                      : sortConfig.direction === "desc"
-                                      ? "▼"
-                                      : ""
-                                    : ""}
-                                </span>
-                              </span>
+                                  <span
+                                    style={{
+                                      display: "inline-flex",
+                                      alignItems: "center",
+                                      gap: 8,
+                                    }}
+                                  >
+                                    <span>{col.label}</span>
+                                    <span
+                                      style={{
+                                        fontSize: "10px",
+                                        userSelect: "none",
+                                      }}
+                                    >
+                                      {sortConfig.key === col.key
+                                        ? sortConfig.direction === "asc"
+                                          ? "▲"
+                                          : sortConfig.direction === "desc"
+                                          ? "▼"
+                                          : ""
+                                        : ""}
+                                    </span>
+                                  </span>
 
-                              <label
-                                htmlFor={`filter-toggle-${col.key}`}
-                                className="filter-label"
-                                title="Afficher le filtre"
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                <FaFilter />
-                              </label>
-                            </div>
+                                  <label
+                                    htmlFor={`filter-toggle-${col.key}`}
+                                    className="filter-label"
+                                    title="Afficher le filtre"
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    <FaFilter />
+                                  </label>
+                                </div>
 
-                            <input
-                              type="text"
-                              name={col.key}
-                              value={columnFilters[col.key] || ""}
-                              onChange={handleColumnFilterChange}
-                              className="form-control form-control-sm filter-input"
-                              placeholder="Filtrer..."
-                              style={{
-                                fontSize: "12px",
-                                position: "relative",
-                                bottom: "2rem",
-                                width: "7rem",
-                              }}
-                            />
+                                <input
+                                  type="text"
+                                  name={col.key}
+                                  value={columnFilters[col.key] || ""}
+                                  onChange={handleColumnFilterChange}
+                                  className="form-control form-control-sm filter-input"
+                                  placeholder="Filtrer..."
+                                  style={{
+                                    fontSize: "12px",
+                                    position: "relative",
+                                    bottom: "2rem",
+                                    width: "7rem",
+                                  }}
+                                />
+                              </>
+                            )}
                           </th>
                         ))}
                       </tr>
@@ -433,11 +470,7 @@ const InterogStatut = () => {
                         finalResults.map((result, rowIdx) => (
                           <tr
                             key={rowIdx}
-                            onClick={() => {
-                              handleRowClick(result);
-                            }}
                             style={{
-                              cursor: "pointer",
                               fontSize: "12px",
                               padding: "8px",
                               height: "30px",
@@ -451,9 +484,37 @@ const InterogStatut = () => {
                                   backgroundColor:
                                     rowIdx % 2 === 0 ? "#ffffff" : "#f2f2f2",
                                   verticalAlign: "middle",
+                                  cursor:
+                                    col.key === "actions"
+                                      ? "default"
+                                      : "pointer",
+                                }}
+                                onClick={() => {
+                                  if (col.key !== "actions") {
+                                    handleRowClick(result);
+                                  }
                                 }}
                               >
-                                {result[col.key]}
+                                {col.key === "actions" ? (
+                                  result.id ? (
+                                    <button
+                                      className="btn btn-sm btn-primary"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleSelectClient(result);
+                                      }}
+                                      title="Sélectionner ce client"
+                                      style={{
+                                        fontSize: "11px",
+                                        padding: "2px 8px",
+                                      }}
+                                    >
+                                      Sélectionner
+                                    </button>
+                                  ) : null
+                                ) : (
+                                  result[col.key]
+                                )}
                               </td>
                             ))}
                           </tr>
