@@ -124,7 +124,7 @@ const InterogStatut = () => {
   };
 
   const handleSelectClient = (client) => {
-    navigate("/paiment/manuel", {
+    navigate("/paiement/manuel", {
       state: {
         clientData: {
           id: client.id,
