@@ -7,5 +7,5 @@ export const EModeOuverture = Object.freeze({
   E_PARAMETRE_API: "PARAMETRE_API",
   E_NOUVEAU: "NOUVEAU",
   E_MODIFIER: "MODIFIER",
-  E_RECHERCHE: "RECHERCHE"
+  E_RECHERCHE: "RECHERCHE",
 });
