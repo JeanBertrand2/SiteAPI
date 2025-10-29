@@ -23,9 +23,9 @@ const MainRoute = () => {
           <Route path="/" element={<Homepage />} />
           <Route path="/inscription/client" element={<InscriptClient />} />
           <Route path="/inscription/statut" element={<InterogStatut />} />
-          <Route path="paiment/manuel" element={<PaiementManuel />} />
-          <Route path="/paiment/fichier" element={<PaiementFichier />} />
-          <Route path="/paiment/statut" element={<Stautut />} />
+          <Route path="paiement/manuel" element={<PaiementManuel />} />
+          <Route path="/paiement/fichier" element={<PaiementFichier />} />
+          <Route path="/paiement/statut" element={<Stautut />} />
 
           <Route path="/bdd/client" element={<BddClient />} />
           <Route path="/bdd/facture" element={<BddFacture />} />
