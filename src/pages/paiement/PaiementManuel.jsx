@@ -36,7 +36,12 @@ const PaiementManuel = () => {
       setSelectedDate(naissance || today);
       setIdtiers(tiers || "");
     }
-  }, [location.state]);
+  }, [
+    location.state?.clientData?.id,
+    location.state?.clientData?.nom,
+    location.state?.clientData?.naissance,
+    location.state?.clientData?.tiers
+  ]);
 
   const add = () => {
     const nouvelleLigne = {
