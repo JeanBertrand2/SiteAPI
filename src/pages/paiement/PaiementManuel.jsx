@@ -175,7 +175,7 @@ const PaiementManuel = () => {
       {formulaires.map((formulaire, formIndex) => (
         <div key={formulaire.id} className="card mb-4 shadow-sm">
           <div className="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-            <h5 className="mb-0">Formulaire #{formIndex + 1}</h5>
+            <h5 className="mb-0">Formulaire</h5>
             {formulaires.length > 1 && (
               <button
                 className="btn btn-sm btn-danger"
