@@ -6,24 +6,31 @@ const PaiementManuel = () => {
   const location = useLocation();
   const today = new Date().toISOString().split("T")[0];
 
-  const [blocsPaiement, setBlocsPaiement] = useState([
-    {
-      id: Date.now(),
-      clientId: "",
-      nomclient: "",
-      naissance: today,
-      dde: today,
-      dfe: today,
-      datevers: today,
-      datefact: today,
-      mntacompte: 0,
-      numfacture: 0,
-      identifiantT: "",
-      mntfht: 0,
-      mntfttc: 0,
-      lignes: [],
-    },
-  ]);
+  // Structure initiale d'un formulaire
+  const initialFormState = {
+    demandePaiement: [],
+    selectedDate: today,
+    clientId: "",
+    identifiantT: "",
+    numfacture: 0,
+    mntacompte: 0,
+    datevers: today,
+    datefact: today,
+    nomclient: "",
+    dde: today,
+    dfe: today,
+    mntfht: 0,
+    mntfttc: 0,
+  };
+
+  // Tableau de formulaires (chaque formulaire est indépendant)
+  const [formulaires, setFormulaires] = useState(() => {
+    // Restaurer les formulaires depuis location.state si disponibles
+    if (location.state?.allFormulaires) {
+      return location.state.allFormulaires;
+    }
+    return [{ ...initialFormState, id: Date.now() }];
+  });
 
   const activites = ["304001", "304002", "304003"];
   const unites = ["FORFAIT", "HEURE", "JOUR"];
@@ -33,49 +40,53 @@ const PaiementManuel = () => {
     { code: "NAT003", libelle: "Assistance administrative" },
   ];
 
-  // Récupérer les données transmises par la navigation depuis InterogStatut
+  // Gestion des données reçues depuis InterogStatut
   useEffect(() => {
-    if (location.state?.clientData) {
+    if (location.state?.clientData && location.state?.formId !== undefined) {
       const { id, nom, naissance, tiers } = location.state.clientData;
+      const formId = location.state.formId;
 
-      // Mettre à jour le premier bloc avec les données du client
-      setBlocsPaiement((prevBlocs) => {
-        const blocs = [...prevBlocs];
-        if (blocs.length > 0) {
-          blocs[0] = {
-            ...blocs[0],
-            clientId: id || "",
-            nomclient: nom || "",
-            naissance: naissance || today,
-            identifiantT: tiers || "",
-          };
-        }
-        return blocs;
-      });
+      setFormulaires((prevForms) =>
+        prevForms.map((form, idx) =>
+          idx === formId
+            ? {
+                ...form,
+                clientId: id || "",
+                nomclient: nom || "",
+                selectedDate: naissance || today,
+                identifiantT: tiers || "",
+              }
+            : form
+        )
+      );
     }
-  }, [location.state, today]);
+  }, [location.state]);
 
-  const ajouterBlocPaiement = () => {
-    const nouveauBloc = {
-      id: Date.now(),
-      clientId: "",
-      nomclient: "",
-      naissance: today,
-      dde: today,
-      dfe: today,
-      datevers: today,
-      datefact: today,
-      mntacompte: 0,
-      numfacture: 0,
-      identifiantT: "",
-      mntfht: 0,
-      mntfttc: 0,
-      lignes: [],
-    };
-    setBlocsPaiement([...blocsPaiement, nouveauBloc]);
+  // Ajouter un nouveau formulaire
+  const ajouterNouveauFormulaire = () => {
+    setFormulaires([...formulaires, { ...initialFormState, id: Date.now() }]);
   };
 
-  const ajouterLigne = (blocIndex) => {
+  // Supprimer un formulaire
+  const supprimerFormulaire = (index) => {
+    if (formulaires.length > 1) {
+      setFormulaires(formulaires.filter((_, idx) => idx !== index));
+    } else {
+      alert("Vous devez garder au moins un formulaire !");
+    }
+  };
+
+  // Mettre à jour un champ d'un formulaire spécifique
+  const updateFormField = (formIndex, field, value) => {
+    setFormulaires((prevForms) =>
+      prevForms.map((form, idx) =>
+        idx === formIndex ? { ...form, [field]: value } : form
+      )
+    );
+  };
+
+  // Ajouter une ligne de prestation à un formulaire
+  const add = (formIndex) => {
     const nouvelleLigne = {
       ca: "",
       cn: "",
@@ -89,28 +100,52 @@ const PaiementManuel = () => {
       compl1: "",
       compl2: "",
     };
-    const blocs = [...blocsPaiement];
-    blocs[blocIndex].lignes.push(nouvelleLigne);
-    setBlocsPaiement(blocs);
+    setFormulaires((prevForms) =>
+      prevForms.map((form, idx) =>
+        idx === formIndex
+          ? {
+              ...form,
+              demandePaiement: [...form.demandePaiement, nouvelleLigne],
+            }
+          : form
+      )
+    );
   };
 
-  const updateBlocField = (blocIndex, field, value) => {
-    const blocs = [...blocsPaiement];
-    blocs[blocIndex][field] = value;
-    setBlocsPaiement(blocs);
+  // Réinitialiser les prestations d'un formulaire
+  const reset = (formIndex) => {
+    setFormulaires((prevForms) =>
+      prevForms.map((form, idx) =>
+        idx === formIndex ? { ...form, demandePaiement: [] } : form
+      )
+    );
   };
 
-  const updateLigne = (blocIndex, ligneIndex, field, value) => {
-    const blocs = [...blocsPaiement];
-    blocs[blocIndex].lignes[ligneIndex][field] = value;
-    setBlocsPaiement(blocs);
+  // Envoyer la demande de paiement d'un formulaire
+  const dem_paiement = (formIndex) => {
+    alert(`Demande de paiement envoyée pour le formulaire ${formIndex + 1} !`);
   };
 
-  const calculTotaux = (bloc) => {
+  // Mettre à jour une ligne de prestation
+  const updateRow = (formIndex, rowIndex, field, value) => {
+    setFormulaires((prevForms) =>
+      prevForms.map((form, idx) => {
+        if (idx === formIndex) {
+          const updatedDemandes = [...form.demandePaiement];
+          updatedDemandes[rowIndex][field] = value;
+          return { ...form, demandePaiement: updatedDemandes };
+        }
+        return form;
+      })
+    );
+  };
+
+  // Calculer les totaux pour un formulaire
+  const calculTotaux = (demandePaiement) => {
     let ttc = 0,
       ht = 0,
       tva = 0;
-    bloc.lignes.forEach((row) => {
+    demandePaiement.forEach((row) => {
       ttc += row.mntprestttc || 0;
       ht += row.mntprestht || 0;
       tva += row.mntpresttva || 0;
@@ -118,426 +153,484 @@ const PaiementManuel = () => {
     return { ttc, ht, tva };
   };
 
-  const envoyerPaiement = () => {
-    alert("Demande de paiement envoyée !");
+  // Naviguer vers InterogStatut avec l'index du formulaire
+  const navigateToStatut = (formIndex) => {
+    navigate("/inscription/statut", {
+      state: {
+        formId: formIndex,
+        allFormulaires: formulaires, // Passer tous les formulaires pour les préserver
+      },
+    });
   };
 
   return (
     <div className="container mt-4">
-      <h2 className="text-center mb-4 fw-semibold text-primary">
-        Demande de Paiement
-      </h2>
-
-      <div className="text-end mb-3">
-        <button className="btn btn-warning" onClick={ajouterBlocPaiement}>
-          + Nouveau
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h2 className="fw-semibold text-primary">Demande de Paiement</h2>
+        <button className="btn btn-success" onClick={ajouterNouveauFormulaire}>
+          + Nouveau Formulaire
         </button>
       </div>
 
-      {blocsPaiement.map((bloc, blocIndex) => (
-        <div key={bloc.id} className="border rounded p-4 mb-5 shadow-sm">
-          {/*<h5 className="text-primary mb-3">Bloc #{blocIndex + 1}</h5>*/}
+      {formulaires.map((formulaire, formIndex) => (
+        <div key={formulaire.id} className="card mb-4 shadow-sm">
+          <div className="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h5 className="mb-0">Formulaire</h5>
+            {formulaires.length > 1 && (
+              <button
+                className="btn btn-sm btn-danger"
+                onClick={() => supprimerFormulaire(formIndex)}
+              >
+                Supprimer ce formulaire
+              </button>
+            )}
+          </div>
+          <div className="card-body">
+            <div className="row g-3">
+              <div className="col-md-6">
+                <label className="form-label">Identifiant client</label>
+                <div className="input-group">
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={formulaire.clientId}
+                    onChange={(e) =>
+                      updateFormField(formIndex, "clientId", e.target.value)
+                    }
+                  />
+                  <button
+                    className="btn btn-outline-secondary"
+                    type="button"
+                    onClick={() => navigateToStatut(formIndex)}
+                    title="Voir le statut d'inscription"
+                  >
+                    <i className="bi bi-box-arrow-up-right"></i>
+                  </button>
+                </div>
+              </div>
 
-          <div className="row g-3">
-            <div className="col-md-6">
-              <label className="form-label">Identifiant client</label>
-              <div className="input-group">
+              <div className="col-md-6">
+                <label className="form-label">Nom client</label>
                 <input
                   type="text"
                   className="form-control"
-                  value={bloc.clientId}
+                  value={formulaire.nomclient}
                   onChange={(e) =>
-                    updateBlocField(blocIndex, "clientId", e.target.value)
+                    updateFormField(formIndex, "nomclient", e.target.value)
                   }
                 />
-                <button
-                  className="btn btn-outline-secondary"
-                  type="button"
-                  onClick={() => navigate("/inscription/statut")}
-                  title="Voir le statut d'inscription"
-                >
-                  <i className="bi bi-box-arrow-up-right"></i>
-                </button>
+              </div>
+
+              <div className="col-md-6">
+                <label className="form-label">Date de naissance</label>
+                <input
+                  type="date"
+                  className="form-control"
+                  value={formulaire.selectedDate}
+                  onChange={(e) =>
+                    updateFormField(formIndex, "selectedDate", e.target.value)
+                  }
+                />
+              </div>
+
+              <div className="col-md-6">
+                <label className="form-label">Date d'embauche</label>
+                <input
+                  type="date"
+                  className="form-control"
+                  value={formulaire.dde}
+                  onChange={(e) =>
+                    updateFormField(formIndex, "dde", e.target.value)
+                  }
+                />
+              </div>
+
+              <div className="col-md-6">
+                <label className="form-label">Date fin emploi</label>
+                <input
+                  type="date"
+                  className="form-control"
+                  value={formulaire.dfe}
+                  onChange={(e) =>
+                    updateFormField(formIndex, "dfe", e.target.value)
+                  }
+                />
+              </div>
+
+              <div className="col-md-6">
+                <label className="form-label">Date versement acompte</label>
+                <input
+                  type="date"
+                  className="form-control"
+                  value={formulaire.datevers}
+                  onChange={(e) =>
+                    updateFormField(formIndex, "datevers", e.target.value)
+                  }
+                />
+              </div>
+
+              <div className="col-md-6">
+                <label className="form-label">Date facture</label>
+                <input
+                  type="date"
+                  className="form-control"
+                  value={formulaire.datefact}
+                  onChange={(e) =>
+                    updateFormField(formIndex, "datefact", e.target.value)
+                  }
+                />
+              </div>
+
+              <div className="col-md-6">
+                <label className="form-label">Montant acompte</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  className="form-control"
+                  value={formulaire.mntacompte}
+                  onChange={(e) =>
+                    updateFormField(
+                      formIndex,
+                      "mntacompte",
+                      parseFloat(e.target.value)
+                    )
+                  }
+                />
+              </div>
+
+              <div className="col-md-6">
+                <label className="form-label">Numéro facture tiers</label>
+                <input
+                  type="number"
+                  className="form-control"
+                  value={formulaire.numfacture}
+                  onChange={(e) =>
+                    updateFormField(
+                      formIndex,
+                      "numfacture",
+                      parseInt(e.target.value)
+                    )
+                  }
+                />
+              </div>
+
+              <div className="col-md-6">
+                <label className="form-label">Identifiant tiers</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={formulaire.identifiantT}
+                  onChange={(e) =>
+                    updateFormField(formIndex, "identifiantT", e.target.value)
+                  }
+                />
+              </div>
+
+              <div className="col-md-6">
+                <label className="form-label">Montant facture HT</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  className="form-control"
+                  value={formulaire.mntfht}
+                  onChange={(e) =>
+                    updateFormField(
+                      formIndex,
+                      "mntfht",
+                      parseFloat(e.target.value)
+                    )
+                  }
+                />
+              </div>
+
+              <div className="col-md-6">
+                <label className="form-label">Montant facture TTC</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  className="form-control"
+                  value={formulaire.mntfttc}
+                  onChange={(e) =>
+                    updateFormField(
+                      formIndex,
+                      "mntfttc",
+                      parseFloat(e.target.value)
+                    )
+                  }
+                />
               </div>
             </div>
 
-            <div className="col-md-6">
-              <label className="form-label">Nom client</label>
-              <input
-                type="text"
-                className="form-control"
-                value={bloc.nomclient}
-                onChange={(e) =>
-                  updateBlocField(blocIndex, "nomclient", e.target.value)
-                }
-              />
-            </div>
-            <div className="col-md-6">
-              <label className="form-label">Date de naissance</label>
-              <input
-                type="date"
-                className="form-control"
-                value={bloc.naissance}
-                onChange={(e) =>
-                  updateBlocField(blocIndex, "naissance", e.target.value)
-                }
-              />
-            </div>
-            <div className="col-md-6">
-              <label className="form-label">Date d'embauche</label>
-              <input
-                type="date"
-                className="form-control"
-                value={bloc.dde}
-                onChange={(e) =>
-                  updateBlocField(blocIndex, "dde", e.target.value)
-                }
-              />
-            </div>
-            <div className="col-md-6">
-              <label className="form-label">Date fin emploi</label>
-              <input
-                type="date"
-                className="form-control"
-                value={bloc.dfe}
-                onChange={(e) =>
-                  updateBlocField(blocIndex, "dfe", e.target.value)
-                }
-              />
-            </div>
-            <div className="col-md-6">
-              <label className="form-label">Date versement acompte</label>
-              <input
-                type="date"
-                className="form-control"
-                value={bloc.datevers}
-                onChange={(e) =>
-                  updateBlocField(blocIndex, "datevers", e.target.value)
-                }
-              />
-            </div>
-            <div className="col-md-6">
-              <label className="form-label">Date facture</label>
-              <input
-                type="date"
-                className="form-control"
-                value={bloc.datefact}
-                onChange={(e) =>
-                  updateBlocField(blocIndex, "datefact", e.target.value)
-                }
-              />
-            </div>
-            <div className="col-md-6">
-              <label className="form-label">Montant acompte</label>
-              <input
-                type="number"
-                className="form-control"
-                value={bloc.mntacompte}
-                onChange={(e) =>
-                  updateBlocField(
-                    blocIndex,
-                    "mntacompte",
-                    parseFloat(e.target.value)
-                  )
-                }
-              />
-            </div>
-            <div className="col-md-6">
-              <label className="form-label">Numéro facture tiers</label>
-              <input
-                type="number"
-                className="form-control"
-                value={bloc.numfacture}
-                onChange={(e) =>
-                  updateBlocField(
-                    blocIndex,
-                    "numfacture",
-                    parseInt(e.target.value)
-                  )
-                }
-              />
-            </div>
-            <div className="col-md-6">
-              <label className="form-label">Identifiant tiers</label>
-              <input
-                type="text"
-                className="form-control"
-                value={bloc.identifiantT}
-                onChange={(e) =>
-                  updateBlocField(blocIndex, "identifiantT", e.target.value)
-                }
-              />
-            </div>
-            <div className="col-md-6">
-              <label className="form-label">Montant facture HT</label>
-              <input
-                type="number"
-                className="form-control"
-                value={bloc.mntfht}
-                onChange={(e) =>
-                  updateBlocField(
-                    blocIndex,
-                    "mntfht",
-                    parseFloat(e.target.value)
-                  )
-                }
-              />
-            </div>
-            <div className="col-md-6">
-              <label className="form-label">Montant facture TTC</label>
-              <input
-                type="number"
-                className="form-control"
-                value={bloc.mntfttc}
-                onChange={(e) =>
-                  updateBlocField(
-                    blocIndex,
-                    "mntfttc",
-                    parseFloat(e.target.value)
-                  )
-                }
-              />
-            </div>
-          </div>
+            <div className="mt-5">
+              <h4 className="mb-3">Prestations</h4>
+              <div className="table-responsive">
+                <table className="table table-bordered table-striped table-sm w-100">
+                  <thead className="table-light">
+                    <tr>
+                      <th className="text-nowrap">Code Activity</th>
+                      <th className="text-nowrap">Code Nature</th>
+                      <th className="text-nowrap">Libellé prestation</th>
+                      <th className="text-nowrap">Quantité</th>
+                      <th className="text-nowrap">Unité</th>
+                      <th className="text-nowrap">Mnt Unit TTC</th>
+                      <th className="text-nowrap">Mnt Prestation TTC</th>
+                      <th className="text-nowrap">Mnt Prestation HT</th>
+                      <th className="text-nowrap">Mnt Prestation TVA</th>
+                      <th className="text-nowrap">Complément 1</th>
+                      <th className="text-nowrap">Complément 2</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {formulaire.demandePaiement.map((row, rowIndex) => (
+                      <tr key={rowIndex}>
+                        {/* Code Activité */}
+                        <td className="text-nowrap">
+                          <select
+                            className="form-select"
+                            value={row.ca}
+                            onChange={(e) =>
+                              updateRow(
+                                formIndex,
+                                rowIndex,
+                                "ca",
+                                e.target.value
+                              )
+                            }
+                          >
+                            <option value="">-- Choisir --</option>
+                            {activites.map((code) => (
+                              <option key={code} value={code}>
+                                {code}
+                              </option>
+                            ))}
+                          </select>
+                        </td>
 
-          <div className="mt-4">
-            <h6>Prestations</h6>
-            <table className="table table-bordered table-sm">
-              <thead className="table-light">
-                <tr>
-                  <th>Code Activité</th>
-                  <th>Code Nature</th>
-                  <th>Libellé</th>
-                  <th>Quantité</th>
-                  <th>Unité</th>
-                  <th>Unit TTC</th>
-                  <th>TTC</th>
-                  <th>HT</th>
-                  <th>TVA</th>
-                  <th>Complément 1</th>
-                  <th>Complément 2</th>
-                </tr>
-              </thead>
-              <tbody>
-                {bloc.lignes.map((row, ligneIndex) => (
-                  <tr key={ligneIndex}>
-                    <td>
-                      <select
-                        className="form-select"
-                        value={row.ca}
-                        onChange={(e) =>
-                          updateLigne(
-                            blocIndex,
-                            ligneIndex,
-                            "ca",
-                            e.target.value
-                          )
-                        }
-                      >
-                        <option value="">-- Choisir --</option>
-                        {activites.map((code) => (
-                          <option key={code} value={code}>
-                            {code}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-                    <td>
-                      <select
-                        className="form-select"
-                        value={row.cn}
-                        onChange={(e) => {
-                          const selectedCode = e.target.value;
-                          const nature = natures.find(
-                            (n) => n.code === selectedCode
-                          );
-                          updateLigne(
-                            blocIndex,
-                            ligneIndex,
-                            "cn",
-                            selectedCode
-                          );
-                          if (nature) {
-                            updateLigne(
-                              blocIndex,
-                              ligneIndex,
-                              "libprest",
-                              nature.libelle
-                            );
-                          }
-                        }}
-                      >
-                        <option value="">-- Choisir --</option>
-                        {natures.map((n) => (
-                          <option key={n.code} value={n.code}>
-                            {n.code}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-                    <td>
-                      <input
-                        type="text"
-                        className="form-control"
-                        value={row.libprest}
-                        onChange={(e) =>
-                          updateLigne(
-                            blocIndex,
-                            ligneIndex,
-                            "libprest",
-                            e.target.value
-                          )
-                        }
-                      />
-                    </td>
-                    <td>
-                      <input
-                        type="number"
-                        className="form-control"
-                        value={row.qte}
-                        onChange={(e) =>
-                          updateLigne(
-                            blocIndex,
-                            ligneIndex,
-                            "qte",
-                            parseFloat(e.target.value)
-                          )
-                        }
-                      />
-                    </td>
-                    <td>
-                      <select
-                        className="form-select"
-                        value={row.unit}
-                        onChange={(e) =>
-                          updateLigne(
-                            blocIndex,
-                            ligneIndex,
-                            "unit",
-                            e.target.value
-                          )
-                        }
-                      >
-                        <option value="">-- Choisir --</option>
-                        {unites.map((u) => (
-                          <option key={u} value={u}>
-                            {u}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-                    <td>
-                      <input
-                        type="number"
-                        className="form-control"
-                        value={row.mntunit}
-                        onChange={(e) =>
-                          updateLigne(
-                            blocIndex,
-                            ligneIndex,
-                            "mntunit",
-                            parseFloat(e.target.value)
-                          )
-                        }
-                      />
-                    </td>
-                    <td>
-                      <input
-                        type="number"
-                        className="form-control"
-                        value={row.mntprestttc}
-                        onChange={(e) =>
-                          updateLigne(
-                            blocIndex,
-                            ligneIndex,
-                            "mntprestttc",
-                            parseFloat(e.target.value)
-                          )
-                        }
-                      />
-                    </td>
-                    <td>
-                      <input
-                        type="number"
-                        className="form-control"
-                        value={row.mntprestht}
-                        onChange={(e) =>
-                          updateLigne(
-                            blocIndex,
-                            ligneIndex,
-                            "mntprestht",
-                            parseFloat(e.target.value)
-                          )
-                        }
-                      />
-                    </td>
-                    <td>
-                      <input
-                        type="number"
-                        className="form-control"
-                        value={row.mntpresttva}
-                        onChange={(e) =>
-                          updateLigne(
-                            blocIndex,
-                            ligneIndex,
-                            "mntpresttva",
-                            parseFloat(e.target.value)
-                          )
-                        }
-                      />
-                    </td>
-                    <td>
-                      <input
-                        type="text"
-                        className="form-control"
-                        value={row.compl1}
-                        onChange={(e) =>
-                          updateLigne(
-                            blocIndex,
-                            ligneIndex,
-                            "compl1",
-                            e.target.value
-                          )
-                        }
-                      />
-                    </td>
-                    <td>
-                      <input
-                        type="text"
-                        className="form-control"
-                        value={row.compl2}
-                        onChange={(e) =>
-                          updateLigne(
-                            blocIndex,
-                            ligneIndex,
-                            "compl2",
-                            e.target.value
-                          )
-                        }
-                      />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-              <tfoot>
-                <tr className="table-secondary fw-bold">
-                  <td colSpan="6">Totaux</td>
-                  <td>{calculTotaux(bloc).ttc.toFixed(2)} Ariary</td>
-                  <td>{calculTotaux(bloc).ht.toFixed(2)} Ariary</td>
-                  <td>{calculTotaux(bloc).tva.toFixed(2)} Ariary</td>
-                  <td colSpan="2"></td>
-                </tr>
-              </tfoot>
-            </table>
+                        {/* Code Nature */}
+                        <td className="text-nowrap">
+                          <select
+                            className="form-select"
+                            value={row.cn}
+                            onChange={(e) => {
+                              const selectedCode = e.target.value;
+                              const nature = natures.find(
+                                (n) => n.code === selectedCode
+                              );
+                              updateRow(
+                                formIndex,
+                                rowIndex,
+                                "cn",
+                                selectedCode
+                              );
+                              if (nature) {
+                                updateRow(
+                                  formIndex,
+                                  rowIndex,
+                                  "libprest",
+                                  nature.libelle
+                                );
+                              }
+                            }}
+                          >
+                            <option value="">-- Choisir --</option>
+                            {natures.map((n) => (
+                              <option key={n.code} value={n.code}>
+                                {n.code}
+                              </option>
+                            ))}
+                          </select>
+                        </td>
+                        <td>
+                          <input
+                            type="text"
+                            className="form-control"
+                            value={row.libprest}
+                            onChange={(e) =>
+                              updateRow(
+                                formIndex,
+                                rowIndex,
+                                "libprest",
+                                e.target.value
+                              )
+                            }
+                          />
+                        </td>
+                        <td>
+                          <input
+                            type="number"
+                            className="form-control"
+                            value={row.qte}
+                            onChange={(e) =>
+                              updateRow(
+                                formIndex,
+                                rowIndex,
+                                "qte",
+                                parseFloat(e.target.value)
+                              )
+                            }
+                          />
+                        </td>
 
-            <div className="d-flex justify-content-end gap-3 mt-3">
+                        {/* Unité */}
+                        <td className="text-nowrap">
+                          <select
+                            className="form-select"
+                            value={row.unit}
+                            onChange={(e) =>
+                              updateRow(
+                                formIndex,
+                                rowIndex,
+                                "unit",
+                                e.target.value
+                              )
+                            }
+                          >
+                            <option value="">-- Choisir --</option>
+                            {unites.map((u) => (
+                              <option key={u} value={u}>
+                                {u}
+                              </option>
+                            ))}
+                          </select>
+                        </td>
+
+                        <td>
+                          <input
+                            type="number"
+                            className="form-control"
+                            value={row.mntunit}
+                            onChange={(e) =>
+                              updateRow(
+                                formIndex,
+                                rowIndex,
+                                "mntunit",
+                                parseFloat(e.target.value)
+                              )
+                            }
+                          />
+                        </td>
+                        <td>
+                          <input
+                            type="number"
+                            className="form-control"
+                            value={row.mntprestttc}
+                            onChange={(e) =>
+                              updateRow(
+                                formIndex,
+                                rowIndex,
+                                "mntprestttc",
+                                parseFloat(e.target.value)
+                              )
+                            }
+                          />
+                        </td>
+                        <td>
+                          <input
+                            type="number"
+                            className="form-control"
+                            value={row.mntprestht}
+                            onChange={(e) =>
+                              updateRow(
+                                formIndex,
+                                rowIndex,
+                                "mntprestht",
+                                parseFloat(e.target.value)
+                              )
+                            }
+                          />
+                        </td>
+                        <td>
+                          <input
+                            type="number"
+                            className="form-control"
+                            value={row.mntpresttva}
+                            onChange={(e) =>
+                              updateRow(
+                                formIndex,
+                                rowIndex,
+                                "mntpresttva",
+                                parseFloat(e.target.value)
+                              )
+                            }
+                          />
+                        </td>
+                        <td>
+                          <input
+                            type="text"
+                            className="form-control"
+                            value={row.compl1}
+                            onChange={(e) =>
+                              updateRow(
+                                formIndex,
+                                rowIndex,
+                                "compl1",
+                                e.target.value
+                              )
+                            }
+                          />
+                        </td>
+                        <td>
+                          <input
+                            type="text"
+                            className="form-control"
+                            value={row.compl2}
+                            onChange={(e) =>
+                              updateRow(
+                                formIndex,
+                                rowIndex,
+                                "compl2",
+                                e.target.value
+                              )
+                            }
+                          />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+
+                  <tfoot>
+                    <tr className="table-secondary fw-bold">
+                      <td colSpan="6">Totaux</td>
+                      <td>
+                        {calculTotaux(formulaire.demandePaiement).ttc.toFixed(
+                          2
+                        )}{" "}
+                        Ariary
+                      </td>
+                      <td>
+                        {calculTotaux(formulaire.demandePaiement).ht.toFixed(2)}{" "}
+                        Ariary
+                      </td>
+                      <td>
+                        {calculTotaux(formulaire.demandePaiement).tva.toFixed(
+                          2
+                        )}{" "}
+                        Ariary
+                      </td>
+                      <td colSpan="2"></td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+
+            <div className="d-flex justify-content-end gap-3 mt-4">
               <button
                 className="btn btn-success"
-                onClick={() => ajouterLigne(blocIndex)}
+                onClick={() => add(formIndex)}
               >
-                + Ajouter ligne
+                + Ajouter
               </button>
-              <button className="btn btn-primary" onClick={envoyerPaiement}>
+              <button
+                className="btn btn-danger"
+                onClick={() => reset(formIndex)}
+              >
+                Supprimer
+              </button>
+              <button
+                className="btn btn-primary"
+                onClick={() => dem_paiement(formIndex)}
+              >
                 Demande de paiement
               </button>
             </div>

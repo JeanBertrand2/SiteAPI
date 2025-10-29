@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { FaFilter } from "react-icons/fa";
 import { FaSearch } from "react-icons/fa";
 import { MdDeleteOutline } from "react-icons/md";
 
 import "./InscriptClient.css";
 const InterogStatut = () => {
+  const location = useLocation();
   const navigate = useNavigate();
   const staticData = [
     {
@@ -124,6 +125,13 @@ const InterogStatut = () => {
   };
 
   const handleSelectClient = (client) => {
+    // Récupérer l'index du formulaire depuis location.state s'il existe
+    const formId =
+      location.state?.formId !== undefined ? location.state.formId : 0;
+
+    // Récupérer tous les formulaires pour les préserver
+    const allFormulaires = location.state?.allFormulaires;
+
     navigate("/paiement/manuel", {
       state: {
         clientData: {
@@ -132,6 +140,8 @@ const InterogStatut = () => {
           naissance: client.dateNaissance,
           tiers: client.identifiantTiers,
         },
+        formId: formId, // Passer l'index du formulaire
+        allFormulaires: allFormulaires, // Renvoyer tous les formulaires
       },
     });
   };
