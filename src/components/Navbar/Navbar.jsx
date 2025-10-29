@@ -14,7 +14,6 @@ const Navbar = () => {
 
   const handleNavCollapse = () => setIsNavCollapsed(!isNavCollapsed);
 
-  // Vérifie s’il existe un prestataire au chargement
   useEffect(() => {
     fetch("http://localhost:2083/api/prestataires/existe")
       .then((res) => {
@@ -31,7 +30,6 @@ const Navbar = () => {
       .catch((err) => console.error("Erreur API prestataire :", err));
   }, []);
 
-  // Scroll et responsive
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
@@ -67,7 +65,11 @@ const Navbar = () => {
         <span className="navbar-toggler-icon"></span>
       </button>
 
-      <div className="collapse navbar-collapse" id="navbarNavDropdown" style={{ margin: "auto" }}>
+      <div
+        className="collapse navbar-collapse"
+        id="navbarNavDropdown"
+        style={{ margin: "auto" }}
+      >
         <ul className="navbar-nav" style={{ margin: "15px auto" }}>
           <li className="nav-item dropdown">
             <Link className="nav-link" to="/" onClick={handleNavCollapse}>
@@ -76,67 +78,151 @@ const Navbar = () => {
           </li>
 
           <li className="nav-item dropdown">
-            <a className="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown">
+            <a
+              className="nav-link dropdown-toggle"
+              href="#"
+              id="navbarDropdownMenuLink"
+              data-toggle="dropdown"
+            >
               INSCRIPTION CLIENT
             </a>
-            <div className="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-              <Link className="nav-link" to="/inscription/client" onClick={handleNavCollapse}>
+            <div
+              className="dropdown-menu"
+              aria-labelledby="navbarDropdownMenuLink"
+            >
+              <Link
+                className="nav-link"
+                to="/inscription/client"
+                onClick={handleNavCollapse}
+              >
                 NOUVEAU CLIENT
               </Link>
-              <Link className="nav-link" to="/inscription/statut" onClick={handleNavCollapse}>
+              <Link
+                className="nav-link"
+                to="/inscription/statut"
+                onClick={handleNavCollapse}
+              >
                 INTERROGATION STATUT CLIENT
               </Link>
             </div>
           </li>
 
           <li className="nav-item dropdown">
-            <a className="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown">
+            <a
+              className="nav-link dropdown-toggle"
+              href="#"
+              id="navbarDropdownMenuLink"
+              data-toggle="dropdown"
+            >
               DEMANDE DE PAIEMENT
             </a>
-            <div className="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-              <Link className="nav-link" to="/paiement/manuel" style={{ color: "black" }} onClick={handleNavCollapse}>
+            <div
+              className="dropdown-menu"
+              aria-labelledby="navbarDropdownMenuLink"
+            >
+              <Link
+                className="nav-link"
+                to="/paiement/manuel"
+                style={{ color: "black" }}
+                onClick={handleNavCollapse}
+              >
                 PAIEMENT MANUELLE
               </Link>
-              <Link className="nav-link" to="/paiement/fichier" style={{ color: "black" }} onClick={handleNavCollapse}>
+              <Link
+                className="nav-link"
+                to="/paiement/fichier"
+                style={{ color: "black" }}
+                onClick={handleNavCollapse}
+              >
                 PAIEMENT A PARTIR D'UN FICHIER
               </Link>
-              <Link className="nav-link" to="/paiement/statut" style={{ color: "black" }} onClick={handleNavCollapse}>
+              <Link
+                className="nav-link"
+                to="/paiement/statut"
+                style={{ color: "black" }}
+                onClick={handleNavCollapse}
+              >
                 STATUT
               </Link>
             </div>
           </li>
 
           <li className="nav-item dropdown">
-            <a className="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown">
+            <a
+              className="nav-link dropdown-toggle"
+              href="#"
+              id="navbarDropdownMenuLink"
+              data-toggle="dropdown"
+            >
               BASE DE DONNÉES
             </a>
-            <div className="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-              <Link className="nav-link" to="/bdd/client" style={{ color: "black" }} onClick={handleNavCollapse}>
+            <div
+              className="dropdown-menu"
+              aria-labelledby="navbarDropdownMenuLink"
+            >
+              <Link
+                className="nav-link"
+                to="/bdd/client"
+                style={{ color: "black" }}
+                onClick={handleNavCollapse}
+              >
                 AJOUTER DES CLIENTS DÉJA INSCRITS
               </Link>
-              <Link className="nav-link" to="/bdd/facture" style={{ color: "black" }} onClick={handleNavCollapse}>
+              <Link
+                className="nav-link"
+                to="/bdd/facture"
+                style={{ color: "black" }}
+                onClick={handleNavCollapse}
+              >
                 AJOUTER DES FACTURES DÉJA ENVOYÉES
               </Link>
-              <Link className="nav-link" to="/bdd/service" style={{ color: "black" }} onClick={handleNavCollapse}>
+              <Link
+                className="nav-link"
+                to="/bdd/service"
+                style={{ color: "black" }}
+                onClick={handleNavCollapse}
+              >
                 CRÉER DES SERVICES
               </Link>
-              <Link className="nav-link" to="/bdd/intervenant" style={{ color: "black" }} onClick={handleNavCollapse}>
+              <Link
+                className="nav-link"
+                to="/bdd/intervenant"
+                style={{ color: "black" }}
+                onClick={handleNavCollapse}
+              >
                 CRÉER DES INTERVENANTS
               </Link>
-              <Link className="nav-link" to="/bdd/maj" style={{ color: "black" }} onClick={handleNavCollapse}>
+              <Link
+                className="nav-link"
+                to="/bdd/maj"
+                style={{ color: "black" }}
+                onClick={handleNavCollapse}
+              >
                 MISE A JOUR DES DONNÉES DE BASE
               </Link>
             </div>
           </li>
 
           <li className="nav-item dropdown">
-            <a className="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown">
+            <a
+              className="nav-link dropdown-toggle"
+              href="#"
+              id="navbarDropdownMenuLink"
+              data-toggle="dropdown"
+            >
               PARAMÈTRE
             </a>
-            <div className="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+            <div
+              className="dropdown-menu"
+              aria-labelledby="navbarDropdownMenuLink"
+            >
               <button
                 className="dropdown-item nav-link btn btn-link"
-                style={{ color: "black", textAlign: "left", textDecoration: "none" }}
+                style={{
+                  color: "black",
+                  textAlign: "left",
+                  textDecoration: "none",
+                }}
                 onClick={() => {
                   handleNavCollapse();
                   if (modeOuverture) {
@@ -145,7 +231,9 @@ const Navbar = () => {
                         ? "Mode MODIFIER : un prestataire existe déjà"
                         : "Mode NOUVEAU : aucun prestataire enregistré"
                     );
-                    navigate(`/param/prestataire?mode=${modeOuverture}&id=${idPrestataire}`);
+                    navigate(
+                      `/param/prestataire?mode=${modeOuverture}&id=${idPrestataire}`
+                    );
                   } else {
                     console.warn("modeOuverture est null, navigation annulée");
                   }
@@ -154,7 +242,12 @@ const Navbar = () => {
                 PRESTATAIRE
               </button>
 
-              <Link className="nav-link" to="/param/util" style={{ color: "black" }} onClick={handleNavCollapse}>
+              <Link
+                className="nav-link"
+                to="/param/util"
+                style={{ color: "black" }}
+                onClick={handleNavCollapse}
+              >
                 UTILISER VERSION SANDBOX
               </Link>
             </div>

@@ -21,8 +21,8 @@ const PaiementManuel = () => {
       identifiantT: "",
       mntfht: 0,
       mntfttc: 0,
-      lignes: []
-    }
+      lignes: [],
+    },
   ]);
 
   const activites = ["304001", "304002", "304003"];
@@ -30,8 +30,30 @@ const PaiementManuel = () => {
   const natures = [
     { code: "NAT001", libelle: "Aide humaine" },
     { code: "NAT002", libelle: "Transport accompagné" },
-    { code: "NAT003", libelle: "Assistance administrative" }
+    { code: "NAT003", libelle: "Assistance administrative" },
   ];
+
+  // Récupérer les données transmises par la navigation depuis InterogStatut
+  useEffect(() => {
+    if (location.state?.clientData) {
+      const { id, nom, naissance, tiers } = location.state.clientData;
+
+      // Mettre à jour le premier bloc avec les données du client
+      setBlocsPaiement((prevBlocs) => {
+        const blocs = [...prevBlocs];
+        if (blocs.length > 0) {
+          blocs[0] = {
+            ...blocs[0],
+            clientId: id || "",
+            nomclient: nom || "",
+            naissance: naissance || today,
+            identifiantT: tiers || "",
+          };
+        }
+        return blocs;
+      });
+    }
+  }, [location.state, today]);
 
   const ajouterBlocPaiement = () => {
     const nouveauBloc = {
@@ -48,16 +70,24 @@ const PaiementManuel = () => {
       identifiantT: "",
       mntfht: 0,
       mntfttc: 0,
-      lignes: []
+      lignes: [],
     };
     setBlocsPaiement([...blocsPaiement, nouveauBloc]);
   };
 
   const ajouterLigne = (blocIndex) => {
     const nouvelleLigne = {
-      ca: "", cn: "", libprest: "", qte: 0, unit: "",
-      mntunit: 0, mntprestttc: 0, mntprestht: 0, mntpresttva: 0,
-      compl1: "", compl2: ""
+      ca: "",
+      cn: "",
+      libprest: "",
+      qte: 0,
+      unit: "",
+      mntunit: 0,
+      mntprestttc: 0,
+      mntprestht: 0,
+      mntpresttva: 0,
+      compl1: "",
+      compl2: "",
     };
     const blocs = [...blocsPaiement];
     blocs[blocIndex].lignes.push(nouvelleLigne);
@@ -77,7 +107,9 @@ const PaiementManuel = () => {
   };
 
   const calculTotaux = (bloc) => {
-    let ttc = 0, ht = 0, tva = 0;
+    let ttc = 0,
+      ht = 0,
+      tva = 0;
     bloc.lignes.forEach((row) => {
       ttc += row.mntprestttc || 0;
       ht += row.mntprestht || 0;
@@ -107,25 +139,26 @@ const PaiementManuel = () => {
           {/*<h5 className="text-primary mb-3">Bloc #{blocIndex + 1}</h5>*/}
 
           <div className="row g-3">
-           
-           <div className="col-md-6">
-                <label className="form-label">Identifiant client</label>
-                  <div className="input-group">
-                    <input
-                      type="text"
-                      className="form-control"
-                      value={bloc.clientId}
-                      onChange={(e) => updateBlocField(blocIndex, "clientId", e.target.value)}
-                    />
-                    <button
-                      className="btn btn-outline-secondary"
-                      type="button"
-                      onClick={() => navigate("/inscription/statut")}
-                      title="Voir le statut d'inscription"
-                    >
-                      <i className="bi bi-box-arrow-up-right"></i>
-                    </button>
-                  </div>
+            <div className="col-md-6">
+              <label className="form-label">Identifiant client</label>
+              <div className="input-group">
+                <input
+                  type="text"
+                  className="form-control"
+                  value={bloc.clientId}
+                  onChange={(e) =>
+                    updateBlocField(blocIndex, "clientId", e.target.value)
+                  }
+                />
+                <button
+                  className="btn btn-outline-secondary"
+                  type="button"
+                  onClick={() => navigate("/inscription/statut")}
+                  title="Voir le statut d'inscription"
+                >
+                  <i className="bi bi-box-arrow-up-right"></i>
+                </button>
+              </div>
             </div>
 
             <div className="col-md-6">
@@ -134,7 +167,9 @@ const PaiementManuel = () => {
                 type="text"
                 className="form-control"
                 value={bloc.nomclient}
-                onChange={(e) => updateBlocField(blocIndex, "nomclient", e.target.value)}
+                onChange={(e) =>
+                  updateBlocField(blocIndex, "nomclient", e.target.value)
+                }
               />
             </div>
             <div className="col-md-6">
@@ -143,7 +178,9 @@ const PaiementManuel = () => {
                 type="date"
                 className="form-control"
                 value={bloc.naissance}
-                onChange={(e) => updateBlocField(blocIndex, "naissance", e.target.value)}
+                onChange={(e) =>
+                  updateBlocField(blocIndex, "naissance", e.target.value)
+                }
               />
             </div>
             <div className="col-md-6">
@@ -152,7 +189,9 @@ const PaiementManuel = () => {
                 type="date"
                 className="form-control"
                 value={bloc.dde}
-                onChange={(e) => updateBlocField(blocIndex, "dde", e.target.value)}
+                onChange={(e) =>
+                  updateBlocField(blocIndex, "dde", e.target.value)
+                }
               />
             </div>
             <div className="col-md-6">
@@ -161,7 +200,9 @@ const PaiementManuel = () => {
                 type="date"
                 className="form-control"
                 value={bloc.dfe}
-                onChange={(e) => updateBlocField(blocIndex, "dfe", e.target.value)}
+                onChange={(e) =>
+                  updateBlocField(blocIndex, "dfe", e.target.value)
+                }
               />
             </div>
             <div className="col-md-6">
@@ -170,7 +211,9 @@ const PaiementManuel = () => {
                 type="date"
                 className="form-control"
                 value={bloc.datevers}
-                onChange={(e) => updateBlocField(blocIndex, "datevers", e.target.value)}
+                onChange={(e) =>
+                  updateBlocField(blocIndex, "datevers", e.target.value)
+                }
               />
             </div>
             <div className="col-md-6">
@@ -179,7 +222,9 @@ const PaiementManuel = () => {
                 type="date"
                 className="form-control"
                 value={bloc.datefact}
-                onChange={(e) => updateBlocField(blocIndex, "datefact", e.target.value)}
+                onChange={(e) =>
+                  updateBlocField(blocIndex, "datefact", e.target.value)
+                }
               />
             </div>
             <div className="col-md-6">
@@ -188,7 +233,13 @@ const PaiementManuel = () => {
                 type="number"
                 className="form-control"
                 value={bloc.mntacompte}
-                onChange={(e) => updateBlocField(blocIndex, "mntacompte", parseFloat(e.target.value))}
+                onChange={(e) =>
+                  updateBlocField(
+                    blocIndex,
+                    "mntacompte",
+                    parseFloat(e.target.value)
+                  )
+                }
               />
             </div>
             <div className="col-md-6">
@@ -197,7 +248,13 @@ const PaiementManuel = () => {
                 type="number"
                 className="form-control"
                 value={bloc.numfacture}
-                onChange={(e) => updateBlocField(blocIndex, "numfacture", parseInt(e.target.value))}
+                onChange={(e) =>
+                  updateBlocField(
+                    blocIndex,
+                    "numfacture",
+                    parseInt(e.target.value)
+                  )
+                }
               />
             </div>
             <div className="col-md-6">
@@ -206,7 +263,9 @@ const PaiementManuel = () => {
                 type="text"
                 className="form-control"
                 value={bloc.identifiantT}
-                onChange={(e) => updateBlocField(blocIndex, "identifiantT", e.target.value)}
+                onChange={(e) =>
+                  updateBlocField(blocIndex, "identifiantT", e.target.value)
+                }
               />
             </div>
             <div className="col-md-6">
@@ -215,7 +274,13 @@ const PaiementManuel = () => {
                 type="number"
                 className="form-control"
                 value={bloc.mntfht}
-                onChange={(e) => updateBlocField(blocIndex, "mntfht", parseFloat(e.target.value))}
+                onChange={(e) =>
+                  updateBlocField(
+                    blocIndex,
+                    "mntfht",
+                    parseFloat(e.target.value)
+                  )
+                }
               />
             </div>
             <div className="col-md-6">
@@ -224,7 +289,13 @@ const PaiementManuel = () => {
                 type="number"
                 className="form-control"
                 value={bloc.mntfttc}
-                onChange={(e) => updateBlocField(blocIndex, "mntfttc", parseFloat(e.target.value))}
+                onChange={(e) =>
+                  updateBlocField(
+                    blocIndex,
+                    "mntfttc",
+                    parseFloat(e.target.value)
+                  )
+                }
               />
             </div>
           </div>
@@ -255,7 +326,12 @@ const PaiementManuel = () => {
                         className="form-select"
                         value={row.ca}
                         onChange={(e) =>
-                          updateLigne(blocIndex, ligneIndex, "ca", e.target.value)
+                          updateLigne(
+                            blocIndex,
+                            ligneIndex,
+                            "ca",
+                            e.target.value
+                          )
                         }
                       >
                         <option value="">-- Choisir --</option>
@@ -272,10 +348,22 @@ const PaiementManuel = () => {
                         value={row.cn}
                         onChange={(e) => {
                           const selectedCode = e.target.value;
-                          const nature = natures.find((n) => n.code === selectedCode);
-                          updateLigne(blocIndex, ligneIndex, "cn", selectedCode);
+                          const nature = natures.find(
+                            (n) => n.code === selectedCode
+                          );
+                          updateLigne(
+                            blocIndex,
+                            ligneIndex,
+                            "cn",
+                            selectedCode
+                          );
                           if (nature) {
-                            updateLigne(blocIndex, ligneIndex, "libprest", nature.libelle);
+                            updateLigne(
+                              blocIndex,
+                              ligneIndex,
+                              "libprest",
+                              nature.libelle
+                            );
                           }
                         }}
                       >
@@ -293,7 +381,12 @@ const PaiementManuel = () => {
                         className="form-control"
                         value={row.libprest}
                         onChange={(e) =>
-                          updateLigne(blocIndex, ligneIndex, "libprest", e.target.value)
+                          updateLigne(
+                            blocIndex,
+                            ligneIndex,
+                            "libprest",
+                            e.target.value
+                          )
                         }
                       />
                     </td>
@@ -303,7 +396,12 @@ const PaiementManuel = () => {
                         className="form-control"
                         value={row.qte}
                         onChange={(e) =>
-                          updateLigne(blocIndex, ligneIndex, "qte", parseFloat(e.target.value))
+                          updateLigne(
+                            blocIndex,
+                            ligneIndex,
+                            "qte",
+                            parseFloat(e.target.value)
+                          )
                         }
                       />
                     </td>
@@ -312,7 +410,12 @@ const PaiementManuel = () => {
                         className="form-select"
                         value={row.unit}
                         onChange={(e) =>
-                          updateLigne(blocIndex, ligneIndex, "unit", e.target.value)
+                          updateLigne(
+                            blocIndex,
+                            ligneIndex,
+                            "unit",
+                            e.target.value
+                          )
                         }
                       >
                         <option value="">-- Choisir --</option>
@@ -329,7 +432,12 @@ const PaiementManuel = () => {
                         className="form-control"
                         value={row.mntunit}
                         onChange={(e) =>
-                          updateLigne(blocIndex, ligneIndex, "mntunit", parseFloat(e.target.value))
+                          updateLigne(
+                            blocIndex,
+                            ligneIndex,
+                            "mntunit",
+                            parseFloat(e.target.value)
+                          )
                         }
                       />
                     </td>
@@ -339,7 +447,12 @@ const PaiementManuel = () => {
                         className="form-control"
                         value={row.mntprestttc}
                         onChange={(e) =>
-                          updateLigne(blocIndex, ligneIndex, "mntprestttc", parseFloat(e.target.value))
+                          updateLigne(
+                            blocIndex,
+                            ligneIndex,
+                            "mntprestttc",
+                            parseFloat(e.target.value)
+                          )
                         }
                       />
                     </td>
@@ -349,7 +462,12 @@ const PaiementManuel = () => {
                         className="form-control"
                         value={row.mntprestht}
                         onChange={(e) =>
-                          updateLigne(blocIndex, ligneIndex, "mntprestht", parseFloat(e.target.value))
+                          updateLigne(
+                            blocIndex,
+                            ligneIndex,
+                            "mntprestht",
+                            parseFloat(e.target.value)
+                          )
                         }
                       />
                     </td>
@@ -359,7 +477,12 @@ const PaiementManuel = () => {
                         className="form-control"
                         value={row.mntpresttva}
                         onChange={(e) =>
-                          updateLigne(blocIndex, ligneIndex, "mntpresttva", parseFloat(e.target.value))
+                          updateLigne(
+                            blocIndex,
+                            ligneIndex,
+                            "mntpresttva",
+                            parseFloat(e.target.value)
+                          )
                         }
                       />
                     </td>
@@ -369,7 +492,12 @@ const PaiementManuel = () => {
                         className="form-control"
                         value={row.compl1}
                         onChange={(e) =>
-                          updateLigne(blocIndex, ligneIndex, "compl1", e.target.value)
+                          updateLigne(
+                            blocIndex,
+                            ligneIndex,
+                            "compl1",
+                            e.target.value
+                          )
                         }
                       />
                     </td>
@@ -379,7 +507,12 @@ const PaiementManuel = () => {
                         className="form-control"
                         value={row.compl2}
                         onChange={(e) =>
-                          updateLigne(blocIndex, ligneIndex, "compl2", e.target.value)
+                          updateLigne(
+                            blocIndex,
+                            ligneIndex,
+                            "compl2",
+                            e.target.value
+                          )
                         }
                       />
                     </td>
@@ -398,7 +531,10 @@ const PaiementManuel = () => {
             </table>
 
             <div className="d-flex justify-content-end gap-3 mt-3">
-              <button className="btn btn-success" onClick={() => ajouterLigne(blocIndex)}>
+              <button
+                className="btn btn-success"
+                onClick={() => ajouterLigne(blocIndex)}
+              >
                 + Ajouter ligne
               </button>
               <button className="btn btn-primary" onClick={envoyerPaiement}>
