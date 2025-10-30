@@ -212,7 +212,6 @@ const InscriptClient = () => {
       {
         label: "Code Pays",
         name: "codePays",
-        readOnly: true,
       },
     ],
     [
@@ -270,12 +269,12 @@ const InscriptClient = () => {
         options: COUNTRIES_COG,
       },
 
-      { label: "Code pays", name: "codePays2", col: "col-6", readOnly: true },
+      { label: "Code pays", name: "codePays2", col: "col-6" },
     ],
     [{ label: "Bic", name: "bic", placeholder: "(Sans espace)" }],
     [{ label: "IBAN", name: "iban", placeholder: "(Sans espace)" }],
     [{ label: "Titulaire", name: "titulaire" }],
-    [{ label: "Id Particulier", name: "idParticulier", readOnly: true }],
+    [{ label: "Id Particulier", name: "idParticulier" }],
   ];
   const fieldConfigs = [...leftFields.flat(), ...rightFields.flat()];
   const labelMap = Object.fromEntries(
