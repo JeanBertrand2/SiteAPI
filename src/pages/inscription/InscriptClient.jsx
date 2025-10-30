@@ -51,34 +51,28 @@ const InscriptClient = () => {
     const { name, value } = e.target;
 
     if (name === "nomPays" || name === "nomPays2") {
-      const selectedCountry = COUNTRIES_COG.find(
-        (c) => `${c.name} - ${c.code}` === value
-      );
+      const selectedCountry = COUNTRIES_COG.find((c) => c.codePays === value);
 
       if (name === "nomPays") {
         setFormData((p) => ({
           ...p,
-          nomPays: selectedCountry?.name || "",
-          codePays: selectedCountry?.code || "",
+          nomPays: selectedCountry?.nomPays || "",
+          codePays: selectedCountry?.codePays || value,
         }));
       } else {
         setFormData((p) => ({
           ...p,
-          nomPays2: selectedCountry?.name || "",
-          codePays2: selectedCountry?.code || "",
+          nomPays2: selectedCountry?.nomPays || "",
+          codePays2: selectedCountry?.codePays || value,
         }));
       }
       return;
     }
     if (name === "departement") {
-      const selectedDep = departementCode.find(
-        (d) => `${d.name} - ${d.code}` === value
-      );
+      const selectedDep = departementCode.find((d) => d.code === value);
       setFormData((p) => ({
         ...p,
-        departement: selectedDep
-          ? `${selectedDep.name} - ${selectedDep.code}`
-          : "",
+        departement: selectedDep ? selectedDep.code : value,
       }));
       return;
     }
@@ -115,15 +109,10 @@ const InscriptClient = () => {
             // Lieu naissance
             nomPays:
               COUNTRIES_COG.find(
-                (c) => c.code === jsonData.lieuNaissance?.codePaysNaissance
-              )?.name || "",
+                (c) => c.codePays === jsonData.lieuNaissance?.codePaysNaissance
+              )?.nomPays || "",
             codePays: jsonData.lieuNaissance?.codePaysNaissance || "",
-            departement: (() => {
-              const dep = departementCode.find(
-                (d) => d.code === jsonData.lieuNaissance?.departementNaissance
-              );
-              return dep ? `${dep.name} - ${dep.code}` : "";
-            })(),
+            departement: jsonData.lieuNaissance?.departementNaissance || "",
             commune:
               jsonData.lieuNaissance?.communeNaissance?.libelleCommune || "",
             codeCommune:
@@ -145,8 +134,8 @@ const InscriptClient = () => {
             codePostal: jsonData.adressePostale?.codePostal || "",
             nomPays2:
               COUNTRIES_COG.find(
-                (c) => c.code === jsonData.lieuNaissance?.codePaysNaissance
-              )?.name || "FRANCE",
+                (c) => c.codePays === jsonData.adressePostale?.codePays
+              )?.nomPays || "FRANCE",
             codePays2: jsonData.adressePostale?.codePays || "99100",
 
             // Coordonnée Bancaire
@@ -216,7 +205,7 @@ const InscriptClient = () => {
         label: "Nom Pays",
         name: "nomPays",
         type: "select",
-        options: COUNTRIES_COG.map((c) => `${c.name} - ${c.code}`),
+        options: COUNTRIES_COG,
       },
       {
         label: "Code Pays",
@@ -228,7 +217,7 @@ const InscriptClient = () => {
         label: "Département",
         name: "departement",
         type: "select",
-        options: departementCode.map((d) => `${d.name} - ${d.code}`),
+        options: departementCode,
       },
     ],
     [{ label: "Commune", name: "commune", readOnly: false }],
@@ -278,7 +267,7 @@ const InscriptClient = () => {
         name: "nomPays2",
         col: "col-6",
         type: "select",
-        options: COUNTRIES_COG.map((c) => `${c.name} - ${c.code}`),
+        options: COUNTRIES_COG,
       },
 
       { label: "Code pays", name: "codePays2", col: "col-6" },
@@ -323,13 +312,11 @@ const InscriptClient = () => {
 
           let fieldValue = formData[f.name];
           if (f.name === "nomPays") {
-            fieldValue = `${formData.nomPays || ""}${
-              formData.codePays ? " - " + formData.codePays : ""
-            }`.trim();
+            fieldValue = formData.codePays || "";
           } else if (f.name === "nomPays2") {
-            fieldValue = `${formData.nomPays2 || ""}${
-              formData.codePays2 ? " - " + formData.codePays2 : ""
-            }`.trim();
+            fieldValue = formData.codePays2 || "";
+          } else if (f.name === "departement") {
+            fieldValue = formData.departement || "";
           }
 
           return (

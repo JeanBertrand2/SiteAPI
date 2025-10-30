@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const PaiementManuel = () => {
@@ -6,7 +6,6 @@ const PaiementManuel = () => {
   const location = useLocation();
   const today = new Date().toISOString().split("T")[0];
 
-  // Structure initiale d'un formulaire
   const initialFormState = {
     demandePaiement: [],
     selectedDate: today,
@@ -23,9 +22,7 @@ const PaiementManuel = () => {
     mntfttc: 0,
   };
 
-  // Tableau de formulaires (chaque formulaire est indépendant)
   const [formulaires, setFormulaires] = useState(() => {
-    // Restaurer les formulaires depuis location.state si disponibles
     if (location.state?.allFormulaires) {
       return location.state.allFormulaires;
     }
@@ -40,7 +37,6 @@ const PaiementManuel = () => {
     { code: "NAT003", libelle: "Assistance administrative" },
   ];
 
-  // Gestion des données reçues depuis InterogStatut
   useEffect(() => {
     if (location.state?.clientData && location.state?.formId !== undefined) {
       const { id, nom, naissance, tiers } = location.state.clientData;
@@ -62,12 +58,10 @@ const PaiementManuel = () => {
     }
   }, [location.state]);
 
-  // Ajouter un nouveau formulaire
   const ajouterNouveauFormulaire = () => {
     setFormulaires([...formulaires, { ...initialFormState, id: Date.now() }]);
   };
 
-  // Supprimer un formulaire
   const supprimerFormulaire = (index) => {
     if (formulaires.length > 1) {
       setFormulaires(formulaires.filter((_, idx) => idx !== index));
@@ -76,7 +70,6 @@ const PaiementManuel = () => {
     }
   };
 
-  // Mettre à jour un champ d'un formulaire spécifique
   const updateFormField = (formIndex, field, value) => {
     setFormulaires((prevForms) =>
       prevForms.map((form, idx) =>
@@ -85,7 +78,6 @@ const PaiementManuel = () => {
     );
   };
 
-  // Ajouter une ligne de prestation à un formulaire
   const add = (formIndex) => {
     const nouvelleLigne = {
       ca: "",
@@ -112,7 +104,6 @@ const PaiementManuel = () => {
     );
   };
 
-  // Réinitialiser les prestations d'un formulaire
   const reset = (formIndex) => {
     setFormulaires((prevForms) =>
       prevForms.map((form, idx) =>
@@ -121,12 +112,10 @@ const PaiementManuel = () => {
     );
   };
 
-  // Envoyer la demande de paiement d'un formulaire
   const dem_paiement = (formIndex) => {
     alert(`Demande de paiement envoyée pour le formulaire ${formIndex + 1} !`);
   };
 
-  // Mettre à jour une ligne de prestation
   const updateRow = (formIndex, rowIndex, field, value) => {
     setFormulaires((prevForms) =>
       prevForms.map((form, idx) => {
@@ -140,7 +129,6 @@ const PaiementManuel = () => {
     );
   };
 
-  // Calculer les totaux pour un formulaire
   const calculTotaux = (demandePaiement) => {
     let ttc = 0,
       ht = 0,
@@ -153,12 +141,11 @@ const PaiementManuel = () => {
     return { ttc, ht, tva };
   };
 
-  // Naviguer vers InterogStatut avec l'index du formulaire
   const navigateToStatut = (formIndex) => {
     navigate("/inscription/statut", {
       state: {
         formId: formIndex,
-        allFormulaires: formulaires, // Passer tous les formulaires pour les préserver
+        allFormulaires: formulaires,
       },
     });
   };
