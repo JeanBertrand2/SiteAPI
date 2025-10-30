@@ -42,7 +42,7 @@ const PaiementFichier = () => {
       });
 
       const formulairesImportés = Object.entries(grouped).map(([ref, lignes]) => {
-        const first = lignes[0];
+      const first = lignes[0];
         return {
           id: Date.now() + Math.random(),
           clientId: first["N°Id Urssaf (AI)"] || "",
@@ -95,14 +95,36 @@ const PaiementFichier = () => {
   return (
     <div className="container mt-4">
       <h2 className="text-center mb-4 fw-semibold text-primary">Demande de Paiement</h2>
+          <div className="card shadow-sm mb-4">
+            <div className="card-body">
+              <h5 className="card-title mb-3">Source du fichier</h5>
+              <div className="mb-3">
+                <div className="form-check form-check-inline">
+                  <input className="form-check-input" type="radio" name="sourceType" id="sourceFichier" defaultChecked />
+                  <label className="form-check-label" htmlFor="sourceFichier">À  partir d'un fichier de l'Application</label>
+                </div>
+                <div className="form-check form-check-inline">
+                  <input className="form-check-input" type="radio" name="sourceType" id="sourceApp" />
+                  <label className="form-check-label" htmlFor="sourceApp">À partir d'une Exportation Dolibarr</label>
+                </div>
+              </div>
+
+              
+            </div>
+          </div>
 
       <div className="card shadow-sm mb-4">
         <div className="card-body">
           <h5 className="card-title mb-3">Importer un fichier</h5>
           <input type="file" className="form-control" accept=".xlsx,.xls,.csv,.json" onChange={handleFileChange} />
-          {fichier && <div className="mt-2 alert alert-info">Fichier sélectionné : {fichier.name}</div>}
+           
         </div>
       </div>
+
+        <div className="input-group mb-3">
+                <input type="text" className="form-control" placeholder="Fichier cible" readOnly value={fichier?.name || ""} />
+                <button className="btn btn-outline-secondary" onClick={() => fichier && window.open(URL.createObjectURL(fichier))}>Ouvrir Excel</button>
+        </div>
 
       {formulaires.map((form, index) => (
         <div key={form.id} className="card mb-4 shadow-sm">
