@@ -23,7 +23,7 @@ const Field = ({ field, value, onChange, isFromJson }) => {
         tabIndex={shouldBeReadOnly ? -1 : 0}
         onFocus={(e) => shouldBeReadOnly && e.target.blur()}
       >
-        <option value="">Sélectionnez</option>
+        <option value=""></option>
         {(field.options || []).map((opt) => {
           if (opt.key && opt.libelle) {
             const keyStr = String(opt.key);

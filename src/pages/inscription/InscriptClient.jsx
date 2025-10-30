@@ -223,11 +223,8 @@ const InscriptClient = () => {
         options: departementCode,
       },
     ],
-    [{ label: "Commune", name: "commune" }],
-    [
-      { label: "Code Commune", name: "codeCommune", col: "col-6" },
-      { label: "\u00A0", name: "nomCommune", col: "col-6", readOnly: true },
-    ],
+    [{ label: "Code Commune", name: "codeCommune", col: "col-6" }],
+    [{ label: "Nom commune", name: "nomCommune" }],
     [
       {
         label: "Num Tel Portable",
@@ -298,7 +295,45 @@ const InscriptClient = () => {
       return;
     }
 
-    console.log("Form submitted:", formData);
+    // Créer le JSON au format exact des fichiers JSON fournis
+    const jsonData = {
+      civilite: formData.civilite === "M" ? "1" : "2",
+      nomNaissance: formData.nomNaissance,
+      nomUsage: formData.nomUsage || formData.nomNaissance,
+      prenoms: formData.prenoms,
+      dateNaissance: formData.dateNaissance
+        ? new Date(formData.dateNaissance).toISOString()
+        : "",
+      lieuNaissance: {
+        codePaysNaissance: formData.codePays,
+        departementNaissance: formData.departement,
+        communeNaissance: {
+          codeCommune: formData.codeCommune,
+          libelleCommune: formData.nomCommune,
+        },
+      },
+      numeroTelephonePortable: formData.numTelPortable,
+      adresseMail: formData.adresseMail,
+      adressePostale: {
+        numeroVoie: formData.numeroVoie,
+        lettreVoie: formData.lettreVoie || "",
+        codeTypeVoie: formData.codeTypeVoie,
+        libelleVoie: formData.libelleVoie,
+        complement: formData.complement || "",
+        lieuDit: formData.lieuDit || "",
+        libelleCommune: formData.nomCommune2,
+        codeCommune: formData.codeInsee,
+        codePostal: formData.codePostal,
+        codePays: formData.codePays2,
+      },
+      coordonneeBancaire: {
+        bic: formData.bic,
+        iban: formData.iban,
+        titulaire: formData.titulaire,
+      },
+    };
+
+    console.log(JSON.stringify(jsonData, null, "\t"));
   };
 
   const renderConfig = (config) =>
