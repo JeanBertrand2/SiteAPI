@@ -1,23 +1,37 @@
-import React, { useState, useEffect } from 'react';
+
+
+import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import * as XLSX from 'xlsx';
 
 const PaiementFichier = () => {
   const [fichier, setFichier] = useState(null);
   const [formulaires, setFormulaires] = useState([]);
+  const [resumeErreurs, setResumeErreurs] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [typeFichier, setTypeFichier] = useState("application");
   const today = new Date().toISOString().split("T")[0];
-
-
-  const parseMontant = (val) => {
-      const num = parseFloat(val);
-      return isNaN(num) ? 0 : parseFloat(num.toFixed(2));
-    };
 
   const excelDateToISO = (value) => {
     if (!value || isNaN(value)) return today;
     const date = XLSX.SSF.parse_date_code(value);
     return `${date.y}-${String(date.m).padStart(2, '0')}-${String(date.d).padStart(2, '0')}`;
   };
+  
+  const getDecimalDigits = (val) => {
+      const parts = val.toString().split(".");
+      return parts[1] ? parts[1] : "00";
+    };
+
+    const arrondiWindev = (val) => {
+      if (val === undefined || val === null || isNaN(val)) return 0;
+      const partieEntiere = Math.floor(val);
+      const partieDecimale = parseFloat("0." + getDecimalDigits(val));
+      const arrondiDecimale = Math.round(partieDecimale * 100) / 100;
+      return partieEntiere + arrondiDecimale; 
+    };
+
+
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -35,6 +49,8 @@ const PaiementFichier = () => {
       const rows = XLSX.utils.sheet_to_json(sheet);
 
       const grouped = {};
+      const erreurs = [];
+
       rows.forEach((row) => {
         const ref = row["Réf. facture"];
         if (!grouped[ref]) grouped[ref] = [];
@@ -42,42 +58,81 @@ const PaiementFichier = () => {
       });
 
       const formulairesImportés = Object.entries(grouped).map(([ref, lignes]) => {
-      const first = lignes[0];
+        const first = lignes[0];
+        const demandePaiement = lignes.map((l) => {
+          const qte = parseFloat(l["Quantité pour la ligne"]) || 0;
+          const ttc = parseFloat(l["Montant TTC de la ligne"]) || 0;
+          
+          console.log("Facture:", l["Réf. facture"], "Quantité brute:", l["Quantité pour la ligne"], "TTC brut:", l["Montant TTC de la ligne"]);
+
+          if (qte === 0 || ttc === 0) return null;
+
+          const mntunitBrut = ttc / qte;
+          const mntunit = arrondiWindev(mntunitBrut);
+          const ttcCalcule = mntunit * qte;
+
+          const diff = Math.abs(ttc - ttcCalcule);
+
+         const diffArrondi = Math.round(diff * 100) / 100;
+          if (diffArrondi > 0.05) {
+            console.log("Facture:", l["Réf. facture"], "TTC réel:", ttc, "TTC calculé:", ttcCalcule, "Différence:", diffArrondi);
+
+            const facture = l["Réf. facture"];
+            const nature = l["Libéllé Urssaf"];
+            erreurs.push({ facture, nature, diff: diffArrondi });
+          }
+
+          return {
+            ca: l["Réf. produit"] || "",
+            cn: l["Libéllé Urssaf"] || "",
+            libprest: l["Libellé produit"] || "",
+            qte,
+            unit: l["unité"] || "",
+            mntunit,
+            mntprestht: parseFloat(l["Montant HT de la ligne"]) || 0,
+            mntprestttc: ttc,
+            mntpresttva: parseFloat(l["Montant TVA de la ligne"]) || 0,
+            compl1: "",
+            compl2: "SAP800771792"
+          };
+        }).filter(Boolean);
+
         return {
           id: Date.now() + Math.random(),
           clientId: first["N°Id Urssaf (AI)"] || "",
           nomclient: first["Nom/Enseigne/Raison sociale"] || "",
-          selectedDate: (first["Date de naissance Urssaf (AI)"] || "").split("T")[0] || today,
+          selectedDate: (first["Date de naissance Urssaf (AI)"] || "").split("T")[0],
           dde: excelDateToISO(first["Date début"]),
           dfe: excelDateToISO(first["Date fin"]),
           datevers: excelDateToISO(first["Date début"]),
           datefact: excelDateToISO(first["Date facturation"]),
-          numfacture: ref || "",
+          numfacture: ref,
           identifiantT: first["N°Id Urssaf (AI)"] || "",
           mntacompte: 0,
-
-
-          //mntacompte: first["A déclarer en AI"] !== undefined ? parseFloat(first["A déclarer en AI"]) || 0 : 0,
           mntfht: parseFloat(first["Total HT"]) || 0,
           mntfttc: parseFloat(first["Total TTC"]) || 0,
-          demandePaiement: lignes.map((l) => ({
-            ca: l["Réf. produit"] || "",
-            cn: l["Libéllé Urssaf"] || "",
-            libprest: l["Libellé produit"] || "",
-            qte: parseFloat(l["Quantité pour la ligne"]) || 0,
-            unit: l["unité"] || "",
-            mntunit: parseFloat(l["Prix Unitaire TTC"]) || 0,
-            mntprestht: parseFloat(l["Montant HT de la ligne"]) || 0,
-            mntprestttc: parseFloat(l["Montant TTC de la ligne"]) || 0,
-            mntpresttva: parseFloat(l["Montant TVA de la ligne"]) || 0,
-            compl1: "",
-            compl2: "SAP800771792",
-
-          }))
+          demandePaiement
         };
       });
 
       setFormulaires(formulairesImportés);
+
+      if (erreurs.length > 0) {
+        const lignes = erreurs.map(e => `- Facture : ${e.facture}, Code nature : ${e.nature}, Différence de ${e.diff.toFixed(2)}`);
+
+        //const lignes = uniqueErreurs.map(e => `- Facture : ${e.facture}, Code nature : ${e.nature}, Différence de ${e.diff.toFixed(2)}`);
+        const message = [
+          "Il existe une différence de montant sur le(s) facture(s)",
+          "à gestion :",
+          ...lignes
+        ];
+        console.log("Erreurs Windev :", erreurs);
+
+        setResumeErreurs(message);
+        setShowModal(true);
+        console.log("Modale déclenchée !");
+
+      }
     };
     reader.readAsArrayBuffer(file);
   };
@@ -93,40 +148,59 @@ const PaiementFichier = () => {
   };
 
   return (
-    <div className="container mt-4">
-      <h2 className="text-center mb-4 fw-semibold text-primary">Demande de Paiement</h2>
-          <div className="card shadow-sm mb-4">
-            <div className="card-body">
-              <h5 className="card-title mb-3">Source du fichier</h5>
-              <div className="mb-3">
-                <div className="form-check form-check-inline">
-                  <input className="form-check-input" type="radio" name="sourceType" id="sourceFichier" defaultChecked />
-                  <label className="form-check-label" htmlFor="sourceFichier">À  partir d'un fichier de l'Application</label>
-                </div>
-                <div className="form-check form-check-inline">
-                  <input className="form-check-input" type="radio" name="sourceType" id="sourceApp" />
-                  <label className="form-check-label" htmlFor="sourceApp">À partir d'une Exportation Dolibarr</label>
-                </div>
+    <>
+      {showModal && (
+        <div className="modal fade show d-block" tabIndex="-1" role="dialog" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <div className="modal-dialog modal-dialog-centered" role="document">
+            <div className="modal-content">
+              <div className="modal-header bg-warning">
+                <h5 className="modal-title fw-bold">DEMANDE DE PAIEMENT</h5>
+                <button type="button" className="btn-close" onClick={() => setShowModal(false)}></button>
               </div>
-
-              
+              <div className="modal-body">
+                {resumeErreurs.map((line, i) => (
+                  <p key={i} className={i < 2 ? "fw-bold mb-1" : "mb-1"}>{line}</p>
+                ))}
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>Fermer</button>
+              </div>
             </div>
           </div>
+        </div>
+      )}
+    <div className="container mt-4">
+      <h2 className="text-center mb-4 fw-semibold text-primary">Demande de Paiement</h2>
+
+            <div className="card shadow-sm mb-4">
+        <div className="card-body">
+          <h5 className="card-title mb-3">Source du fichier</h5>
+          <div className="mb-3">
+            <div className="form-check form-check-inline">
+              <input className="form-check-input" type="radio" name="sourceType" id="sourceFichier" checked={typeFichier === "application"} onChange={() => setTypeFichier("application")} />
+              <label className="form-check-label" htmlFor="sourceFichier">À partir d'un fichier de l'Application</label>
+            </div>
+            <div className="form-check form-check-inline">
+              <input className="form-check-input" type="radio" name="sourceType" id="sourceApp" checked={typeFichier === "dolibarr"} onChange={() => setTypeFichier("dolibarr")} />
+              <label className="form-check-label" htmlFor="sourceApp">À partir d'une Exportation Dolibarr</label>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <div className="card shadow-sm mb-4">
         <div className="card-body">
           <h5 className="card-title mb-3">Importer un fichier</h5>
           <input type="file" className="form-control" accept=".xlsx,.xls,.csv,.json" onChange={handleFileChange} />
-           
         </div>
       </div>
 
-        <div className="input-group mb-3">
-                <input type="text" className="form-control" placeholder="Fichier cible" readOnly value={fichier?.name || ""} />
-                <button className="btn btn-outline-secondary" onClick={() => fichier && window.open(URL.createObjectURL(fichier))}>Ouvrir Excel</button>
-        </div>
+      <div className="input-group mb-3">
+        <input type="text" className="form-control" placeholder="Fichier cible" readOnly value={fichier?.name || ""} />
+        <button className="btn btn-outline-secondary" onClick={() => fichier && window.open(URL.createObjectURL(fichier))}>Ouvrir Excel</button>
+      </div>
 
-      {formulaires.map((form, index) => (
+      {formulaires.map((form) => (
         <div key={form.id} className="card mb-4 shadow-sm">
           <div className="card-header bg-primary text-white">
             <h5 className="mb-0">Facture {form.numfacture}</h5>
@@ -139,11 +213,21 @@ const PaiementFichier = () => {
               <div className="col-md-6"><label className="form-label">Date de naissance</label><input type="date" className="form-control" value={form.selectedDate} readOnly /></div>
               <div className="col-md-6"><label className="form-label">Date versement acompte</label><input type="date" className="form-control" value={form.datevers} readOnly /></div>
               <div className="col-md-6"><label className="form-label">Date début emploi</label><input type="date" className="form-control" value={form.dde} readOnly /></div>
-              <div className="col-md-6"><label className="form-label">Date fin emploi</label><input type="date" className="form-control" value={form.dfe} readOnly /></div>
-              <div className="col-md-6"><label className="form-label">Date facture</label><input type="date" className="form-control" value={form.datefact} readOnly /></div>
-              <div className="col-md-6"><label className="form-label">Montant acompte</label><input type="number" className="form-control" value={form.mntacompte} readOnly /></div>
-              <div className="col-md-6"><label className="form-label">Montant HT</label><input type="number" className="form-control" value={form.mntfht} readOnly /></div>
-              <div className="col-md-6"><label className="form-label">Montant TTC</label><input type="number" className="form-control" value={form.mntfttc} readOnly /></div>
+                            <div className="col-md-6"><label className="form-label">Date fin emploi</label>
+                <input type="date" className="form-control" value={form.dfe} readOnly />
+              </div>
+              <div className="col-md-6"><label className="form-label">Date facture</label>
+                <input type="date" className="form-control" value={form.datefact} readOnly />
+              </div>
+              <div className="col-md-6"><label className="form-label">Montant acompte</label>
+                <input type="number" className="form-control" value={form.mntacompte.toFixed(2)} readOnly />
+              </div>
+              <div className="col-md-6"><label className="form-label">Montant HT</label>
+                <input type="number" className="form-control" value={form.mntfht.toFixed(2)} readOnly />
+              </div>
+              <div className="col-md-6"><label className="form-label">Montant TTC</label>
+                <input type="number" className="form-control" value={form.mntfttc.toFixed(2)} readOnly />
+              </div>
             </div>
 
             <div className="table-responsive mt-4">
@@ -191,15 +275,14 @@ const PaiementFichier = () => {
                     <td colSpan="2"></td>
                   </tr>
                 </tfoot>
-
               </table>
             </div>
           </div>
         </div>
       ))}
     </div>
+    </>
   );
 };
 
 export default PaiementFichier;
- 
