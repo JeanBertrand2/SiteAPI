@@ -1,11 +1,55 @@
 const Field = ({ field, value, onChange, isFromJson }) => {
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    // Validation pour Code Commune - 3 chiffres uniquement
+    if (name === "codeCommune") {
+      if (value === "" || /^\d{0,3}$/.test(value)) {
+        onChange(e);
+      }
+      return;
+    }
+
+    // Validation pour IBAN - lettres et chiffres, max 34 caractères, pas d'espace
+    if (name === "iban") {
+      if (value === "" || /^[A-Z0-9]{0,34}$/.test(value.toUpperCase())) {
+        e.target.value = value.toUpperCase();
+        onChange(e);
+      }
+      return;
+    }
+
+    // Validation pour BIC - lettres et chiffres, 8 ou 11 caractères, pas d'espace
+    if (name === "bic") {
+      if (value === "" || /^[A-Z0-9]{0,11}$/.test(value.toUpperCase())) {
+        e.target.value = value.toUpperCase();
+        onChange(e);
+      }
+      return;
+    }
+
+    onChange(e);
+  };
+
   const common = {
     name: field.name,
     className: "form-control form-control-sm",
     value: value || "",
-    onChange,
+    onChange: handleChange,
     placeholder: field.placeholder || "",
   };
+
+  // Pattern pour email
+  if (field.type === "email") {
+    return (
+      <input
+        type="email"
+        {...common}
+        pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+        title="Veuillez entrer une adresse email valide"
+      />
+    );
+  }
 
   if (field.type === "select") {
     return (

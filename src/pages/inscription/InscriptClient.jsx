@@ -294,6 +294,34 @@ const InscriptClient = () => {
       return;
     }
 
+    // Validations supplémentaires
+    if (formData.codeCommune && !/^\d{3}$/.test(formData.codeCommune)) {
+      alert("Le Code Commune doit contenir exactement 3 chiffres");
+      return;
+    }
+
+    if (formData.iban && !/^[A-Z0-9]{14,34}$/.test(formData.iban)) {
+      alert(
+        "L'IBAN doit contenir entre 14 et 34 caractères (lettres et chiffres, sans espaces)"
+      );
+      return;
+    }
+
+    if (formData.bic && !/^[A-Z0-9]{8}$|^[A-Z0-9]{11}$/.test(formData.bic)) {
+      alert(
+        "Le BIC doit contenir exactement 8 ou 11 caractères (lettres et chiffres, sans espaces)"
+      );
+      return;
+    }
+
+    if (
+      formData.adresseMail &&
+      !/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/i.test(formData.adresseMail)
+    ) {
+      alert("Veuillez entrer une adresse email valide");
+      return;
+    }
+
     // Créer le JSON au format exact des fichiers JSON fournis
     const jsonData = {
       civilite: formData.civilite === "M" ? "1" : "2",
