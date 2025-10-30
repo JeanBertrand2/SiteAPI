@@ -45,7 +45,7 @@ const Field = ({ field, value, onChange, isFromJson }) => {
       <input
         type="email"
         {...common}
-        pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+        pattern="[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}"
         title="Veuillez entrer une adresse email valide"
       />
     );
