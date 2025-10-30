@@ -266,12 +266,12 @@ const InscriptClient = () => {
       {
         label: "Nom Pays",
         name: "nomPays2",
-        col: "col-8",
+        col: "col-6",
         type: "select",
         options: COUNTRIES_COG,
       },
 
-      { label: "Code pays", name: "codePays2", col: "col-4" },
+      { label: "Code pays", name: "codePays2", col: "col-6" },
     ],
     [{ label: "Bic", name: "bic", placeholder: "(Sans espace)" }],
     [{ label: "IBAN", name: "iban", placeholder: "(Sans espace)" }],
@@ -365,100 +365,51 @@ const InscriptClient = () => {
   };
 
   const renderConfig = (config) =>
-    config.map((row, idx) => {
-      if (row.length > 1) {
-        return (
-          <div className="mb-3" key={idx}>
-            <div className="row align-items-end">
-              {row.map((f, fieldIdx) => {
-                const labelContent = greenFieldNames.includes(f.name) ? (
-                  <span style={{ color: "#e05f23ff", fontWeight: "bold" }}>
-                    {f.label}
-                  </span>
-                ) : (
-                  f.label
-                );
+    config.map((row, idx) => (
+      <div className="mb-3 row align-items-center " key={idx}>
+        {row.map((f, fieldIdx) => {
+          const labelContent = greenFieldNames.includes(f.name) ? (
+            <span style={{ color: "#e05f23ff", fontWeight: "bold" }}>
+              {f.label}
+            </span>
+          ) : (
+            f.label
+          );
 
-                let fieldValue = formData[f.name];
-                if (f.name === "nomPays") {
-                  fieldValue = formData.codePays || "";
-                } else if (f.name === "nomPays2") {
-                  fieldValue = formData.codePays2 || "";
-                } else if (f.name === "departement") {
-                  fieldValue = formData.departement || "";
-                }
+          let fieldValue = formData[f.name];
+          if (f.name === "nomPays") {
+            fieldValue = formData.codePays || "";
+          } else if (f.name === "nomPays2") {
+            fieldValue = formData.codePays2 || "";
+          } else if (f.name === "departement") {
+            fieldValue = formData.departement || "";
+          }
 
-                return (
-                  <div
-                    className={f.col || "col-6"}
-                    style={{ display: "flex" }}
-                    key={fieldIdx}
-                  >
-                    <label
-                      className="form-label mb-1"
-                      style={{ fontSize: "13px" }}
-                      htmlFor={f.name}
-                    >
-                      {labelContent}
-                    </label>
-                    <Field
-                      field={f}
-                      value={fieldValue}
-                      onChange={handleInputChange}
-                      isFromJson={isFromJson}
-                      required
-                    />
-                  </div>
-                );
-              })}
+          return (
+            <div className="row mb-2" key={fieldIdx}>
+              <div className="col-4">
+                <label
+                  className="form-label mb-0"
+                  style={{ fontSize: "13px" }}
+                  htmlFor={f.name}
+                >
+                  {labelContent}
+                </label>
+              </div>
+              <div className="col-8">
+                <Field
+                  field={f}
+                  value={fieldValue}
+                  onChange={handleInputChange}
+                  isFromJson={isFromJson}
+                  required
+                />
+              </div>
             </div>
-          </div>
-        );
-      }
-
-      const f = row[0];
-      const labelContent = greenFieldNames.includes(f.name) ? (
-        <span style={{ color: "#e05f23ff", fontWeight: "bold" }}>
-          {f.label}
-        </span>
-      ) : (
-        f.label
-      );
-
-      let fieldValue = formData[f.name];
-      if (f.name === "nomPays") {
-        fieldValue = formData.codePays || "";
-      } else if (f.name === "nomPays2") {
-        fieldValue = formData.codePays2 || "";
-      } else if (f.name === "departement") {
-        fieldValue = formData.departement || "";
-      }
-
-      return (
-        <div className="mb-3" key={idx}>
-          <div className="row mb-2">
-            <div className="col-4">
-              <label
-                className="form-label mb-0"
-                style={{ fontSize: "13px" }}
-                htmlFor={f.name}
-              >
-                {labelContent}
-              </label>
-            </div>
-            <div className="col-8">
-              <Field
-                field={f}
-                value={fieldValue}
-                onChange={handleInputChange}
-                isFromJson={isFromJson}
-                required
-              />
-            </div>
-          </div>
-        </div>
-      );
-    });
+          );
+        })}
+      </div>
+    ));
 
   const personalInfoFields = leftFields.slice(0, 5); // Fields before Lieu naissance
   const birthplaceFields = leftFields.slice(5, 7); // Fields for Lieu naissance (Nom pays and Département only)
