@@ -46,39 +46,34 @@ const InscriptClient = () => {
   const [formData, setFormData] = useState(initial);
   const [selectedFile, setSelectedFile] = useState("");
   const [countries, setCountries] = useState([]);
+  const [isFromJson, setIsFromJson] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
     if (name === "nomPays" || name === "nomPays2") {
-      const selectedCountry = COUNTRIES_COG.find(
-        (c) => `${c.name} - ${c.code}` === value
-      );
+      const selectedCountry = COUNTRIES_COG.find((c) => c.codePays === value);
 
       if (name === "nomPays") {
         setFormData((p) => ({
           ...p,
-          nomPays: selectedCountry?.name || "",
-          codePays: selectedCountry?.code || "",
+          nomPays: selectedCountry?.nomPays || "",
+          codePays: selectedCountry?.codePays || value,
         }));
       } else {
         setFormData((p) => ({
           ...p,
-          nomPays2: selectedCountry?.name || "",
-          codePays2: selectedCountry?.code || "",
+          nomPays2: selectedCountry?.nomPays || "",
+          codePays2: selectedCountry?.codePays || value,
         }));
       }
       return;
     }
     if (name === "departement") {
-      const selectedDep = departementCode.find(
-        (d) => `${d.name} - ${d.code}` === value
-      );
+      const selectedDep = departementCode.find((d) => d.code === value);
       setFormData((p) => ({
         ...p,
-        departement: selectedDep
-          ? `${selectedDep.name} - ${selectedDep.code}`
-          : "",
+        departement: selectedDep ? selectedDep.code : value,
       }));
       return;
     }
@@ -90,6 +85,7 @@ const InscriptClient = () => {
     const f = e.target.files?.[0];
     if (f) {
       setSelectedFile(f.name);
+      setIsFromJson(true);
 
       const reader = new FileReader();
       reader.onload = (event) => {
@@ -115,15 +111,10 @@ const InscriptClient = () => {
             // Lieu naissance
             nomPays:
               COUNTRIES_COG.find(
-                (c) => c.code === jsonData.lieuNaissance?.codePaysNaissance
-              )?.name || "",
+                (c) => c.codePays === jsonData.lieuNaissance?.codePaysNaissance
+              )?.nomPays || "",
             codePays: jsonData.lieuNaissance?.codePaysNaissance || "",
-            departement: (() => {
-              const dep = departementCode.find(
-                (d) => d.code === jsonData.lieuNaissance?.departementNaissance
-              );
-              return dep ? `${dep.name} - ${dep.code}` : "";
-            })(),
+            departement: jsonData.lieuNaissance?.departementNaissance || "",
             commune:
               jsonData.lieuNaissance?.communeNaissance?.libelleCommune || "",
             codeCommune:
@@ -145,8 +136,8 @@ const InscriptClient = () => {
             codePostal: jsonData.adressePostale?.codePostal || "",
             nomPays2:
               COUNTRIES_COG.find(
-                (c) => c.code === jsonData.lieuNaissance?.codePaysNaissance
-              )?.name || "FRANCE",
+                (c) => c.codePays === jsonData.adressePostale?.codePays
+              )?.nomPays || "FRANCE",
             codePays2: jsonData.adressePostale?.codePays || "99100",
 
             // Coordonnée Bancaire
@@ -216,11 +207,13 @@ const InscriptClient = () => {
         label: "Nom Pays",
         name: "nomPays",
         type: "select",
-        options: COUNTRIES_COG.map((c) => `${c.name} - ${c.code}`),
+        options: COUNTRIES_COG,
+        col: "col-8",
       },
       {
         label: "Code Pays",
         name: "codePays",
+        col: "col-4",
       },
     ],
     [
@@ -228,14 +221,11 @@ const InscriptClient = () => {
         label: "Département",
         name: "departement",
         type: "select",
-        options: departementCode.map((d) => `${d.name} - ${d.code}`),
+        options: departementCode,
       },
     ],
-    [{ label: "Commune", name: "commune", readOnly: false }],
-    [
-      { label: "Code Commune", name: "codeCommune", col: "col-6" },
-      { label: "\u00A0", name: "nomCommune", col: "col-6", readOnly: true },
-    ],
+    [{ label: "Code Commune", name: "codeCommune", col: "col-6" }],
+    [{ label: "Nom commune", name: "nomCommune" }],
     [
       {
         label: "Num Tel Portable",
@@ -278,7 +268,7 @@ const InscriptClient = () => {
         name: "nomPays2",
         col: "col-6",
         type: "select",
-        options: COUNTRIES_COG.map((c) => `${c.name} - ${c.code}`),
+        options: COUNTRIES_COG,
       },
 
       { label: "Code pays", name: "codePays2", col: "col-6" },
@@ -286,7 +276,7 @@ const InscriptClient = () => {
     [{ label: "Bic", name: "bic", placeholder: "(Sans espace)" }],
     [{ label: "IBAN", name: "iban", placeholder: "(Sans espace)" }],
     [{ label: "Titulaire", name: "titulaire" }],
-    [{ label: "Id Particulier", name: "idParticulier", readOnly: true }],
+    [{ label: "Id Particulier", name: "idParticulier" }],
   ];
   const fieldConfigs = [...leftFields.flat(), ...rightFields.flat()];
   const labelMap = Object.fromEntries(
@@ -302,11 +292,76 @@ const InscriptClient = () => {
 
     if (missing.length > 0) {
       const labels = missing.map((n) => labelMap[n] || n).join(", ");
-      alert("Veuillez remplir les champs obligatoires : " + labels);
+      alert("Veuillez remplir les champs obligatoires marqués en rouge ");
       return;
     }
 
-    console.log("Form submitted:", formData);
+    if (formData.codeCommune && !/^\d{3}$/.test(formData.codeCommune)) {
+      alert("Le Code Commune doit contenir exactement 3 chiffres");
+      return;
+    }
+
+    if (formData.iban && !/^[A-Z0-9]{14,34}$/.test(formData.iban)) {
+      alert(
+        "L'IBAN doit contenir entre 14 et 34 caractères (lettres et chiffres, sans espaces)"
+      );
+      return;
+    }
+
+    if (formData.bic && !/^[A-Z0-9]{8}$|^[A-Z0-9]{11}$/.test(formData.bic)) {
+      alert(
+        "Le BIC doit contenir exactement 8 ou 11 caractères (lettres et chiffres, sans espaces)"
+      );
+      return;
+    }
+
+    if (
+      formData.adresseMail &&
+      !/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/i.test(formData.adresseMail)
+    ) {
+      alert("Veuillez entrer une adresse email valide");
+      return;
+    }
+
+    // Créer le JSON au format exact des fichiers JSON fournis
+    const jsonData = {
+      civilite: formData.civilite === "M" ? "1" : "2",
+      nomNaissance: formData.nomNaissance,
+      nomUsage: formData.nomUsage || formData.nomNaissance,
+      prenoms: formData.prenoms,
+      dateNaissance: formData.dateNaissance
+        ? new Date(formData.dateNaissance).toISOString()
+        : "",
+      lieuNaissance: {
+        codePaysNaissance: formData.codePays,
+        departementNaissance: formData.departement,
+        communeNaissance: {
+          codeCommune: formData.codeCommune,
+          libelleCommune: formData.nomCommune,
+        },
+      },
+      numeroTelephonePortable: formData.numTelPortable,
+      adresseMail: formData.adresseMail,
+      adressePostale: {
+        numeroVoie: formData.numeroVoie,
+        lettreVoie: formData.lettreVoie || "",
+        codeTypeVoie: formData.codeTypeVoie,
+        libelleVoie: formData.libelleVoie,
+        complement: formData.complement || "",
+        lieuDit: formData.lieuDit || "",
+        libelleCommune: formData.nomCommune2,
+        codeCommune: formData.codeInsee,
+        codePostal: formData.codePostal,
+        codePays: formData.codePays2,
+      },
+      coordonneeBancaire: {
+        bic: formData.bic,
+        iban: formData.iban,
+        titulaire: formData.titulaire,
+      },
+    };
+
+    console.log(JSON.stringify(jsonData, null, "\t"));
   };
 
   const renderConfig = (config) =>
@@ -323,13 +378,11 @@ const InscriptClient = () => {
 
           let fieldValue = formData[f.name];
           if (f.name === "nomPays") {
-            fieldValue = `${formData.nomPays || ""}${
-              formData.codePays ? " - " + formData.codePays : ""
-            }`.trim();
+            fieldValue = formData.codePays || "";
           } else if (f.name === "nomPays2") {
-            fieldValue = `${formData.nomPays2 || ""}${
-              formData.codePays2 ? " - " + formData.codePays2 : ""
-            }`.trim();
+            fieldValue = formData.codePays2 || "";
+          } else if (f.name === "departement") {
+            fieldValue = formData.departement || "";
           }
 
           return (
@@ -348,6 +401,7 @@ const InscriptClient = () => {
                   field={f}
                   value={fieldValue}
                   onChange={handleInputChange}
+                  isFromJson={isFromJson}
                   required
                 />
               </div>
