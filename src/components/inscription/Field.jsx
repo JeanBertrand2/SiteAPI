@@ -7,8 +7,6 @@ const Field = ({ field, value, onChange, isFromJson }) => {
     placeholder: field.placeholder || "",
   };
 
-  const shouldBeReadOnly = field.readOnly === true || isFromJson;
-
   if (field.type === "select") {
     return (
       <select
@@ -17,11 +15,7 @@ const Field = ({ field, value, onChange, isFromJson }) => {
         style={{
           fontFamily: "monospace",
           whiteSpace: "pre",
-          ...(shouldBeReadOnly ? { pointerEvents: "none" } : {}),
         }}
-        disabled={shouldBeReadOnly}
-        tabIndex={shouldBeReadOnly ? -1 : 0}
-        onFocus={(e) => shouldBeReadOnly && e.target.blur()}
       >
         <option value=""></option>
         {(field.options || []).map((opt) => {
@@ -78,16 +72,7 @@ const Field = ({ field, value, onChange, isFromJson }) => {
     );
   }
 
-  return (
-    <input
-      type={field.type || "text"}
-      {...common}
-      readOnly={shouldBeReadOnly}
-      tabIndex={shouldBeReadOnly ? -1 : 0}
-      style={shouldBeReadOnly ? { pointerEvents: "none" } : {}}
-      onFocus={(e) => shouldBeReadOnly && e.target.blur()}
-    />
-  );
+  return <input type={field.type || "text"} {...common} />;
 };
 
 export default Field;
