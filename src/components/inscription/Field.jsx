@@ -1,23 +1,30 @@
-const Field = ({ field, value, onChange }) => {
+const Field = ({ field, value, onChange, isFromJson }) => {
   const common = {
     name: field.name,
     className: "form-control form-control-sm",
     value: value || "",
     onChange,
-    readOnly: !!field.readOnly,
     placeholder: field.placeholder || "",
   };
+
+  const shouldBeReadOnly = field.readOnly === true || isFromJson;
 
   if (field.type === "select") {
     return (
       <select
         {...common}
         className="form-select form-select-sm"
-        style={{ fontFamily: "monospace", whiteSpace: "pre" }}
+        style={{
+          fontFamily: "monospace",
+          whiteSpace: "pre",
+          ...(shouldBeReadOnly ? { pointerEvents: "none" } : {}),
+        }}
+        disabled={shouldBeReadOnly}
+        tabIndex={shouldBeReadOnly ? -1 : 0}
+        onFocus={(e) => shouldBeReadOnly && e.target.blur()}
       >
         <option value="">Sélectionnez</option>
         {(field.options || []).map((opt) => {
-          // Handle objects with key and libelle (typesVoie)
           if (opt.key && opt.libelle) {
             const keyStr = String(opt.key);
             const labelStr = String(opt.libelle);
@@ -71,7 +78,16 @@ const Field = ({ field, value, onChange }) => {
     );
   }
 
-  return <input type={field.type || "text"} {...common} />;
+  return (
+    <input
+      type={field.type || "text"}
+      {...common}
+      readOnly={shouldBeReadOnly}
+      tabIndex={shouldBeReadOnly ? -1 : 0}
+      style={shouldBeReadOnly ? { pointerEvents: "none" } : {}}
+      onFocus={(e) => shouldBeReadOnly && e.target.blur()}
+    />
+  );
 };
 
 export default Field;

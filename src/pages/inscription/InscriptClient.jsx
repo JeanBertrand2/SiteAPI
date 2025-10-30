@@ -46,6 +46,7 @@ const InscriptClient = () => {
   const [formData, setFormData] = useState(initial);
   const [selectedFile, setSelectedFile] = useState("");
   const [countries, setCountries] = useState([]);
+  const [isFromJson, setIsFromJson] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -84,6 +85,7 @@ const InscriptClient = () => {
     const f = e.target.files?.[0];
     if (f) {
       setSelectedFile(f.name);
+      setIsFromJson(true);
 
       const reader = new FileReader();
       reader.onload = (event) => {
@@ -210,6 +212,7 @@ const InscriptClient = () => {
       {
         label: "Code Pays",
         name: "codePays",
+        readOnly: true,
       },
     ],
     [
@@ -220,7 +223,7 @@ const InscriptClient = () => {
         options: departementCode,
       },
     ],
-    [{ label: "Commune", name: "commune", readOnly: false }],
+    [{ label: "Commune", name: "commune" }],
     [
       { label: "Code Commune", name: "codeCommune", col: "col-6" },
       { label: "\u00A0", name: "nomCommune", col: "col-6", readOnly: true },
@@ -270,7 +273,7 @@ const InscriptClient = () => {
         options: COUNTRIES_COG,
       },
 
-      { label: "Code pays", name: "codePays2", col: "col-6" },
+      { label: "Code pays", name: "codePays2", col: "col-6", readOnly: true },
     ],
     [{ label: "Bic", name: "bic", placeholder: "(Sans espace)" }],
     [{ label: "IBAN", name: "iban", placeholder: "(Sans espace)" }],
@@ -335,6 +338,7 @@ const InscriptClient = () => {
                   field={f}
                   value={fieldValue}
                   onChange={handleInputChange}
+                  isFromJson={isFromJson}
                   required
                 />
               </div>
