@@ -2,9 +2,7 @@ import { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Field from "../../components/inscription/Field";
 import "./InscriptClient.css";
-import { typesVoie } from "../../constants/typesVoie";
-import { COUNTRIES_COG } from "../../constants/countries";
-import { departementCode } from "../../constants/departements";
+import { fetchMetaData } from "../../services/metaService";
 
 const InscriptClient = () => {
   const initial = {
@@ -45,14 +43,24 @@ const InscriptClient = () => {
 
   const [formData, setFormData] = useState(initial);
   const [selectedFile, setSelectedFile] = useState("");
-  const [countries, setCountries] = useState([]);
+  const [metaData, setMetaData] = useState({
+    pays: [],
+    codeTypeVoie: [],
+    departement: [],
+  });
+  useEffect(() => {
+    fetchMetaData()
+      .then((data) => setMetaData(data))
+      .catch((err) => console.error("Erreur chargement meta:", err));
+  }, []);
+  
   const [isFromJson, setIsFromJson] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
     if (name === "nomPays" || name === "nomPays2") {
-      const selectedCountry = COUNTRIES_COG.find((c) => c.codePays === value);
+      const selectedCountry = metaData.pays.find((c) => c.codePays === value);
 
       if (name === "nomPays") {
         setFormData((p) => ({
@@ -70,10 +78,12 @@ const InscriptClient = () => {
       return;
     }
     if (name === "departement") {
-      const selectedDep = departementCode.find((d) => d.code === value);
+      const selectedDep = metaData.departement.find(
+        (d) => d.codeDepartement === value
+      );
       setFormData((p) => ({
         ...p,
-        departement: selectedDep ? selectedDep.code : value,
+        departement: selectedDep ? selectedDep.codeDepartement : value,
       }));
       return;
     }
@@ -108,9 +118,8 @@ const InscriptClient = () => {
               ? jsonData.dateNaissance.split("T")[0]
               : "",
 
-            // Lieu naissance
             nomPays:
-              COUNTRIES_COG.find(
+              metaData.pays.find(
                 (c) => c.codePays === jsonData.lieuNaissance?.codePaysNaissance
               )?.nomPays || "",
             codePays: jsonData.lieuNaissance?.codePaysNaissance || "",
@@ -135,7 +144,7 @@ const InscriptClient = () => {
             codeInsee: jsonData.adressePostale?.codeCommune || "",
             codePostal: jsonData.adressePostale?.codePostal || "",
             nomPays2:
-              COUNTRIES_COG.find(
+              metaData.pays.find(
                 (c) => c.codePays === jsonData.adressePostale?.codePays
               )?.nomPays || "FRANCE",
             codePays2: jsonData.adressePostale?.codePays || "99100",
@@ -207,7 +216,10 @@ const InscriptClient = () => {
         label: "Nom Pays",
         name: "nomPays",
         type: "select",
-        options: COUNTRIES_COG,
+        options: metaData.pays.map((p) => ({
+          codePays: p.codePays,
+          nomPays: p.nomPays,
+        })),
         col: "col-8",
       },
       {
@@ -221,7 +233,10 @@ const InscriptClient = () => {
         label: "Département",
         name: "departement",
         type: "select",
-        options: departementCode,
+        options: metaData.departement.map((d) => ({
+          code: d.codeDepartement,
+          nom: d.nomDepartement,
+        })),
       },
     ],
     [{ label: "Code Commune", name: "codeCommune", col: "col-6" }],
@@ -253,7 +268,10 @@ const InscriptClient = () => {
         label: "Code Type Voie",
         name: "codeTypeVoie",
         type: "select",
-        options: typesVoie,
+        options: metaData.codeTypeVoie.map((v) => ({
+          code: v.Code,
+          name: v.Libelle,
+        })),
       },
     ],
     [{ label: "Libelle Voie", name: "libelleVoie" }],
@@ -266,12 +284,15 @@ const InscriptClient = () => {
       {
         label: "Nom Pays",
         name: "nomPays2",
-        col: "col-6",
+        col: "col-8",
         type: "select",
-        options: COUNTRIES_COG,
+        options: metaData.pays.map((p) => ({
+          codePays: p.codePays,
+          nomPays: p.nomPays,
+        })),
       },
 
-      { label: "Code pays", name: "codePays2", col: "col-6" },
+      { label: "Code pays", name: "codePays2", col: "col-4" },
     ],
     [{ label: "Bic", name: "bic", placeholder: "(Sans espace)" }],
     [{ label: "IBAN", name: "iban", placeholder: "(Sans espace)" }],
