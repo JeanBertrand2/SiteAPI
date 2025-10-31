@@ -239,6 +239,83 @@ const PaiementFichier = () => {
     return { ttc, ht, tva };
   };
 
+  const genererJSON = () => {
+      if (formulaires.length === 0) {
+        alert("Aucune donnée à exporter.");
+        return;
+      }
+
+      let payload;
+
+      if (typeFichier === "dolibarr") {
+        payload = formulaires.map((form) => ({
+          idTiersFacturation: form.nomclient,
+          idClient: form.clientId,
+          dateNaissanceClient: form.selectedDate + "T00:00:00Z",
+          numFactureTiers: form.numfacture,
+          dateFacture: form.datefact + "T00:00:00Z",
+          dateDebutEmploi: form.dde + "T00:00:00Z",
+          dateFinEmploi: form.dfe + "T00:00:00Z",
+          mntAcompte: form.mntacompte,
+          dateVersementAcompte: form.datevers ? form.datevers + "T00:00:00Z" : "",
+          mntFactureTTC: form.mntfttc,
+          mntFactureHT: form.mntfht,
+          inputPrestations: form.demandePaiement.map((p) => ({
+            codeActivite: p.ca, // Dolibarr → Réf. produit
+            codeNature: p.cn,   // Dolibarr → Libéllé Urssaf
+            quantite: p.qte,
+            unite: p.unit,
+            mntUnitaireTTC: p.mntunit,
+            mntPrestationTTC: p.mntprestttc,
+            mntPrestationHT: p.mntprestht,
+            mntPrestationTVA: p.mntpresttva,
+            complement1: p.compl1,
+            complement2: p.compl2
+          })),
+          nomUsage: form.nomclient
+
+        }));
+      } else if (typeFichier === "application") {
+        payload = formulaires.map((form) => ({
+          idClient: form.clientId,
+          idTiersFacturation: form.nomclient,
+          dateNaissanceClient: form.selectedDate + "T00:00:00Z",
+          numFactureTiers: form.numfacture,
+          dateFacture: form.datefact + "T00:00:00Z",
+          dateDebutEmploi: form.dde + "T00:00:00Z",
+          dateFinEmploi: form.dfe + "T00:00:00Z",
+          dateVersementAcompte: form.datevers ? form.datevers + "T00:00:00Z" : "",
+          mntAcompte: form.mntacompte,
+          mntFactureHT: form.mntfht,
+          mntFactureTTC: form.mntfttc,
+          inputPrestations: form.demandePaiement.map((p) => ({
+            codeActivite: p.ca, // Application → codeActivite
+            codeNature: p.cn,   // Application → codeNature
+            libellePrestation: p.libprest,
+            quantite: p.qte,
+            unite: p.unit,
+            mntUnitaireTTC: p.mntunit,
+            mntPrestationHT: p.mntprestht,
+            mntPrestationTTC: p.mntprestttc,
+            mntPrestationTVA: p.mntpresttva,
+            complement1: p.compl1,
+            complement2: p.compl2
+          })),
+          nomUsage: ""
+        }));
+      }
+
+      
+
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "demande_paiement.json";
+      a.click();
+      URL.revokeObjectURL(url);
+    };
+
   return (
     <>
       {showModal && (
@@ -290,7 +367,18 @@ const PaiementFichier = () => {
 
         <div className="input-group mb-3">
           <input type="text" className="form-control" placeholder="Fichier cible" readOnly value={fichier?.name || ""} />
-          <button className="btn btn-outline-secondary" onClick={() => fichier && window.open(URL.createObjectURL(fichier))}>Ouvrir Excel</button>
+          <div className="d-flex gap-2">
+            <button className="btn btn-success" onClick={() => fichier && window.open(URL.createObjectURL(fichier))}>
+              Ouvrir Excel
+            </button>
+            <button className="btn btn-primary" onClick={() => {
+              alert("Demande de paiement envoyée");
+              genererJSON();
+            }}>
+              Demande de Paiement
+            </button>
+
+          </div>
         </div>
 
         {formulaires.map((form) => (
