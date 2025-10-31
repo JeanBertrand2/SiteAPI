@@ -290,7 +290,12 @@ const PaiementFichier = () => {
 
         <div className="input-group mb-3">
           <input type="text" className="form-control" placeholder="Fichier cible" readOnly value={fichier?.name || ""} />
-          <button className="btn btn-outline-secondary" onClick={() => fichier && window.open(URL.createObjectURL(fichier))}>Ouvrir Excel</button>
+          <div className="d-flex gap-2">
+            <button className="btn btn-success" onClick={() => fichier && window.open(URL.createObjectURL(fichier))}>
+              Ouvrir Excel
+            </button>
+            <button className="btn btn-primary" onClick={() => alert("Demande de paiement envoyée")}>Demande de Paiement</button>
+          </div>
         </div>
 
         {formulaires.map((form) => (
