@@ -51,9 +51,12 @@ const InscriptClient = () => {
   useEffect(() => {
     fetchMetaData()
       .then((data) => setMetaData(data))
-      .catch((err) => console.error("Erreur chargement meta:", err));
+      .catch((err) => {
+        console.error("Erreur chargement meta:", err);
+        alert("Erreur lors du chargement des données meta. Veuillez vérifier la connexion à l'API.");
+      });
   }, []);
-  
+
   const [isFromJson, setIsFromJson] = useState(false);
 
   const handleInputChange = (e) => {
