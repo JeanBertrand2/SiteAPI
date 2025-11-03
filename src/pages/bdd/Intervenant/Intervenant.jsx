@@ -25,8 +25,6 @@ const Intervenant = () => {
     fetchData();
   }, []);
 
-  console.log(intervenants);
-
   const [selectedRow, setSelectedRow] = useState(null);
   const [searchActive, setSearchActive] = useState({
     civilite: false,
@@ -377,7 +375,11 @@ const Intervenant = () => {
                         : "#f8f9fa";
                     return (
                       <tr
-                        key={intervenant.ID_Intervenant}
+                        key={
+                          intervenant.id ||
+                          intervenant.nomIntervenant +
+                            intervenant.prenomIntervenant
+                        }
                         onClick={() =>
                           handleRowClick(intervenant.ID_Intervenant)
                         }
