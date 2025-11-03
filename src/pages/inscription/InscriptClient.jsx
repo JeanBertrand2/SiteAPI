@@ -30,7 +30,6 @@ const InscriptClient = () => {
     codeInsee: "",
     codePostal: "",
     nomPays2: "FRANCE",
-
     codePays2: "99100",
     bic: "",
     iban: "",
@@ -53,7 +52,6 @@ const InscriptClient = () => {
       .then((data) => setMetaData(data))
       .catch((err) => {
         console.error("Erreur chargement meta:", err);
-        alert("Erreur lors du chargement des données meta. Veuillez vérifier la connexion à l'API.");
       });
   }, []);
 
@@ -351,7 +349,7 @@ const InscriptClient = () => {
     const jsonData = {
       civilite: formData.civilite === "M" ? "1" : "2",
       nomNaissance: formData.nomNaissance,
-      nomUsage: formData.nomUsage || formData.nomNaissance,
+      nomUsage: formData.nomUsage || formData.nomeNaissance,
       prenoms: formData.prenoms,
       dateNaissance: formData.dateNaissance
         ? new Date(formData.dateNaissance).toISOString()
@@ -364,6 +362,7 @@ const InscriptClient = () => {
           libelleCommune: formData.nomCommune,
         },
       },
+
       numeroTelephonePortable: formData.numTelPortable,
       adresseMail: formData.adresseMail,
       adressePostale: {
