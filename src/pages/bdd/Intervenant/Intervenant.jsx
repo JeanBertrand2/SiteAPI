@@ -329,12 +329,15 @@ const Intervenant = () => {
                           <RiExpandUpDownFill size={14} />
                         </span>
                         <span style={{ flex: 1, textAlign: "center" }}>
-                          {searchActive.prenoms ? (
+                          {searchActive.prenomIntervenant ? (
                             <input
                               type="text"
-                              value={searchValues.prenoms}
+                              value={searchValues.prenomIntervenant}
                               onChange={(e) =>
-                                handleSearchChange("prenoms", e.target.value)
+                                handleSearchChange(
+                                  "prenomIntervenant",
+                                  e.target.value
+                                )
                               }
                               style={{
                                 width: "100%",
@@ -356,7 +359,7 @@ const Intervenant = () => {
                             alignItems: "center",
                             cursor: "pointer",
                           }}
-                          onClick={() => handleSearchClick("prenoms")}
+                          onClick={() => handleSearchClick("prenomIntervenant")}
                         >
                           <IoIosSearch size={14} />
                         </span>
