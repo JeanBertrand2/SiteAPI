@@ -11,7 +11,6 @@ import {
   createIntervenant,
   updateIntervenant,
   deleteIntervenant,
-  fetchIntervenantById,
 } from "../../../services/intervenantService";
 import "./Intervenant.css";
 
@@ -360,23 +359,27 @@ const Intervenant = () => {
                         : "#f8f9fa";
                     return (
                       <tr
-                        key={intervenant.ID_Intervenant}
-                        onClick={() =>
-                          handleRowClick(intervenant.ID_Intervenant)
-                        }
-                        style={{
-                          cursor: "pointer",
-                        }}
+                      key={intervenant.ID_Intervenant}
+                      onClick={() =>
+                        handleRowClick(intervenant.ID_Intervenant)
+                      }
+                      style={{
+                        cursor: "pointer",
+                      }}
                       >
-                        <td style={{ padding: "8px", backgroundColor: rowBg }}>
-                          {intervenant.civilite}
-                        </td>
-                        <td style={{ padding: "8px", backgroundColor: rowBg }}>
-                          {intervenant.nomIntervenant}
-                        </td>
-                        <td style={{ padding: "8px", backgroundColor: rowBg }}>
-                          {intervenant.prenomIntervenant}
-                        </td>
+                      <td style={{ padding: "8px", backgroundColor: rowBg }}>
+                        {intervenant.civilite === "1"
+                        ? "Monsieur"
+                        : intervenant.civilite === "2"
+                        ? "Madame"
+                        : intervenant.civilite}
+                      </td>
+                      <td style={{ padding: "8px", backgroundColor: rowBg }}>
+                        {intervenant.nomIntervenant}
+                      </td>
+                      <td style={{ padding: "8px", backgroundColor: rowBg }}>
+                        {intervenant.prenomIntervenant}
+                      </td>
                       </tr>
                     );
                   })}

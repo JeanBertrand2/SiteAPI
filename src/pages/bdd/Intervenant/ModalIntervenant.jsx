@@ -28,7 +28,8 @@ const ModalIntervenant = ({ show, onClose, data, onSave }) => {
   };
 
   const handleSave = () => {
-    onSave(formData);
+    const civiliteValue = formData.civilite === "Monsieur" ? 1 : 2;
+    onSave({ ...formData, civilite: civiliteValue });
     onClose();
   };
 
