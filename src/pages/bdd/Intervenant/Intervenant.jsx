@@ -16,7 +16,11 @@ import "./Intervenant.css";
 
 const Intervenant = () => {
   const [intervenants, setIntervenants] = useState([]);
-
+  const civiliteLabel = (civilite) => {
+    if (civilite === "1" || civilite === 1) return "Monsieur";
+    if (civilite === "2" || civilite === 2) return "Madame";
+    return civilite;
+  };
   useEffect(() => {
     const fetchData = async () => {
       const data = await fetchIntervenants();
@@ -74,9 +78,11 @@ const Intervenant = () => {
 
   const getFilteredAndSortedData = () => {
     let filtered = intervenants?.filter((intervenant) => {
-      const civiliteMatch = String(intervenant.civilite)
+      const civiliteText = civiliteLabel(intervenant.civilite);
+      const civiliteMatch = civiliteText
         .toLowerCase()
         .includes(searchValues.civilite.toLowerCase());
+
       const nomMatch = intervenant.nomIntervenant
         .toLowerCase()
         .includes(searchValues.nomIntervenant.toLowerCase());
@@ -88,8 +94,16 @@ const Intervenant = () => {
 
     if (sortConfig.key) {
       filtered.sort((a, b) => {
-        const aValue = a[sortConfig.key].toLowerCase();
-        const bValue = b[sortConfig.key].toLowerCase();
+        let aValue, bValue;
+
+        if (sortConfig.key === "civilite") {
+          aValue = civiliteLabel(a[sortConfig.key]).toLowerCase();
+          bValue = civiliteLabel(b[sortConfig.key]).toLowerCase();
+        } else {
+          aValue = a[sortConfig.key].toLowerCase();
+          bValue = b[sortConfig.key].toLowerCase();
+        }
+
         if (aValue < bValue) {
           return sortConfig.direction === "asc" ? -1 : 1;
         }
@@ -120,11 +134,6 @@ const Intervenant = () => {
       setModalData(selected);
       setShowModal(true);
     }
-  };
-  const civiliteLabel = (civilite) => {
-    if (civilite === "1" || civilite === 1) return "Monsieur";
-    if (civilite === "2" || civilite === 2) return "Madame";
-    return civilite;
   };
 
   const handleSave = async (formData) => {

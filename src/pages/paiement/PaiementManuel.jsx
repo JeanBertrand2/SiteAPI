@@ -638,7 +638,9 @@ const PaiementManuel = () => {
         title="Confirmer la suppression"
         message={
           formToDelete !== null
-            ? `Voulez-vous vraiment supprimer le formulaire ${formToDelete + 1} ?`
+            ? `Voulez-vous vraiment supprimer le formulaire ${
+                formToDelete + 1
+              } ?`
             : "Voulez-vous vraiment supprimer cet élément ?"
         }
         onConfirm={() => {
