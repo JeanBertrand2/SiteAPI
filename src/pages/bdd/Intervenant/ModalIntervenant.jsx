@@ -6,20 +6,36 @@ import {
 } from "react-icons/md";
 import "./ModalIntervenant.css";
 
+const normalizeCivilite = (c) => {
+  if (c === 1 || c === "1") return "Monsieur";
+  if (c === 2 || c === "2") return "Madame";
+  if (typeof c === "string") {
+    const lower = c.toLowerCase();
+    if (lower.includes("mons")) return "Monsieur";
+    if (lower.includes("madam") || lower.includes("mme")) return "Madame";
+  }
+  return "Monsieur";
+};
+
+const defaultData = {
+  civilite: "Monsieur",
+  nomIntervenant: "",
+  prenomIntervenant: "",
+};
+
 const ModalIntervenant = ({ show, onClose, data, onSave }) => {
-  const [formData, setFormData] = useState(
-    data || { civilite: "Monsieur", nomIntervenant: "", prenomIntervenant: "" }
-  );
+  const [formData, setFormData] = useState(() => {
+    const init = data || defaultData;
+    return { ...init, civilite: normalizeCivilite(init.civilite) };
+  });
 
   useEffect(() => {
     if (show) {
-      setFormData(
-        data || {
-          civilite: "Monsieur",
-          nomIntervenant: "",
-          prenomIntervenant: "",
-        }
-      );
+      if (data) {
+        setFormData({ ...data, civilite: normalizeCivilite(data.civilite) });
+      } else {
+        setFormData(defaultData);
+      }
     }
   }, [data, show]);
 

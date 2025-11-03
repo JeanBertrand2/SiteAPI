@@ -76,7 +76,7 @@ const Intervenant = () => {
 
   const getFilteredAndSortedData = () => {
     let filtered = intervenants.filter((intervenant) => {
-      const civiliteMatch = intervenant.civilite
+      const civiliteMatch = String(intervenant.civilite)
         .toLowerCase()
         .includes(searchValues.civilite.toLowerCase());
       const nomMatch = intervenant.nomIntervenant
@@ -123,11 +123,23 @@ const Intervenant = () => {
       setShowModal(true);
     }
   };
+  const civiliteLabel = (civilite) => {
+    if (civilite === "1" || civilite === 1) return "Monsieur";
+    if (civilite === "2" || civilite === 2) return "Madame";
+    return civilite;
+  };
+
   const handleSave = async (formData) => {
     try {
       if (modalMode === "add") {
         const newIntervenant = await createIntervenant(formData);
-        setIntervenants((prev) => [...prev, newIntervenant]);
+        setIntervenants((prev) => [
+          ...prev,
+          {
+            ...newIntervenant,
+            civilite: civiliteLabel(newIntervenant.civilite),
+          },
+        ]);
       } else {
         const updatedIntervenant = await updateIntervenant(
           formData.ID_Intervenant,
@@ -136,7 +148,10 @@ const Intervenant = () => {
         setIntervenants((prev) =>
           prev.map((i) =>
             i.ID_Intervenant === updatedIntervenant.ID_Intervenant
-              ? updatedIntervenant
+              ? {
+                  ...updatedIntervenant,
+                  civilite: civiliteLabel(updatedIntervenant.civilite),
+                }
               : i
           )
         );
@@ -359,27 +374,27 @@ const Intervenant = () => {
                         : "#f8f9fa";
                     return (
                       <tr
-                      key={intervenant.ID_Intervenant}
-                      onClick={() =>
-                        handleRowClick(intervenant.ID_Intervenant)
-                      }
-                      style={{
-                        cursor: "pointer",
-                      }}
+                        key={intervenant.ID_Intervenant}
+                        onClick={() =>
+                          handleRowClick(intervenant.ID_Intervenant)
+                        }
+                        style={{
+                          cursor: "pointer",
+                        }}
                       >
-                      <td style={{ padding: "8px", backgroundColor: rowBg }}>
-                        {intervenant.civilite === "1"
-                        ? "Monsieur"
-                        : intervenant.civilite === "2"
-                        ? "Madame"
-                        : intervenant.civilite}
-                      </td>
-                      <td style={{ padding: "8px", backgroundColor: rowBg }}>
-                        {intervenant.nomIntervenant}
-                      </td>
-                      <td style={{ padding: "8px", backgroundColor: rowBg }}>
-                        {intervenant.prenomIntervenant}
-                      </td>
+                        <td style={{ padding: "8px", backgroundColor: rowBg }}>
+                          {intervenant.civilite === "1"
+                            ? "Monsieur"
+                            : intervenant.civilite === "2"
+                            ? "Madame"
+                            : intervenant.civilite}
+                        </td>
+                        <td style={{ padding: "8px", backgroundColor: rowBg }}>
+                          {intervenant.nomIntervenant}
+                        </td>
+                        <td style={{ padding: "8px", backgroundColor: rowBg }}>
+                          {intervenant.prenomIntervenant}
+                        </td>
                       </tr>
                     );
                   })}
