@@ -8,12 +8,14 @@ import "./ModalIntervenant.css";
 
 const ModalIntervenant = ({ show, onClose, data, onSave }) => {
   const [formData, setFormData] = useState(
-    data || { civilite: "", nom: "", prenoms: "" }
+    data || { civilite: "", nomIntervenant: "", prenomIntervenant: "" }
   );
 
   useEffect(() => {
     if (show) {
-      setFormData(data || { civilite: "", nom: "", prenoms: "" });
+      setFormData(
+        data || { civilite: "", nomIntervenant: "", prenomIntervenant: "" }
+      );
     }
   }, [data, show]);
 
@@ -73,8 +75,8 @@ const ModalIntervenant = ({ show, onClose, data, onSave }) => {
               <label className="modal-label">Nom</label>
               <input
                 type="text"
-                value={formData.nom}
-                onChange={(e) => handleChange("nom", e.target.value)}
+                value={formData.nomIntervenant}
+                onChange={(e) => handleChange("nomIntervenant", e.target.value)}
                 className="modal-input"
               />
             </div>
@@ -85,8 +87,10 @@ const ModalIntervenant = ({ show, onClose, data, onSave }) => {
               <label className="modal-label">Prénoms</label>
               <input
                 type="text"
-                value={formData.prenoms}
-                onChange={(e) => handleChange("prenoms", e.target.value)}
+                value={formData.prenomIntervenant}
+                onChange={(e) =>
+                  handleChange("prenomIntervenant", e.target.value)
+                }
                 className="modal-input"
               />
             </div>

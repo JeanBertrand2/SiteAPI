@@ -171,7 +171,8 @@ const Intervenant = () => {
   };
 
   const getSelectedData = () => {
-    return intervenants.find((i) => i.ID_Intervenant === selectedRow);
+    const selected = intervenants.find((i) => i.ID_Intervenant === selectedRow);
+    return selected;
   };
 
   return (
