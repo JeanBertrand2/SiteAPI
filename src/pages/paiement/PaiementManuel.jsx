@@ -1,10 +1,13 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import Confirmation from "../../components/Modal/Confirmation";
 
 const PaiementManuel = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const today = new Date().toISOString().split("T")[0];
+  const [showModal, setShowModal] = useState(false);
+  const [formToDelete, setFormToDelete] = useState(null);
 
   const initialFormState = {
     demandePaiement: [],
@@ -166,12 +169,17 @@ const PaiementManuel = () => {
             {formulaires.length > 1 && (
               <button
                 className="btn btn-sm btn-danger"
-                onClick={() => supprimerFormulaire(formIndex)}
+                onClick={() => {
+                  // Open confirmation modal and store which form index to delete
+                  setFormToDelete(formIndex);
+                  setShowModal(true);
+                }}
               >
                 Supprimer ce formulaire
               </button>
             )}
           </div>
+
           <div className="card-body">
             <div className="row g-3">
               <div className="col-md-6">
@@ -624,6 +632,27 @@ const PaiementManuel = () => {
           </div>
         </div>
       ))}
+
+      <Confirmation
+        isOpen={showModal}
+        title="Confirmer la suppression"
+        message={
+          formToDelete !== null
+            ? `Voulez-vous vraiment supprimer le formulaire ${formToDelete + 1} ?`
+            : "Voulez-vous vraiment supprimer cet élément ?"
+        }
+        onConfirm={() => {
+          if (formToDelete !== null) {
+            supprimerFormulaire(formToDelete);
+          }
+          setShowModal(false);
+          setFormToDelete(null);
+        }}
+        onClose={() => {
+          setShowModal(false);
+          setFormToDelete(null);
+        }}
+      />
     </div>
   );
 };

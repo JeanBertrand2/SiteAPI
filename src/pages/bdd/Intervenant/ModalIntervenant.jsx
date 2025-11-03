@@ -42,10 +42,16 @@ const ModalIntervenant = ({ show, onClose, data, onSave }) => {
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
-
   const handleSave = () => {
+    // convert civilite back to the numeric value expected by the API
     const civiliteValue = formData.civilite === "Monsieur" ? 1 : 2;
-    onSave({ ...formData, civilite: civiliteValue });
+    // prepare payload and preserve ID when editing
+    const payload = { ...formData, civilite: civiliteValue };
+    if (data && (data.ID_Intervenant || data.id)) {
+      // preserve whichever id field exists on incoming data
+      payload.ID_Intervenant = data.ID_Intervenant ?? data.id;
+    }
+    onSave(payload);
     onClose();
   };
 

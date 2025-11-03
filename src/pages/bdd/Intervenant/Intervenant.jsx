@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { IoIosSearch } from "react-icons/io";
 import { RiExpandUpDownFill } from "react-icons/ri";
 import ModalIntervenant from "./ModalIntervenant";
-import Confirmation from "./Confirmation";
+import Confirmation from "../../../components/Modal/Confirmation";
 import { MdEdit } from "react-icons/md";
 import { MdDelete } from "react-icons/md";
 import { IoIosAddCircle } from "react-icons/io";
@@ -73,7 +73,7 @@ const Intervenant = () => {
   };
 
   const getFilteredAndSortedData = () => {
-    let filtered = intervenants.filter((intervenant) => {
+    let filtered = intervenants?.filter((intervenant) => {
       const civiliteMatch = String(intervenant.civilite)
         .toLowerCase()
         .includes(searchValues.civilite.toLowerCase());
@@ -131,25 +131,42 @@ const Intervenant = () => {
     try {
       if (modalMode === "add") {
         const newIntervenant = await createIntervenant(formData);
-        setIntervenants((prev) => [
-          ...prev,
-          {
-            ...newIntervenant,
-            civilite: civiliteLabel(newIntervenant.civilite),
-          },
-        ]);
+        // Normalize id field names so the rest of the app can find the item by ID_Intervenant
+        const normalized = {
+          ...newIntervenant,
+          ID_Intervenant:
+            newIntervenant.ID_Intervenant ??
+            newIntervenant.id ??
+            newIntervenant.ID,
+        };
+        // keep a consistent 'id' as well (used for React keys in the table)
+        normalized.id = normalized.ID_Intervenant;
+        normalized.civilite = civiliteLabel(
+          newIntervenant.civilite ?? formData.civilite
+        );
+        setIntervenants((prev) => [...prev, normalized]);
+        // select the newly created row so user can immediately edit/delete
+        if (normalized.ID_Intervenant)
+          setSelectedRow(normalized.ID_Intervenant);
       } else {
-        const updatedIntervenant = await updateIntervenant(
-          formData.ID_Intervenant,
-          formData
+        // support either ID_Intervenant or id in payload
+        const idToUse = formData.ID_Intervenant ?? formData.id;
+        const updatedIntervenant = await updateIntervenant(idToUse, formData);
+        const normalizedUpdated = {
+          ...updatedIntervenant,
+          ID_Intervenant:
+            updatedIntervenant.ID_Intervenant ??
+            updatedIntervenant.id ??
+            idToUse,
+        };
+        normalizedUpdated.id = normalizedUpdated.ID_Intervenant;
+        normalizedUpdated.civilite = civiliteLabel(
+          updatedIntervenant.civilite ?? formData.civilite
         );
         setIntervenants((prev) =>
           prev.map((i) =>
-            i.ID_Intervenant === updatedIntervenant.ID_Intervenant
-              ? {
-                  ...updatedIntervenant,
-                  civilite: civiliteLabel(updatedIntervenant.civilite),
-                }
+            i.ID_Intervenant === normalizedUpdated.ID_Intervenant
+              ? normalizedUpdated
               : i
           )
         );
@@ -183,7 +200,9 @@ const Intervenant = () => {
   };
 
   const getSelectedData = () => {
-    const selected = intervenants.find((i) => i.ID_Intervenant === selectedRow);
+    const selected = intervenants?.find(
+      (i) => i.ID_Intervenant === selectedRow
+    );
     return selected;
   };
 
@@ -366,7 +385,7 @@ const Intervenant = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredData.map((intervenant, index) => {
+                  {filteredData?.map((intervenant, index) => {
                     const rowBg =
                       selectedRow === intervenant.ID_Intervenant
                         ? "#cce5ff"
@@ -403,10 +422,10 @@ const Intervenant = () => {
                       </tr>
                     );
                   })}
-                  {[...Array(Math.max(0, 10 - filteredData.length))].map(
+                  {[...Array(Math.max(0, 10 - filteredData?.length))].map(
                     (_, i) => {
                       const rowBg =
-                        (filteredData.length + i) % 2 === 0
+                        (filteredData?.length + i) % 2 === 0
                           ? "white"
                           : "#f8f9fa";
                       return (
