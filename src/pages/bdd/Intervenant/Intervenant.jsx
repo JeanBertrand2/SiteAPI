@@ -7,25 +7,33 @@ import Confirmation from "./Confirmation";
 import { MdEdit } from "react-icons/md";
 import { MdDelete } from "react-icons/md";
 import { IoIosAddCircle } from "react-icons/io";
+import { fetchIntervenants } from "../../../services/intervenantService";
+
 import "./Intervenant.css";
+import { useEffect } from "react";
 const Intervenant = () => {
-  const [intervenants, setIntervenants] = useState([
-    { id: 1, civilite: "Madame", nom: "CANABY", prenoms: "Karine" },
-    { id: 2, civilite: "Monsieur", nom: "DUPONT", prenoms: "Jean" },
-    { id: 3, civilite: "Madame", nom: "MARTIN", prenoms: "Sophie" },
-    { id: 4, civilite: "Monsieur", nom: "BERNARD", prenoms: "Pierre" },
-    { id: 5, civilite: "Madame", nom: "PETIT", prenoms: "Marie" },
-  ]);
+  const [intervenants, setIntervenants] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await fetchIntervenants();
+      setIntervenants(data);
+    };
+    fetchData();
+  }, []);
+
+  console.log(intervenants);
+
   const [selectedRow, setSelectedRow] = useState(null);
   const [searchActive, setSearchActive] = useState({
     civilite: false,
-    nom: false,
-    prenoms: false,
+    nomIntervenant: false,
+    prenomIntervenant: false,
   });
   const [searchValues, setSearchValues] = useState({
     civilite: "",
-    nom: "",
-    prenoms: "",
+    nomIntervenant: "",
+    prenomIntervenant: "",
   });
   const [sortConfig, setSortConfig] = useState({
     key: null,
@@ -68,12 +76,12 @@ const Intervenant = () => {
       const civiliteMatch = intervenant.civilite
         .toLowerCase()
         .includes(searchValues.civilite.toLowerCase());
-      const nomMatch = intervenant.nom
+      const nomMatch = intervenant.nomIntervenant
         .toLowerCase()
-        .includes(searchValues.nom.toLowerCase());
-      const prenomsMatch = intervenant.prenoms
+        .includes(searchValues.nomIntervenant.toLowerCase());
+      const prenomsMatch = intervenant.prenomIntervenant
         .toLowerCase()
-        .includes(searchValues.prenoms.toLowerCase());
+        .includes(searchValues.prenomIntervenant.toLowerCase());
       return civiliteMatch && nomMatch && prenomsMatch;
     });
 
@@ -229,17 +237,20 @@ const Intervenant = () => {
                             alignItems: "center",
                             cursor: "pointer",
                           }}
-                          onClick={() => handleSort("nom")}
+                          onClick={() => handleSort("nomIntervenant")}
                         >
                           <RiExpandUpDownFill size={14} />
                         </span>
                         <span style={{ flex: 1, textAlign: "center" }}>
-                          {searchActive.nom ? (
+                          {searchActive.nomIntervenant ? (
                             <input
                               type="text"
-                              value={searchValues.nom}
+                              value={searchValues.nomIntervenant}
                               onChange={(e) =>
-                                handleSearchChange("nom", e.target.value)
+                                handleSearchChange(
+                                  "nomIntervenant",
+                                  e.target.value
+                                )
                               }
                               style={{
                                 width: "100%",
@@ -261,7 +272,7 @@ const Intervenant = () => {
                             alignItems: "center",
                             cursor: "pointer",
                           }}
-                          onClick={() => handleSearchClick("nom")}
+                          onClick={() => handleSearchClick("nomIntervenant")}
                         >
                           <IoIosSearch size={14} />
                         </span>
@@ -275,7 +286,7 @@ const Intervenant = () => {
                             alignItems: "center",
                             cursor: "pointer",
                           }}
-                          onClick={() => handleSort("prenoms")}
+                          onClick={() => handleSort("prenomIntervenant")}
                         >
                           <RiExpandUpDownFill size={14} />
                         </span>
@@ -335,10 +346,10 @@ const Intervenant = () => {
                           {intervenant.civilite}
                         </td>
                         <td style={{ padding: "8px", backgroundColor: rowBg }}>
-                          {intervenant.nom}
+                          {intervenant.nomIntervenant}
                         </td>
                         <td style={{ padding: "8px", backgroundColor: rowBg }}>
-                          {intervenant.prenoms}
+                          {intervenant.prenomIntervenant}
                         </td>
                       </tr>
                     );
@@ -460,8 +471,8 @@ const Intervenant = () => {
         message={
           getSelectedData()
             ? `Voulez-vous vraiment supprimer ${getSelectedData().civilite} ${
-                getSelectedData().nom
-              } ${getSelectedData().prenoms} ?`
+                getSelectedData().nomIntervenant
+              } ${getSelectedData().prenomIntervenant} ?`
             : "Voulez-vous vraiment supprimer cet élément ?"
         }
         confirmLabel="Supprimer"
