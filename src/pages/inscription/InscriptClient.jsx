@@ -349,7 +349,7 @@ const InscriptClient = () => {
     const jsonData = {
       civilite: formData.civilite === "M" ? "1" : "2",
       nomNaissance: formData.nomNaissance,
-      nomUsage: formData.nomUsage || formData.nomeNaissance,
+      nomUsage: formData.nomUsage || formData.nomNaissance,
       prenoms: formData.prenoms,
       dateNaissance: formData.dateNaissance
         ? new Date(formData.dateNaissance).toISOString()
