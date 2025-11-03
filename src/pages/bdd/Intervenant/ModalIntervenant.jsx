@@ -8,13 +8,17 @@ import "./ModalIntervenant.css";
 
 const ModalIntervenant = ({ show, onClose, data, onSave }) => {
   const [formData, setFormData] = useState(
-    data || { civilite: "", nomIntervenant: "", prenomIntervenant: "" }
+    data || { civilite: "Monsieur", nomIntervenant: "", prenomIntervenant: "" }
   );
 
   useEffect(() => {
     if (show) {
       setFormData(
-        data || { civilite: "", nomIntervenant: "", prenomIntervenant: "" }
+        data || {
+          civilite: "Monsieur",
+          nomIntervenant: "",
+          prenomIntervenant: "",
+        }
       );
     }
   }, [data, show]);
@@ -59,11 +63,10 @@ const ModalIntervenant = ({ show, onClose, data, onSave }) => {
             <div className="modal-form-group">
               <label className="modal-label">Civilité</label>
               <select
-                value={formData.civilite}
+                value={formData.civilite || "Monsieur"}
                 onChange={(e) => handleChange("civilite", e.target.value)}
                 className="modal-select"
               >
-                <option value="">Sélectionner...</option>
                 <option value="Madame">Madame</option>
                 <option value="Monsieur">Monsieur</option>
               </select>
