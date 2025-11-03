@@ -123,11 +123,19 @@ const Intervenant = () => {
 
   const handleSave = (formData) => {
     if (modalMode === "add") {
-      const newId = Math.max(...intervenants.map((i) => i.id), 0) + 1;
-      setIntervenants((prev) => [...prev, { ...formData, id: newId }]);
+      const newId =
+        Math.max(...intervenants.map((i) => i.ID_Intervenant), 0) + 1;
+      setIntervenants((prev) => [
+        ...prev,
+        { ...formData, ID_Intervenant: newId },
+      ]);
     } else {
       setIntervenants((prev) =>
-        prev.map((i) => (i.id === selectedRow ? { ...formData, id: i.id } : i))
+        prev.map((i) =>
+          i.ID_Intervenant === selectedRow
+            ? { ...formData, ID_Intervenant: i.ID_Intervenant }
+            : i
+        )
       );
     }
     setShowModal(false);
@@ -141,14 +149,16 @@ const Intervenant = () => {
 
   const handleConfirmDelete = async () => {
     setConfirmLoading(true);
-    setIntervenants((prev) => prev.filter((i) => i.id !== selectedRow));
+    setIntervenants((prev) =>
+      prev.filter((i) => i.ID_Intervenant !== selectedRow)
+    );
     setSelectedRow(null);
     setConfirmLoading(false);
     setConfirmOpen(false);
   };
 
   const getSelectedData = () => {
-    return intervenants.find((i) => i.id === selectedRow);
+    return intervenants.find((i) => i.ID_Intervenant === selectedRow);
   };
 
   return (
@@ -329,15 +339,17 @@ const Intervenant = () => {
                 <tbody>
                   {filteredData.map((intervenant, index) => {
                     const rowBg =
-                      selectedRow === intervenant.id
+                      selectedRow === intervenant.ID_Intervenant
                         ? "#cce5ff"
                         : index % 2 === 0
                         ? "white"
                         : "#f8f9fa";
                     return (
                       <tr
-                        key={intervenant.id}
-                        onClick={() => handleRowClick(intervenant.id)}
+                        key={intervenant.ID_Intervenant}
+                        onClick={() =>
+                          handleRowClick(intervenant.ID_Intervenant)
+                        }
                         style={{
                           cursor: "pointer",
                         }}
@@ -466,6 +478,7 @@ const Intervenant = () => {
         isOpen={confirmOpen}
         onClose={() => setConfirmOpen(false)}
         onConfirm={handleConfirmDelete}
+        s
         loading={confirmLoading}
         title="Confirmer la suppression"
         message={
