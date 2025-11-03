@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 
 const Confirmation = ({
-  isOpen = false,
+  isOpen ,
   title = "Confirmer la suppression",
   message = "Voulez-vous vraiment supprimer cet élément ?",
   onConfirm,
