@@ -1,5 +1,4 @@
-import { useState } from "react";
-import "bootstrap/dist/css/bootstrap.min.css";
+import { useState, useEffect } from "react";
 import { IoIosSearch } from "react-icons/io";
 import { RiExpandUpDownFill } from "react-icons/ri";
 import ModalIntervenant from "./ModalIntervenant";
@@ -7,10 +6,15 @@ import Confirmation from "./Confirmation";
 import { MdEdit } from "react-icons/md";
 import { MdDelete } from "react-icons/md";
 import { IoIosAddCircle } from "react-icons/io";
-import { fetchIntervenants } from "../../../services/intervenantService";
-
+import {
+  fetchIntervenants,
+  createIntervenant,
+  updateIntervenant,
+  deleteIntervenant,
+  fetchIntervenantById,
+} from "../../../services/intervenantService";
 import "./Intervenant.css";
-import { useEffect } from "react";
+
 const Intervenant = () => {
   const [intervenants, setIntervenants] = useState([]);
 
@@ -120,25 +124,28 @@ const Intervenant = () => {
       setShowModal(true);
     }
   };
-
-  const handleSave = (formData) => {
-    if (modalMode === "add") {
-      const newId =
-        Math.max(...intervenants.map((i) => i.ID_Intervenant), 0) + 1;
-      setIntervenants((prev) => [
-        ...prev,
-        { ...formData, ID_Intervenant: newId },
-      ]);
-    } else {
-      setIntervenants((prev) =>
-        prev.map((i) =>
-          i.ID_Intervenant === selectedRow
-            ? { ...formData, ID_Intervenant: i.ID_Intervenant }
-            : i
-        )
-      );
+  const handleSave = async (formData) => {
+    try {
+      if (modalMode === "add") {
+        const newIntervenant = await createIntervenant(formData);
+        setIntervenants((prev) => [...prev, newIntervenant]);
+      } else {
+        const updatedIntervenant = await updateIntervenant(
+          formData.ID_Intervenant,
+          formData
+        );
+        setIntervenants((prev) =>
+          prev.map((i) =>
+            i.ID_Intervenant === updatedIntervenant.ID_Intervenant
+              ? updatedIntervenant
+              : i
+          )
+        );
+      }
+      setShowModal(false);
+    } catch (error) {
+      console.error("Erreur lors de l'enregistrement :", error);
     }
-    setShowModal(false);
   };
 
   const handleSupprimer = () => {
@@ -149,12 +156,18 @@ const Intervenant = () => {
 
   const handleConfirmDelete = async () => {
     setConfirmLoading(true);
-    setIntervenants((prev) =>
-      prev.filter((i) => i.ID_Intervenant !== selectedRow)
-    );
-    setSelectedRow(null);
-    setConfirmLoading(false);
-    setConfirmOpen(false);
+    try {
+      await deleteIntervenant(selectedRow);
+      setIntervenants((prev) =>
+        prev.filter((i) => i.ID_Intervenant !== selectedRow)
+      );
+      setSelectedRow(null);
+      setConfirmOpen(false);
+    } catch (error) {
+      console.error("Erreur lors de la suppression :", error);
+    } finally {
+      setConfirmLoading(false);
+    }
   };
 
   const getSelectedData = () => {
@@ -478,7 +491,6 @@ const Intervenant = () => {
         isOpen={confirmOpen}
         onClose={() => setConfirmOpen(false)}
         onConfirm={handleConfirmDelete}
-        s
         loading={confirmLoading}
         title="Confirmer la suppression"
         message={
