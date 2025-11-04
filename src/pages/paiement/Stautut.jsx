@@ -1,41 +1,58 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
-
-const Stautut = () =>  {
-  const today = new Date().toISOString().split('T')[0];
+const Stautut = () => {
+  const today = new Date().toISOString().split("T")[0];
   const [dateDebut, setDateDebut] = useState(today);
   const [dateFin, setDateFin] = useState(today);
   const [factures, setFactures] = useState("");
   const [resultats, setResultats] = useState([]);
- 
+  const [loading, setLoading] = useState(false);
+  const [total, setTotal] = useState(0);
+
   const afficherResultat = () => {
-     console.log('Afficher résultat avec :', { dateDebut, dateFin, factures });
-     setResultats([
-    {
-      idDemande: 1,
-      datefacture: '2023-01-15',
-      debutEmploi: '2023-01-10',
-      finEmploi: '2023-02-10',
-      idClient: 'C001',
-      nom: 'Rakoto',
-      prenom: 'Jean',
-      naissance: '1990-05-12',
-      numFacture: 'F123',
-      dateAcompte: '2023-02-15',
-      montant: '150000',
-      idTiers: 'T001',
-    },
-  ]);
-  console.log('Résultats mis à jour');
+    const payload = {
+      dateDebut,
+      dateFin,
+    };
+
+    // Ajout conditionnel de factures si non vide
+    if (factures.trim() !== "") {
+      payload.factures = factures;
+    }
+
+    console.log("Afficher résultat avec :", payload);
+    setLoading(true);
+
+    fetch("http://localhost:2083/demande/recherche", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Erreur serveur");
+        return res.json();
+      })
+      .then((data) => {
+        setResultats(data.data);
+        setTotal(data.total);
+        //alert(`Il y a ${data.total} enregistrement(s) entre les deux dates saisies.`);
+        console.log("Résultats mis à jour :", data);
+      })
+      .catch((err) => {
+        console.error("Erreur API :", err);
+        alert("Échec de la récupération des résultats");
+      })
+      .finally(() => setLoading(false));
   };
- 
+
   const interroger = () => {
-     console.log('Interrogation avec :', { dateDebut, dateFin, factures });
+    console.log("Interrogation avec :", { dateDebut, dateFin, factures });
   };
+
   return (
     <div className="container mt-4">
       <h3 className="mb-4 text-center">INTERROGATION PAIEMENT</h3>
- 
+
       {/* Filtres */}
       <div className="row mb-3">
         <div className="col-md-3">
@@ -67,17 +84,23 @@ const Stautut = () =>  {
           />
         </div>
       </div>
- 
+
       {/* Boutons */}
       <div className="d-flex justify-content-end gap-3 mb-4">
-        <button className="btn btn-primary" onClick={afficherResultat}>
-          Afficher résultat
+        <button className="btn btn-primary" onClick={afficherResultat} disabled={loading}>
+          {loading ? "Chargement..." : "Afficher résultat"}
         </button>
-        <button className="btn btn-secondary" onClick={interroger}>
+        <button className="btn btn-primary" onClick={interroger}>
           Interrogation
         </button>
       </div>
- 
+
+      {total > 0 && (
+        <div className="mb-2 text-success fw-semibold">
+          {total} enregistrement(s) trouvé(s) entre les dates sélectionnées.
+        </div>
+      )}
+
       {/* Tableau des résultats */}
       {resultats.length > 0 ? (
         <div className="table-responsive">
@@ -96,11 +119,18 @@ const Stautut = () =>  {
                 <th>Date Versement Acompte</th>
                 <th>Montant Acompte</th>
                 <th>Id Tiers Facturé</th>
-                
+                <th>Montant TTC</th>
+                <th>Montant HT</th>
+                <th>Statut</th>
+                <th>Libellé Statut</th>
+                <th>Info Rejet</th>
+                <th>Commentaire Rejet</th>
+                <th>Montant Virement</th>
+                <th>Date Virement</th>
+
               </tr>
             </thead>
             <tbody>
-              
               {resultats.map((item, index) => (
                 <tr key={index}>
                   <td>{item.idDemande}</td>
@@ -115,7 +145,15 @@ const Stautut = () =>  {
                   <td>{item.dateAcompte}</td>
                   <td>{item.montant}</td>
                   <td>{item.idTiers}</td>
-                 
+                  <td>{item.mntFactureTTC}</td>
+                  <td>{item.mntFactureHT}</td>
+                  <td>{item.statut}</td>
+                  <td>{item.statutlibelle}</td>
+                  <td>{item.inforejet}</td>
+                  <td>{item.inforejetcommentaire}</td>
+                  <td>{item.mntVirement}</td>
+                  <td>{item.dateVirement}</td>
+
                 </tr>
               ))}
             </tbody>
@@ -129,5 +167,5 @@ const Stautut = () =>  {
     </div>
   );
 };
- 
+
 export default Stautut;
