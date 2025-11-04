@@ -84,7 +84,7 @@ const Field = ({ field, value, onChange }) => {
           if (opt.codePays && opt.nomPays) {
             return (
               <option key={opt.codePays} value={opt.codePays}>
-              {opt.nomPays} - {opt.codePays}
+                {opt.nomPays} - {opt.codePays}
               </option>
             );
           }

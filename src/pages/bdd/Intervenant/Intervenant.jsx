@@ -1,31 +1,44 @@
-import { useState } from "react";
-import "bootstrap/dist/css/bootstrap.min.css";
+import { useState, useEffect } from "react";
 import { IoIosSearch } from "react-icons/io";
 import { RiExpandUpDownFill } from "react-icons/ri";
 import ModalIntervenant from "./ModalIntervenant";
-import Confirmation from "./Confirmation";
+import Confirmation from "../../../components/Modal/Confirmation";
 import { MdEdit } from "react-icons/md";
 import { MdDelete } from "react-icons/md";
 import { IoIosAddCircle } from "react-icons/io";
+import {
+  fetchIntervenants,
+  createIntervenant,
+  updateIntervenant,
+  deleteIntervenant,
+} from "../../../services/intervenantService";
 import "./Intervenant.css";
+
 const Intervenant = () => {
-  const [intervenants, setIntervenants] = useState([
-    { id: 1, civilite: "Madame", nom: "CANABY", prenoms: "Karine" },
-    { id: 2, civilite: "Monsieur", nom: "DUPONT", prenoms: "Jean" },
-    { id: 3, civilite: "Madame", nom: "MARTIN", prenoms: "Sophie" },
-    { id: 4, civilite: "Monsieur", nom: "BERNARD", prenoms: "Pierre" },
-    { id: 5, civilite: "Madame", nom: "PETIT", prenoms: "Marie" },
-  ]);
+  const [intervenants, setIntervenants] = useState([]);
+  const civiliteLabel = (civilite) => {
+    if (civilite === "1" || civilite === 1) return "Monsieur";
+    if (civilite === "2" || civilite === 2) return "Madame";
+    return civilite;
+  };
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await fetchIntervenants();
+      setIntervenants(data);
+    };
+    fetchData();
+  }, []);
+
   const [selectedRow, setSelectedRow] = useState(null);
   const [searchActive, setSearchActive] = useState({
     civilite: false,
-    nom: false,
-    prenoms: false,
+    nomIntervenant: false,
+    prenomIntervenant: false,
   });
   const [searchValues, setSearchValues] = useState({
     civilite: "",
-    nom: "",
-    prenoms: "",
+    nomIntervenant: "",
+    prenomIntervenant: "",
   });
   const [sortConfig, setSortConfig] = useState({
     key: null,
@@ -64,23 +77,33 @@ const Intervenant = () => {
   };
 
   const getFilteredAndSortedData = () => {
-    let filtered = intervenants.filter((intervenant) => {
-      const civiliteMatch = intervenant.civilite
+    let filtered = intervenants?.filter((intervenant) => {
+      const civiliteText = civiliteLabel(intervenant.civilite);
+      const civiliteMatch = civiliteText
         .toLowerCase()
         .includes(searchValues.civilite.toLowerCase());
-      const nomMatch = intervenant.nom
+
+      const nomMatch = intervenant.nomIntervenant
         .toLowerCase()
-        .includes(searchValues.nom.toLowerCase());
-      const prenomsMatch = intervenant.prenoms
+        .includes(searchValues.nomIntervenant.toLowerCase());
+      const prenomsMatch = intervenant.prenomIntervenant
         .toLowerCase()
-        .includes(searchValues.prenoms.toLowerCase());
+        .includes(searchValues.prenomIntervenant.toLowerCase());
       return civiliteMatch && nomMatch && prenomsMatch;
     });
 
     if (sortConfig.key) {
       filtered.sort((a, b) => {
-        const aValue = a[sortConfig.key].toLowerCase();
-        const bValue = b[sortConfig.key].toLowerCase();
+        let aValue, bValue;
+
+        if (sortConfig.key === "civilite") {
+          aValue = civiliteLabel(a[sortConfig.key]).toLowerCase();
+          bValue = civiliteLabel(b[sortConfig.key]).toLowerCase();
+        } else {
+          aValue = a[sortConfig.key].toLowerCase();
+          bValue = b[sortConfig.key].toLowerCase();
+        }
+
         if (aValue < bValue) {
           return sortConfig.direction === "asc" ? -1 : 1;
         }
@@ -113,16 +136,54 @@ const Intervenant = () => {
     }
   };
 
-  const handleSave = (formData) => {
-    if (modalMode === "add") {
-      const newId = Math.max(...intervenants.map((i) => i.id), 0) + 1;
-      setIntervenants((prev) => [...prev, { ...formData, id: newId }]);
-    } else {
-      setIntervenants((prev) =>
-        prev.map((i) => (i.id === selectedRow ? { ...formData, id: i.id } : i))
-      );
+  const handleSave = async (formData) => {
+    try {
+      if (modalMode === "add") {
+        const newIntervenant = await createIntervenant(formData);
+        // Normalize id field names so the rest of the app can find the item by ID_Intervenant
+        const normalized = {
+          ...newIntervenant,
+          ID_Intervenant:
+            newIntervenant.ID_Intervenant ??
+            newIntervenant.id ??
+            newIntervenant.ID,
+        };
+        // keep a consistent 'id' as well (used for React keys in the table)
+        normalized.id = normalized.ID_Intervenant;
+        normalized.civilite = civiliteLabel(
+          newIntervenant.civilite ?? formData.civilite
+        );
+        setIntervenants((prev) => [...prev, normalized]);
+        // select the newly created row so user can immediately edit/delete
+        if (normalized.ID_Intervenant)
+          setSelectedRow(normalized.ID_Intervenant);
+      } else {
+        // support either ID_Intervenant or id in payload
+        const idToUse = formData.ID_Intervenant ?? formData.id;
+        const updatedIntervenant = await updateIntervenant(idToUse, formData);
+        const normalizedUpdated = {
+          ...updatedIntervenant,
+          ID_Intervenant:
+            updatedIntervenant.ID_Intervenant ??
+            updatedIntervenant.id ??
+            idToUse,
+        };
+        normalizedUpdated.id = normalizedUpdated.ID_Intervenant;
+        normalizedUpdated.civilite = civiliteLabel(
+          updatedIntervenant.civilite ?? formData.civilite
+        );
+        setIntervenants((prev) =>
+          prev.map((i) =>
+            i.ID_Intervenant === normalizedUpdated.ID_Intervenant
+              ? normalizedUpdated
+              : i
+          )
+        );
+      }
+      setShowModal(false);
+    } catch (error) {
+      console.error("Erreur lors de l'enregistrement :", error);
     }
-    setShowModal(false);
   };
 
   const handleSupprimer = () => {
@@ -133,14 +194,25 @@ const Intervenant = () => {
 
   const handleConfirmDelete = async () => {
     setConfirmLoading(true);
-    setIntervenants((prev) => prev.filter((i) => i.id !== selectedRow));
-    setSelectedRow(null);
-    setConfirmLoading(false);
-    setConfirmOpen(false);
+    try {
+      await deleteIntervenant(selectedRow);
+      setIntervenants((prev) =>
+        prev.filter((i) => i.ID_Intervenant !== selectedRow)
+      );
+      setSelectedRow(null);
+      setConfirmOpen(false);
+    } catch (error) {
+      console.error("Erreur lors de la suppression :", error);
+    } finally {
+      setConfirmLoading(false);
+    }
   };
 
   const getSelectedData = () => {
-    return intervenants.find((i) => i.id === selectedRow);
+    const selected = intervenants?.find(
+      (i) => i.ID_Intervenant === selectedRow
+    );
+    return selected;
   };
 
   return (
@@ -229,17 +301,20 @@ const Intervenant = () => {
                             alignItems: "center",
                             cursor: "pointer",
                           }}
-                          onClick={() => handleSort("nom")}
+                          onClick={() => handleSort("nomIntervenant")}
                         >
                           <RiExpandUpDownFill size={14} />
                         </span>
                         <span style={{ flex: 1, textAlign: "center" }}>
-                          {searchActive.nom ? (
+                          {searchActive.nomIntervenant ? (
                             <input
                               type="text"
-                              value={searchValues.nom}
+                              value={searchValues.nomIntervenant}
                               onChange={(e) =>
-                                handleSearchChange("nom", e.target.value)
+                                handleSearchChange(
+                                  "nomIntervenant",
+                                  e.target.value
+                                )
                               }
                               style={{
                                 width: "100%",
@@ -261,7 +336,7 @@ const Intervenant = () => {
                             alignItems: "center",
                             cursor: "pointer",
                           }}
-                          onClick={() => handleSearchClick("nom")}
+                          onClick={() => handleSearchClick("nomIntervenant")}
                         >
                           <IoIosSearch size={14} />
                         </span>
@@ -275,17 +350,20 @@ const Intervenant = () => {
                             alignItems: "center",
                             cursor: "pointer",
                           }}
-                          onClick={() => handleSort("prenoms")}
+                          onClick={() => handleSort("prenomIntervenant")}
                         >
                           <RiExpandUpDownFill size={14} />
                         </span>
                         <span style={{ flex: 1, textAlign: "center" }}>
-                          {searchActive.prenoms ? (
+                          {searchActive.prenomIntervenant ? (
                             <input
                               type="text"
-                              value={searchValues.prenoms}
+                              value={searchValues.prenomIntervenant}
                               onChange={(e) =>
-                                handleSearchChange("prenoms", e.target.value)
+                                handleSearchChange(
+                                  "prenomIntervenant",
+                                  e.target.value
+                                )
                               }
                               style={{
                                 width: "100%",
@@ -307,7 +385,7 @@ const Intervenant = () => {
                             alignItems: "center",
                             cursor: "pointer",
                           }}
-                          onClick={() => handleSearchClick("prenoms")}
+                          onClick={() => handleSearchClick("prenomIntervenant")}
                         >
                           <IoIosSearch size={14} />
                         </span>
@@ -316,37 +394,47 @@ const Intervenant = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredData.map((intervenant, index) => {
+                  {filteredData?.map((intervenant, index) => {
                     const rowBg =
-                      selectedRow === intervenant.id
+                      selectedRow === intervenant.ID_Intervenant
                         ? "#cce5ff"
                         : index % 2 === 0
                         ? "white"
                         : "#f8f9fa";
                     return (
                       <tr
-                        key={intervenant.id}
-                        onClick={() => handleRowClick(intervenant.id)}
+                        key={
+                          intervenant.id ||
+                          intervenant.nomIntervenant +
+                            intervenant.prenomIntervenant
+                        }
+                        onClick={() =>
+                          handleRowClick(intervenant.ID_Intervenant)
+                        }
                         style={{
                           cursor: "pointer",
                         }}
                       >
                         <td style={{ padding: "8px", backgroundColor: rowBg }}>
-                          {intervenant.civilite}
+                          {intervenant.civilite === "1"
+                            ? "Monsieur"
+                            : intervenant.civilite === "2"
+                            ? "Madame"
+                            : intervenant.civilite}
                         </td>
                         <td style={{ padding: "8px", backgroundColor: rowBg }}>
-                          {intervenant.nom}
+                          {intervenant.nomIntervenant}
                         </td>
                         <td style={{ padding: "8px", backgroundColor: rowBg }}>
-                          {intervenant.prenoms}
+                          {intervenant.prenomIntervenant}
                         </td>
                       </tr>
                     );
                   })}
-                  {[...Array(Math.max(0, 10 - filteredData.length))].map(
+                  {[...Array(Math.max(0, 10 - filteredData?.length))].map(
                     (_, i) => {
                       const rowBg =
-                        (filteredData.length + i) % 2 === 0
+                        (filteredData?.length + i) % 2 === 0
                           ? "white"
                           : "#f8f9fa";
                       return (
@@ -460,8 +548,8 @@ const Intervenant = () => {
         message={
           getSelectedData()
             ? `Voulez-vous vraiment supprimer ${getSelectedData().civilite} ${
-                getSelectedData().nom
-              } ${getSelectedData().prenoms} ?`
+                getSelectedData().nomIntervenant
+              } ${getSelectedData().prenomIntervenant} ?`
             : "Voulez-vous vraiment supprimer cet élément ?"
         }
         confirmLabel="Supprimer"

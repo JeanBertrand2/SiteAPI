@@ -6,23 +6,52 @@ import {
 } from "react-icons/md";
 import "./ModalIntervenant.css";
 
+const normalizeCivilite = (c) => {
+  if (c === 1 || c === "1") return "Monsieur";
+  if (c === 2 || c === "2") return "Madame";
+  if (typeof c === "string") {
+    const lower = c.toLowerCase();
+    if (lower.includes("mons")) return "Monsieur";
+    if (lower.includes("madam") || lower.includes("mme")) return "Madame";
+  }
+  return "Monsieur";
+};
+
+const defaultData = {
+  civilite: "Monsieur",
+  nomIntervenant: "",
+  prenomIntervenant: "",
+};
+
 const ModalIntervenant = ({ show, onClose, data, onSave }) => {
-  const [formData, setFormData] = useState(
-    data || { civilite: "", nom: "", prenoms: "" }
-  );
+  const [formData, setFormData] = useState(() => {
+    const init = data || defaultData;
+    return { ...init, civilite: normalizeCivilite(init.civilite) };
+  });
 
   useEffect(() => {
     if (show) {
-      setFormData(data || { civilite: "", nom: "", prenoms: "" });
+      if (data) {
+        setFormData({ ...data, civilite: normalizeCivilite(data.civilite) });
+      } else {
+        setFormData(defaultData);
+      }
     }
   }, [data, show]);
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
-
   const handleSave = () => {
-    onSave(formData);
+    // convert civilite back to the numeric value expected by the API
+    const civiliteValue = formData.civilite === "Monsieur" ? 1 : 2;
+    // prepare payload and preserve ID when editing
+    const payload = { ...formData, civilite: civiliteValue };
+    if (data && (data.ID_Intervenant || data.id)) {
+      // preserve whichever id field exists on incoming data
+      payload.ID_Intervenant = data.ID_Intervenant ?? data.id;
+    }
+    onSave(payload);
     onClose();
   };
 
@@ -57,11 +86,10 @@ const ModalIntervenant = ({ show, onClose, data, onSave }) => {
             <div className="modal-form-group">
               <label className="modal-label">Civilité</label>
               <select
-                value={formData.civilite}
+                value={formData.civilite || "Monsieur"}
                 onChange={(e) => handleChange("civilite", e.target.value)}
                 className="modal-select"
               >
-                <option value="">Sélectionner...</option>
                 <option value="Madame">Madame</option>
                 <option value="Monsieur">Monsieur</option>
               </select>
@@ -73,8 +101,8 @@ const ModalIntervenant = ({ show, onClose, data, onSave }) => {
               <label className="modal-label">Nom</label>
               <input
                 type="text"
-                value={formData.nom}
-                onChange={(e) => handleChange("nom", e.target.value)}
+                value={formData.nomIntervenant}
+                onChange={(e) => handleChange("nomIntervenant", e.target.value)}
                 className="modal-input"
               />
             </div>
@@ -85,8 +113,10 @@ const ModalIntervenant = ({ show, onClose, data, onSave }) => {
               <label className="modal-label">Prénoms</label>
               <input
                 type="text"
-                value={formData.prenoms}
-                onChange={(e) => handleChange("prenoms", e.target.value)}
+                value={formData.prenomIntervenant}
+                onChange={(e) =>
+                  handleChange("prenomIntervenant", e.target.value)
+                }
                 className="modal-input"
               />
             </div>
