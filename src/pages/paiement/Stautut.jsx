@@ -1,53 +1,77 @@
 import React, { useState } from "react";
 
 const Stautut = () => {
-  const today = new Date().toISOString().split("T")[0];
-  const [dateDebut, setDateDebut] = useState(today);
-  const [dateFin, setDateFin] = useState(today);
+  //const today = new Date().toISOString().split("T")[0];
+  const [dateDebut, setDateDebut] = useState("");
+  const [dateFin, setDateFin] = useState("");
   const [factures, setFactures] = useState("");
   const [resultats, setResultats] = useState([]);
   const [loading, setLoading] = useState(false);
   const [total, setTotal] = useState(0);
 
-  const afficherResultat = () => {
-    const payload = {
-      dateDebut,
-      dateFin,
+  const formatMontant = (val) => {
+      const num = parseFloat(val);
+      return isNaN(num) || num === 0 ? "0.00" : num.toFixed(2);
     };
 
-    // Ajout conditionnel de factures si non vide
-    if (factures.trim() !== "") {
-      payload.factures = factures;
-    }
+  const afficherResultat = () => {
+        const payload = {};
 
-    console.log("Afficher résultat avec :", payload);
-    setLoading(true);
+        if (dateDebut.trim() !== "") payload.dateDebut = dateDebut;
+        if (dateFin.trim() !== "") payload.dateFin = dateFin;
+        if (factures.trim() !== "") payload.factures = factures.trim();
 
-    fetch("http://localhost:2083/demande/recherche", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error("Erreur serveur");
-        return res.json();
-      })
-      .then((data) => {
-        setResultats(data.data);
-        setTotal(data.total);
-        //alert(`Il y a ${data.total} enregistrement(s) entre les deux dates saisies.`);
-        console.log("Résultats mis à jour :", data);
-      })
-      .catch((err) => {
-        console.error("Erreur API :", err);
-        alert("Échec de la récupération des résultats");
-      })
-      .finally(() => setLoading(false));
-  };
+        console.log("Recherche directe par facture :", payload);
+        setLoading(true);
 
-  const interroger = () => {
-    console.log("Interrogation avec :", { dateDebut, dateFin, factures });
-  };
+        fetch("http://localhost:2083/demande/recherche", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        })
+          .then((res) => {
+            if (!res.ok) throw new Error("Erreur serveur");
+            return res.json();
+          })
+          .then((data) => {
+            setResultats(data.data);
+            setTotal(data.total);
+            console.log("Résultats mis à jour :", data);
+          })
+          .catch((err) => {
+            console.error("Erreur API :", err);
+            alert("Échec de la récupération des résultats");
+          })
+          .finally(() => setLoading(false));
+      };
+
+      const interroger = () => {
+          const payload = {};
+          if (dateDebut.trim() !== "") payload.dateDebut = dateDebut;
+          if (dateFin.trim() !== "") payload.dateFin = dateFin;
+          if (factures.trim() !== "") payload.factures = factures.trim();
+
+          setLoading(true);
+          fetch("http://localhost:2083/demande/interrogation", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          })
+            .then((res) => res.json())
+            .then((data) => {
+              setResultats(data.data);
+              setTotal(data.total);
+              console.log("Résultats interrogés :", data);
+              alert(`${data.total} facture(s) interrogée(s) et enregistrée(s) avec succès`);
+              afficherResultat();
+            })
+            .catch((err) => {
+              console.error("Erreur interrogation :", err);
+              alert("Échec de l'interrogation");
+            })
+            .finally(() => setLoading(false));
+        };
+
 
   return (
     <div className="container mt-4">
@@ -143,15 +167,15 @@ const Stautut = () => {
                   <td>{item.naissance}</td>
                   <td>{item.numFacture}</td>
                   <td>{item.dateAcompte}</td>
-                  <td>{item.montant}</td>
+                  <td>{formatMontant(item.montant)}</td>
                   <td>{item.idTiers}</td>
-                  <td>{item.mntFactureTTC}</td>
-                  <td>{item.mntFactureHT}</td>
+                  <td>{formatMontant(item.mntFactureTTC)}</td>
+                  <td>{formatMontant(item.mntFactureHT)}</td>
                   <td>{item.statut}</td>
                   <td>{item.statutlibelle}</td>
                   <td>{item.inforejet}</td>
                   <td>{item.inforejetcommentaire}</td>
-                  <td>{item.mntVirement}</td>
+                  <td>{formatMontant(item.mntVirement)}</td>
                   <td>{item.dateVirement}</td>
 
                 </tr>

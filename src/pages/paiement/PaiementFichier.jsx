@@ -326,7 +326,7 @@ const PaiementFichier = ({ showDemandeBtn = true, showMigrationBtn = false }) =>
         }
 
         for (const form of formulaires) {
-                        // Construction du payload
+          // Construction du payload
           const payload = {
               ...DemandePaiement.defaults,
               idClient: form.clientId,
@@ -335,12 +335,18 @@ const PaiementFichier = ({ showDemandeBtn = true, showMigrationBtn = false }) =>
               dateHeureCreation: new Date().toISOString().slice(0, 19).replace("T", " "),
               idTiersFacturation: form.nomclient || "inconnu",
               idClient_numFactureTiers: `${form.clientId}_${form.numfacture}`,
-              dateDebutEmploi: form.dde ||  DemandePaiement.defaults.dateDebutEmploi,
-              dateFinEmploi: form.dfe || DemandePaiement.defaults.dateFinEmploi,
-              dateVersementAcompte: form.datevers || DemandePaiement.defaults.dateVersementAcompte,
-              mntAcompte: form.mntacompte ?? DemandePaiement.defaults.mntAcompte,
-              mntFactureTTC: form.mntfttc ?? DemandePaiement.defaults.mntFactureTTC,
-              mntFactureHT: form.mntfht ?? DemandePaiement.defaults.mntFactureHT,
+              //dateDebutEmploi: form.dde ||  DemandePaiement.defaults.dateDebutEmploi,
+              //dateFinEmploi: form.dfe || DemandePaiement.defaults.dateFinEmploi,
+              //dateVersementAcompte: form.datevers || DemandePaiement.defaults.dateVersementAcompte,
+              //mntAcompte: form.mntacompte ?? DemandePaiement.defaults.mntAcompte,
+              //mntFactureTTC: form.mntfttc ?? DemandePaiement.defaults.mntFactureTTC,
+              //mntFactureHT: form.mntfht ?? DemandePaiement.defaults.mntFactureHT,
+              dateDebutEmploi: DemandePaiement.defaults.dateDebutEmploi,
+              dateFinEmploi: DemandePaiement.defaults.dateFinEmploi,
+              dateVersementAcompte: DemandePaiement.defaults.dateVersementAcompte,
+              mntAcompte: DemandePaiement.defaults.mntAcompte,
+              mntFactureTTC: DemandePaiement.defaults.mntFactureTTC,
+              mntFactureHT: DemandePaiement.defaults.mntFactureHT,
               statut: DemandePaiement.defaults.statut,
               statutlibelle: DemandePaiement.defaults.statutlibelle,
               inforejet: DemandePaiement.defaults.inforejet,
