@@ -15,7 +15,8 @@ const Navbar = () => {
   const handleNavCollapse = () => setIsNavCollapsed(!isNavCollapsed);
 
   useEffect(() => {
-    fetch("http://localhost:2083/api/prestataires/existe")
+    fetch("http://localhost:2083/prestataires/check")
+
       .then((res) => {
         if (!res.ok) throw new Error("Erreur réseau");
         return res.json();

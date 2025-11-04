@@ -1,19 +1,20 @@
 import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { useSearchParams } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 
 const Prestataire = () => {
   const navigate = useNavigate();
-
   const [searchParams] = useSearchParams();
-  const mode = searchParams.get("mode"); // "NOUVEAU" ou "MODIFIER"
+  const mode = searchParams.get("mode");
   const id = parseInt(searchParams.get("id"), 10);
 
   const [activeTab, setActiveTab] = useState("prestataire");
+  const [urssafTab, setUrssafTab] = useState("production");
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [passwordInput, setPasswordInput] = useState("");
+
   const boutonTexte = mode === "MODIFIER" ? "Modifier" : "Enregistrer";
 
-  // Champs du formulaire
   const [raisonSociale, setRaisonSociale] = useState("");
   const [siret, setSiret] = useState("");
   const [adresse, setAdresse] = useState("");
@@ -21,11 +22,30 @@ const Prestataire = () => {
   const [mail, setMail] = useState("");
   const [identifiantSAP, setIdentifiantSAP] = useState("");
   const [identifiantAPI, setIdentifiantAPI] = useState("");
+  
+  // Champs URSSAF Production
+  const [clientIDProduction, setClientIDProduction] = useState("");
+  const [clientSecretProduction, setClientSecretProduction] = useState("");
+  const [scopeProduction, setScopeProduction] = useState("homeplus.tiersprestations");
+  const [urlTokenProduction, setUrlTokenProduction] = useState("https://api.urssaf.fr/api/oauth/v1/token");
+  const [urlRequeteProduction, setUrlRequeteProduction] = useState("https://api.urssaf.fr/atp/v1/tiersPrestations");
+  const [contentTypeProduction, setContentTypeProduction] = useState("application/json");
 
-  // Charger les données si mode MODIFIER
+  // Champs URSSAF Sandbox
+  const [clientIDSandBox, setClientIDSandBox] = useState("");
+  const [clientSecretSandBox, setClientSecretSandBox] = useState("");
+  const [scopeSandBox, setScopeSandBox] = useState("homeplus.tiersprestations");
+  const [urlTokenSandBox, setUrlTokenSandBox] = useState("https://api-edi.urssaf.fr/api/oauth/v1/token");
+  const [urlRequeteSandBox, setUrlRequeteSandBox] = useState("https://api-edi.urssaf.fr/atp/v1/tiersPrestations");
+  const [contentTypeSandBox, setContentTypeSandBox] = useState("application/json");
+
+  // Champ optionnel
+  const [apiCrypte, setApiCrypte] = useState("");
+
+
   useEffect(() => {
     if (mode === "MODIFIER" && id > 0) {
-      fetch(`http://localhost:2083/api/prestataires/${id}`)
+      fetch(`http://localhost:2083/prestataires/${id}`)
         .then((res) => res.json())
         .then((data) => {
           setRaisonSociale(data.RaisonSociale || "");
@@ -40,65 +60,167 @@ const Prestataire = () => {
     }
   }, [mode, id]);
 
-  // Soumission du formulaire
-  const handleSubmit = (e) => {
-          e.preventDefault();
+      const handleSubmitPrestataire = (e) => {
+        e.preventDefault();
+        const payload = {
+          RaisonSociale: raisonSociale,
+          SIRET: siret,
+          Adresse: adresse,
+          Tel: tel,
+          adresseMail: mail,
+          IdentifiantSAP: identifiantSAP,
+          IdentifiantAPI: identifiantAPI,
+          ...(mode === "MODIFIER" && { ID_Prestataires: id }),
+        };
 
-          const payload = {
-            RaisonSociale: raisonSociale,
-            SIRET: siret,
-            Adresse: adresse,
-            Tel: tel,
-            adresseMail: mail,
-            IdentifiantSAP: identifiantSAP,
-            IdentifiantAPI: identifiantAPI,
-            ...(mode === "MODIFIER" && { ID_Prestataires: id }),
+        const url = "http://localhost:2083/prestataires";
+        const method = mode === "MODIFIER" ? "PUT" : "POST";
+
+        fetch(url, {
+          method,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        })
+          .then((res) => {
+            if (!res.ok) throw new Error("Erreur lors de l'enregistrement");
+            return res.json();
+          })
+          .then((data) => {
+            alert("Prestataire enregistré avec succès");
+            if (mode === "NOUVEAU" && data.id) {
+              navigate(`/param/prestataire?mode=MODIFIER&id=${data.id}`);
+            }
+          })
+          .catch((err) => {
+            console.error("Erreur API :", err);
+            alert("Échec de l'enregistrement");
+          });
+      };
+      
+      const handleSubmitUrssaf = (e) => {
+            e.preventDefault();
+
+            const basePayload = {
+              ...(mode === "MODIFIER" && { ID_Prestataires: id }),
+              RaisonSociale: raisonSociale,
+              SIRET: siret,
+              Adresse: adresse,
+              Tel: tel,
+              adresseMail: mail,
+              IdentifiantSAP: identifiantSAP,
+              IdentifiantAPI: identifiantAPI,
+              APICrypte: apiCrypte !== "" ? parseInt(apiCrypte, 10) : null,
+            };
+
+            const productionPayload = {
+              ClientIDProduction: clientIDProduction,
+              ClientSecretProduction: clientSecretProduction,
+              ScopeProduction: scopeProduction,
+              UrlTokenProduction: urlTokenProduction,
+              UrlRequeteProduction: urlRequeteProduction,
+              ContentTypeProduction: contentTypeProduction,
+            };
+
+            const sandboxPayload = {
+              ClientIDSandBox: clientIDSandBox,
+              ClientSecretSandBox: clientSecretSandBox,
+              ScopeSandBox: scopeSandBox,
+              UrlTokenSandBox: urlTokenSandBox,
+              UrlRequeteSandBox: urlRequeteSandBox,
+              ContentTypeSandBox: contentTypeSandBox,
+            };
+
+            const payload = {
+              ...basePayload,
+              ...(urssafTab === "production" ? productionPayload : {}),
+              ...(urssafTab === "sandbox" ? sandboxPayload : {}),
+            };
+
+            fetch("http://localhost:2083/prestataires", {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
+            })
+              .then((res) => {
+                if (!res.ok) throw new Error("Erreur lors de la mise à jour URSSAF");
+                return res.json();
+              })
+              .then(() => {
+                alert("Paramètres URSSAF enregistrés avec succès");
+              })
+              .catch((err) => {
+                console.error("Erreur API URSSAF :", err);
+                alert("Échec de l'enregistrement des paramètres URSSAF");
+              });
           };
 
-          const url = "http://localhost:2083/api/prestataires";
-          const method = mode === "MODIFIER" ? "PUT" : "POST";
-
-          fetch(url, {
-            method,
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-          })
-            .then((res) => {
-              if (!res.ok) throw new Error("Erreur lors de l'enregistrement");
-              return res.json();
-            })
-            .then((data) => {
-              console.log("✅ Réponse API :", data);
-              alert("Prestataire enregistré avec succès");
-
-              // 🔁 Rediriger vers mode=MODIFIER après ajout
-              if (mode === "NOUVEAU") {
-                // Si l'API renvoie l'ID, utilise-le
-                if (data.ID_Prestataires) {
-                  navigate(`/param/prestataire?mode=MODIFIER&id=${data.ID_Prestataires}`);
-                } else {
-                  // Sinon, re-fetch l'ID via /existe
-                  fetch("http://localhost:2083/api/prestataires/existe")
-                    .then((res) => res.json())
-                    .then((res) => {
-                      if (res.exists) {
-                        navigate(`/param/prestataire?mode=MODIFIER&id=${res.id}`);
-                      }
-                    });
-                }
-              }
-    })
-    .catch((err) => console.error(" Erreur API :", err));
-};
 
   return (
     <div className="container mt-4">
+      {/* Fenêtre modale mot de passe */}
+      {showPasswordModal && (
+        <div
+          className="modal fade show d-block"
+          tabIndex="-1"
+          role="dialog"
+          style={{
+            backgroundColor: "rgba(0,0,0,0.5)",
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            zIndex: 1050,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "1rem"
+          }}
+        >
+          <div className="modal-dialog w-100" style={{ maxWidth: "400px" }}>
+            <div className="modal-content">
+              <div className="modal-header bg-primary text-white">
+                <h5 className="modal-title">Mot de passe requis</h5>
+                <button type="button" className="btn-close" onClick={() => setShowPasswordModal(false)}></button>
+              </div>
+              <div className="modal-body">
+                <label className="form-label">Mot de passe</label>
+                <input
+                  type="password"
+                  className="form-control"
+                  value={passwordInput}
+                  onChange={(e) => setPasswordInput(e.target.value)}
+                  placeholder="••••••••"
+                />
+              </div>
+              <div className="modal-footer d-flex justify-content-between">
+                <button className="btn btn-outline-secondary" onClick={() => setShowPasswordModal(false)}>
+                  Annuler
+                </button>
+                <button
+                  className="btn btn-primary"
+                  onClick={() => {
+                    if (passwordInput === "URSSAF@2025!") {
+                      setActiveTab("urssaf");
+                      setShowPasswordModal(false);
+                      setPasswordInput("");
+                    } else {
+                      alert("Mot de passe incorrect");
+                    }
+                  }}
+                >
+                  Valider
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="card shadow-sm">
         <div className="text-center mb-4">
-          <h1 className="text-center mb-4 fw-semibold text-primary">
-            {mode === "MODIFIER"
-              ? `Modifier le prestataire (ID ${id})`
-              : `Nouveau prestataire`}
+          <h1 className="fw-semibold text-primary">
+            {mode === "MODIFIER" ? `Modifier le prestataire (ID ${id})` : `Nouveau prestataire`}
           </h1>
         </div>
 
@@ -115,7 +237,10 @@ const Prestataire = () => {
             <li className="nav-item">
               <button
                 className={`nav-link ${activeTab === "urssaf" ? "active" : ""}`}
-                onClick={() => setActiveTab("urssaf")}
+                onClick={() => {
+                  alert("L'accès à cet onglet nécessite la saisie du mot de passe");
+                  setShowPasswordModal(true);
+                }}
               >
                 Paramètres URSSAF
               </button>
@@ -125,7 +250,7 @@ const Prestataire = () => {
 
         <div className="card-body">
           {activeTab === "prestataire" && (
-            <form className="row g-3" onSubmit={handleSubmit}>
+            <form className="row g-3" onSubmit={activeTab === "prestataire" ? handleSubmitPrestataire : handleSubmitUrssaf}>
               <div className="col-md-6">
                 <label className="form-label text-danger fw-semibold">Raison sociale</label>
                 <input
@@ -202,29 +327,99 @@ const Prestataire = () => {
           )}
 
           {activeTab === "urssaf" && (
-            <form className="row g-3">
-              <div className="col-md-6">
-                <label className="form-label">Code URSSAF</label>
-                <input type="text" className="form-control" />
-              </div>
-              <div className="col-md-6">
-                <label className="form-label">Régime</label>
-                <select className="form-select">
-                  <option>Auto-entrepreneur</option>
-                  <option>Indépendant</option>
-                  <option>Société</option>
-                </select>
-              </div>
-              <div className="col-12">
-                <label className="form-label">Commentaire</label>
-                <textarea className="form-control" rows="3"></textarea>
-              </div>
-              <div className="col-12 text-end">
-                <button type="submit" className="btn btn-primary">
-                  {boutonTexte}
-                </button>
-              </div>
-            </form>
+             <>
+               {/* Sous-onglets URSSAF */}
+                  <ul className="nav nav-pills mb-3">
+                    <li className="nav-item">
+                      <button
+                        className={`nav-link ${urssafTab === "production" ? "active" : ""}`}
+                        onClick={() => setUrssafTab("production")}
+                      >
+                        Production
+                      </button>
+                    </li>
+                    <li className="nav-item">
+                      <button
+                        className={`nav-link ${urssafTab === "sandbox" ? "active" : ""}`}
+                        onClick={() => setUrssafTab("sandbox")}
+                      >
+                        Sandbox
+                      </button>
+                    </li>
+                  </ul>
+
+                  <form className="row g-3" onSubmit={activeTab === "prestataire" ? handleSubmitPrestataire : handleSubmitUrssaf}>
+
+                    {/* Champs dynamiques selon sous-onglet */}
+                    {urssafTab === "production" && (
+                      <>
+                        <div className="col-md-6">
+                          <label className="form-label fw-bold text-danger">Client ID</label>
+                          <input type="text" className="form-control" value={clientIDProduction} onChange={(e) => setClientIDProduction(e.target.value)} />
+                        </div>
+                        <div className="col-md-6">
+                          <label className="form-label fw-bold text-danger">Client Secret</label>
+                          <input type="text" className="form-control" value={clientSecretProduction} onChange={(e) => setClientSecretProduction(e.target.value)} />
+                        </div>
+                        <div className="col-md-6">
+                          <label className="form-label">Scope</label>
+                          <input type="text" className="form-control" value={scopeProduction} onChange={(e) => setScopeProduction(e.target.value)} />
+                        </div>
+                        <div className="col-md-6">
+                          <label className="form-label">Content-Type</label>
+                          <input type="text" className="form-control" value={contentTypeProduction} onChange={(e) => setContentTypeProduction(e.target.value)} />
+                        </div>
+                        <div className="col-12">
+                          <label className="form-label">URL Token</label>
+                          <input type="text" className="form-control" value={urlTokenProduction} onChange={(e) => setUrlTokenProduction(e.target.value)} />
+                        </div>
+                        <div className="col-12">
+                          <label className="form-label">URL Requête</label>
+                          <input type="text" className="form-control" value={urlRequeteProduction} onChange={(e) => setUrlRequeteProduction(e.target.value)} />
+                        </div>
+                      </>
+                    )}
+
+                    {urssafTab === "sandbox" && (
+                      <>
+                        <div className="col-md-6">
+                          <label className="form-label fw-bold text-danger">Client ID</label>
+                          <input type="text" className="form-control" value={clientIDSandBox} onChange={(e) => setClientIDSandBox(e.target.value)} />
+                        </div>
+                        <div className="col-md-6">
+                          <label className="form-label fw-bold text-danger">Client Secret</label>
+                          <input type="text" className="form-control" value={clientSecretSandBox} onChange={(e) => setClientSecretSandBox(e.target.value)} />
+                        </div>
+                        <div className="col-md-6">
+                          <label className="form-label">Scope</label>
+                          <input type="text" className="form-control" value={scopeSandBox} onChange={(e) => setScopeSandBox(e.target.value)} />
+                        </div>
+                        <div className="col-md-6">
+                          <label className="form-label">Content-Type</label>
+                          <input type="text" className="form-control" value={contentTypeSandBox} onChange={(e) => setContentTypeSandBox(e.target.value)} />
+                        </div>
+                        <div className="col-12">
+                          <label className="form-label">URL Token</label>
+                          <input type="text" className="form-control" value={urlTokenSandBox} onChange={(e) => setUrlTokenSandBox(e.target.value)} />
+                        </div>
+                        <div className="col-12">
+                          <label className="form-label">URL Requête</label>
+                          <input type="text" className="form-control" value={urlRequeteSandBox} onChange={(e) => setUrlRequeteSandBox(e.target.value)} />
+                        </div>
+                      </>
+                    )}
+
+                    {/*  Bouton unique pour Enregistrer ou Modifier */}
+                    <div className="col-12 text-end">
+                      <button type="submit" className="btn btn-primary">
+                        {boutonTexte}
+                      </button>
+                    </div>
+                  </form>
+
+                
+              </>
+
           )}
         </div>
       </div>
@@ -233,3 +428,4 @@ const Prestataire = () => {
 };
 
 export default Prestataire;
+

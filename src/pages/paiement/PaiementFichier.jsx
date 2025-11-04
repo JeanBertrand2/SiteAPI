@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import * as XLSX from 'xlsx';
+import { DemandePaiement } from "../../Model/DemandePaiement";
 
-const PaiementFichier = () => {
+
+
+const PaiementFichier = ({ showDemandeBtn = true, showMigrationBtn = false }) => {
+
   const [fichier, setFichier] = useState(null);
   const [formulaires, setFormulaires] = useState([]);
   const [resumeErreurs, setResumeErreurs] = useState([]);
@@ -315,6 +319,60 @@ const PaiementFichier = () => {
       a.click();
       URL.revokeObjectURL(url);
     };
+    const envoyerVersBackend = async () => {
+        if (formulaires.length === 0) {
+          alert("Aucune donnée à envoyer.");
+          return;
+        }
+
+        for (const form of formulaires) {
+                        // Construction du payload
+          const payload = {
+              ...DemandePaiement.defaults,
+              idClient: form.clientId,
+              numFactureTiers: form.numfacture,
+              dateFacture: form.datefact,
+              dateHeureCreation: new Date().toISOString().slice(0, 19).replace("T", " "),
+              idTiersFacturation: form.nomclient || "inconnu",
+              idClient_numFactureTiers: `${form.clientId}_${form.numfacture}`,
+              dateDebutEmploi: form.dde ||  DemandePaiement.defaults.dateDebutEmploi,
+              dateFinEmploi: form.dfe || DemandePaiement.defaults.dateFinEmploi,
+              dateVersementAcompte: form.datevers || DemandePaiement.defaults.dateVersementAcompte,
+              mntAcompte: form.mntacompte ?? DemandePaiement.defaults.mntAcompte,
+              mntFactureTTC: form.mntfttc ?? DemandePaiement.defaults.mntFactureTTC,
+              mntFactureHT: form.mntfht ?? DemandePaiement.defaults.mntFactureHT,
+              statut: DemandePaiement.defaults.statut,
+              statutlibelle: DemandePaiement.defaults.statutlibelle,
+              inforejet: DemandePaiement.defaults.inforejet,
+              inforejetcommentaire: DemandePaiement.defaults.inforejetcommentaire,
+              mntVirement: DemandePaiement.defaults.mntVirement,
+              dateVirement: DemandePaiement.defaults.dateVirement,
+              ID_Utilisateurs: DemandePaiement.defaults.ID_Utilisateurs,
+              dateHeureModification: DemandePaiement.defaults.dateHeureModification,
+              ID_Particulier: DemandePaiement.defaults.ID_Particulier,
+             
+
+
+            };
+
+
+          try {
+            const res = await fetch("http://localhost:2083/demande", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload)
+            });
+
+            if (!res.ok) throw new Error("Erreur réseau");
+            const result = await res.json();
+            console.log("Demande envoyée :", result);
+          } catch (err) {
+            console.error("Erreur lors de l'envoi :", err);
+          }
+        }
+
+        alert("Migration terminée !");
+      };
 
   return (
     <>
@@ -367,16 +425,36 @@ const PaiementFichier = () => {
 
         <div className="input-group mb-3">
           <input type="text" className="form-control" placeholder="Fichier cible" readOnly value={fichier?.name || ""} />
-          <div className="d-flex gap-2">
+          <div className="d-flex flex-wrap gap-2">
+
             <button className="btn btn-success" onClick={() => fichier && window.open(URL.createObjectURL(fichier))}>
               Ouvrir Excel
             </button>
-            <button className="btn btn-primary" onClick={() => {
+            {/*<button className="btn btn-primary" onClick={() => {
               alert("Demande de paiement envoyée");
               genererJSON();
             }}>
               Demande de Paiement
-            </button>
+            </button>*/}
+            {showDemandeBtn && (
+              <button className="btn btn-primary" onClick={() => {
+                alert("Demande de paiement envoyée");
+                genererJSON();
+              }}>
+                Demande de Paiement
+              </button>
+            )}
+
+            {showMigrationBtn && (
+              <button
+                className="btn btn-danger"
+                onClick={envoyerVersBackend}
+                title="**Utiliser le format import demande de paiement**"
+              >
+                MIGRATION ANCIENNES FACTURES
+              </button>
+            )}
+
 
           </div>
         </div>
@@ -388,20 +466,21 @@ const PaiementFichier = () => {
             </div>
             <div className="card-body">
               <div className="row g-3 mb-3">
-                <div className="col-md-6"><label className="form-label">Nom client</label><input type="text" className="form-control" value={form.nomclient} readOnly /></div>
-                <div className="col-md-6"><label className="form-label">Identifiant client</label><input type="text" className="form-control" value={form.clientId} readOnly /></div>
-                <div className="col-md-6"><label className="form-label">Identifiant tiers</label><input type="text" className="form-control" value={form.identifiantT} readOnly /></div>
-                <div className="col-md-6"><label className="form-label">Date de naissance</label><input type="date" className="form-control" value={form.selectedDate} readOnly /></div>
-                <div className="col-md-6"><label className="form-label">Date versement acompte</label><input type="date" className="form-control" value={form.datevers} readOnly /></div>
-                <div className="col-md-6"><label className="form-label">Date début emploi</label><input type="date" className="form-control" value={form.dde} readOnly /></div>
-                <div className="col-md-6"><label className="form-label">Date fin emploi</label><input type="date" className="form-control" value={form.dfe} readOnly /></div>
-                <div className="col-md-6"><label className="form-label">Date facture</label><input type="date" className="form-control" value={form.datefact} readOnly /></div>
-                <div className="col-md-6"><label className="form-label">Montant acompte</label><input type="number" className="form-control" value={form.mntacompte.toFixed(2)} readOnly /></div>
-                <div className="col-md-6"><label className="form-label">Montant HT</label><input type="number" className="form-control" value={form.mntfht.toFixed(2)} readOnly /></div>
-                <div className="col-md-6"><label className="form-label">Montant TTC</label><input type="number" className="form-control" value={form.mntfttc.toFixed(2)} readOnly /></div>
+                <div className="col-md-6 col-12"><label className="form-label">Nom client</label><input type="text" className="form-control" value={form.nomclient} readOnly /></div>
+                <div className="col-md-6 col-12"><label className="form-label">Identifiant client</label><input type="text" className="form-control" value={form.clientId} readOnly /></div>
+                <div className="col-md-6 col-12"><label className="form-label">Identifiant tiers</label><input type="text" className="form-control" value={form.identifiantT} readOnly /></div>
+                <div className="col-md-6 col-12"><label className="form-label">Date de naissance</label><input type="date" className="form-control" value={form.selectedDate} readOnly /></div>
+                <div className="col-md-6 col-12"><label className="form-label">Date versement acompte</label><input type="date" className="form-control" value={form.datevers} readOnly /></div>
+                <div className="col-md-6 col-12"><label className="form-label">Date début emploi</label><input type="date" className="form-control" value={form.dde} readOnly /></div>
+                <div className="col-md-6 col-12"><label className="form-label">Date fin emploi</label><input type="date" className="form-control" value={form.dfe} readOnly /></div>
+                <div className="col-md-6 col-12"><label className="form-label">Date facture</label><input type="date" className="form-control" value={form.datefact} readOnly /></div>
+                <div className="col-md-6 col-12"><label className="form-label">Montant acompte</label><input type="number" className="form-control" value={form.mntacompte.toFixed(2)} readOnly /></div>
+                <div className="col-md-6 col-12"><label className="form-label">Montant HT</label><input type="number" className="form-control" value={form.mntfht.toFixed(2)} readOnly /></div>
+                <div className="col-md-6 col-12"><label className="form-label">Montant TTC</label><input type="number" className="form-control" value={form.mntfttc.toFixed(2)} readOnly /></div>
               </div>
 
-              <div className="table-responsive mt-4">
+              <div className="table-responsive mt-4 overflow-auto">
+
                 <table className="table table-bordered table-sm">
                   <thead className="table-light">
                     <tr>
