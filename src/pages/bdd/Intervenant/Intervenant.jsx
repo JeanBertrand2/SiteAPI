@@ -19,12 +19,16 @@ const Intervenant = () => {
   const civiliteLabel = (civilite) => {
     if (civilite === "1" || civilite === 1) return "Monsieur";
     if (civilite === "2" || civilite === 2) return "Madame";
-    return civilite;
+    // ensure we never return undefined which would break .toLowerCase()
+    if (civilite === null || civilite === undefined) return "";
+    return String(civilite);
   };
+
   useEffect(() => {
     const fetchData = async () => {
       const data = await fetchIntervenants();
-      setIntervenants(data);
+      // ensure array fallback
+      setIntervenants(Array.isArray(data) ? data : []);
     };
     fetchData();
   }, []);
@@ -77,31 +81,35 @@ const Intervenant = () => {
   };
 
   const getFilteredAndSortedData = () => {
-    let filtered = intervenants?.filter((intervenant) => {
-      const civiliteText = civiliteLabel(intervenant.civilite);
+    const list = Array.isArray(intervenants) ? intervenants : [];
+
+    let filtered = list.filter((intervenant) => {
+      const civiliteText = civiliteLabel(intervenant?.civilite ?? "");
       const civiliteMatch = civiliteText
         .toLowerCase()
-        .includes(searchValues.civilite.toLowerCase());
+        .includes((searchValues.civilite ?? "").toLowerCase());
 
-      const nomMatch = intervenant.nomIntervenant
-        .toLowerCase()
-        .includes(searchValues.nomIntervenant.toLowerCase());
-      const prenomsMatch = intervenant.prenomIntervenant
-        .toLowerCase()
-        .includes(searchValues.prenomIntervenant.toLowerCase());
+      const nom = (intervenant?.nomIntervenant ?? "").toLowerCase();
+      const nomMatch = nom.includes((searchValues.nomIntervenant ?? "").toLowerCase());
+
+      const prenom = (intervenant?.prenomIntervenant ?? "").toLowerCase();
+      const prenomsMatch = prenom.includes((searchValues.prenomIntervenant ?? "").toLowerCase());
+
       return civiliteMatch && nomMatch && prenomsMatch;
     });
 
     if (sortConfig.key) {
       filtered.sort((a, b) => {
-        let aValue, bValue;
+        const key = sortConfig.key;
+        let aValue = "";
+        let bValue = "";
 
-        if (sortConfig.key === "civilite") {
-          aValue = civiliteLabel(a[sortConfig.key]).toLowerCase();
-          bValue = civiliteLabel(b[sortConfig.key]).toLowerCase();
+        if (key === "civilite") {
+          aValue = (civiliteLabel(a?.civilite ?? "") ?? "").toLowerCase();
+          bValue = (civiliteLabel(b?.civilite ?? "") ?? "").toLowerCase();
         } else {
-          aValue = a[sortConfig.key].toLowerCase();
-          bValue = b[sortConfig.key].toLowerCase();
+          aValue = (a?.[key] ?? "").toString().toLowerCase();
+          bValue = (b?.[key] ?? "").toString().toLowerCase();
         }
 
         if (aValue < bValue) {
@@ -144,37 +152,34 @@ const Intervenant = () => {
         const normalized = {
           ...newIntervenant,
           ID_Intervenant:
-            newIntervenant.ID_Intervenant ??
-            newIntervenant.id ??
-            newIntervenant.ID,
+            newIntervenant?.ID_Intervenant ??
+            newIntervenant?.id ??
+            newIntervenant?.ID,
         };
         // keep a consistent 'id' as well (used for React keys in the table)
         normalized.id = normalized.ID_Intervenant;
         normalized.civilite = civiliteLabel(
-          newIntervenant.civilite ?? formData.civilite
+          newIntervenant?.civilite ?? formData?.civilite
         );
         setIntervenants((prev) => [...prev, normalized]);
-        // select the newly created row so user can immediately edit/delete
-        if (normalized.ID_Intervenant)
-          setSelectedRow(normalized.ID_Intervenant);
+        if (normalized.ID_Intervenant) setSelectedRow(normalized.ID_Intervenant);
       } else {
-        // support either ID_Intervenant or id in payload
-        const idToUse = formData.ID_Intervenant ?? formData.id;
+        const idToUse = formData?.ID_Intervenant ?? formData?.id;
         const updatedIntervenant = await updateIntervenant(idToUse, formData);
         const normalizedUpdated = {
           ...updatedIntervenant,
           ID_Intervenant:
-            updatedIntervenant.ID_Intervenant ??
-            updatedIntervenant.id ??
+            updatedIntervenant?.ID_Intervenant ??
+            updatedIntervenant?.id ??
             idToUse,
         };
         normalizedUpdated.id = normalizedUpdated.ID_Intervenant;
         normalizedUpdated.civilite = civiliteLabel(
-          updatedIntervenant.civilite ?? formData.civilite
+          updatedIntervenant?.civilite ?? formData?.civilite
         );
         setIntervenants((prev) =>
           prev.map((i) =>
-            i.ID_Intervenant === normalizedUpdated.ID_Intervenant
+            i?.ID_Intervenant === normalizedUpdated.ID_Intervenant
               ? normalizedUpdated
               : i
           )
@@ -197,7 +202,7 @@ const Intervenant = () => {
     try {
       await deleteIntervenant(selectedRow);
       setIntervenants((prev) =>
-        prev.filter((i) => i.ID_Intervenant !== selectedRow)
+        prev.filter((i) => i?.ID_Intervenant !== selectedRow)
       );
       setSelectedRow(null);
       setConfirmOpen(false);
@@ -209,8 +214,8 @@ const Intervenant = () => {
   };
 
   const getSelectedData = () => {
-    const selected = intervenants?.find(
-      (i) => i.ID_Intervenant === selectedRow
+    const selected = (intervenants || []).find(
+      (i) => i?.ID_Intervenant === selectedRow
     );
     return selected;
   };
@@ -396,7 +401,7 @@ const Intervenant = () => {
                 <tbody>
                   {filteredData?.map((intervenant, index) => {
                     const rowBg =
-                      selectedRow === intervenant.ID_Intervenant
+                      selectedRow === intervenant?.ID_Intervenant
                         ? "#cce5ff"
                         : index % 2 === 0
                         ? "white"
@@ -404,37 +409,33 @@ const Intervenant = () => {
                     return (
                       <tr
                         key={
-                          intervenant.id ||
-                          intervenant.nomIntervenant +
-                            intervenant.prenomIntervenant
+                          intervenant?.id ||
+                          (intervenant?.nomIntervenant ?? "") +
+                            (intervenant?.prenomIntervenant ?? "")
                         }
                         onClick={() =>
-                          handleRowClick(intervenant.ID_Intervenant)
+                          handleRowClick(intervenant?.ID_Intervenant)
                         }
                         style={{
                           cursor: "pointer",
                         }}
                       >
                         <td style={{ padding: "8px", backgroundColor: rowBg }}>
-                          {intervenant.civilite === "1"
-                            ? "Monsieur"
-                            : intervenant.civilite === "2"
-                            ? "Madame"
-                            : intervenant.civilite}
+                          {civiliteLabel(intervenant?.civilite)}
                         </td>
                         <td style={{ padding: "8px", backgroundColor: rowBg }}>
-                          {intervenant.nomIntervenant}
+                          {intervenant?.nomIntervenant ?? ""}
                         </td>
                         <td style={{ padding: "8px", backgroundColor: rowBg }}>
-                          {intervenant.prenomIntervenant}
+                          {intervenant?.prenomIntervenant ?? ""}
                         </td>
                       </tr>
                     );
                   })}
-                  {[...Array(Math.max(0, 10 - filteredData?.length))].map(
+                  {[...Array(Math.max(0, 10 - (filteredData?.length ?? 0)))].map(
                     (_, i) => {
                       const rowBg =
-                        (filteredData?.length + i) % 2 === 0
+                        ((filteredData?.length ?? 0) + i) % 2 === 0
                           ? "white"
                           : "#f8f9fa";
                       return (
@@ -548,8 +549,8 @@ const Intervenant = () => {
         message={
           getSelectedData()
             ? `Voulez-vous vraiment supprimer ${getSelectedData().civilite} ${
-                getSelectedData().nomIntervenant
-              } ${getSelectedData().prenomIntervenant} ?`
+                getSelectedData().nomIntervenant ?? ""
+              } ${getSelectedData().prenomIntervenant ?? ""} ?`
             : "Voulez-vous vraiment supprimer cet élément ?"
         }
         confirmLabel="Supprimer"

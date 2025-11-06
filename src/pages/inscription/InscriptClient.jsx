@@ -3,6 +3,10 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import Field from "../../components/inscription/Field";
 import "./InscriptClient.css";
 import { fetchMetaData } from "../../services/metaService";
+import {
+  postToUrssaf,
+  createParticulier,
+} from "../../services/particulierService";
 
 const InscriptClient = () => {
   const initial = {
@@ -155,6 +159,8 @@ const InscriptClient = () => {
             iban: jsonData.coordonneeBancaire?.iban || "",
             titulaire: jsonData.coordonneeBancaire?.titulaire || "",
 
+            // Prefer idClient (URSSAF id). Fallback to idParticulier if present in file.
+            idClient: jsonData.idClient || jsonData.idParticulier || "",
             idParticulier: jsonData.idParticulier || "",
           };
 
@@ -305,7 +311,7 @@ const InscriptClient = () => {
     fieldConfigs.map((f) => [f.name, f.label || f.name])
   );
 
-  const submit = () => {
+  const submit = async () => {
     const requiredFields = greenFieldNames;
     const missing = requiredFields.filter((name) => {
       const val = formData[name];
@@ -318,34 +324,6 @@ const InscriptClient = () => {
       return;
     }
 
-    if (formData.codeCommune && !/^\d{3}$/.test(formData.codeCommune)) {
-      alert("Le Code Commune doit contenir exactement 3 chiffres");
-      return;
-    }
-
-    if (formData.iban && !/^[A-Z0-9]{14,34}$/.test(formData.iban)) {
-      alert(
-        "L'IBAN doit contenir entre 14 et 34 caractères (lettres et chiffres, sans espaces)"
-      );
-      return;
-    }
-
-    if (formData.bic && !/^[A-Z0-9]{8}$|^[A-Z0-9]{11}$/.test(formData.bic)) {
-      alert(
-        "Le BIC doit contenir exactement 8 ou 11 caractères (lettres et chiffres, sans espaces)"
-      );
-      return;
-    }
-
-    if (
-      formData.adresseMail &&
-      !/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/i.test(formData.adresseMail)
-    ) {
-      alert("Veuillez entrer une adresse email valide");
-      return;
-    }
-
-    // Créer le JSON au format exact des fichiers JSON fournis
     const jsonData = {
       civilite: formData.civilite === "M" ? "1" : "2",
       nomNaissance: formData.nomNaissance,
@@ -362,7 +340,6 @@ const InscriptClient = () => {
           libelleCommune: formData.nomCommune,
         },
       },
-
       numeroTelephonePortable: formData.numTelPortable,
       adresseMail: formData.adresseMail,
       adressePostale: {
@@ -384,7 +361,48 @@ const InscriptClient = () => {
       },
     };
 
-    console.log(JSON.stringify(jsonData, null, "\t"));
+    try {
+      // If an idClient is already present in the JSON, skip URSSAF and directly create in backend DB
+      const existingIdClient =
+        formData.idClient || formData.idParticulier || "";
+
+      if (existingIdClient) {
+        // Ensure idClient field is present for backend mapping
+        const payload = {
+          ...jsonData,
+          idClient: formData.idClient || formData.idParticulier,
+        };
+        const createResp = await createParticulier(payload);
+        console.log("Created in backend (direct):", createResp);
+        alert("Particulier ajouté en base (id existant).");
+        return;
+      }
+
+      // No idClient: first send to URSSAF
+      const urssafResp = await postToUrssaf(jsonData);
+
+      // Expecting URSSAF to return idClient on success
+      const returnedId = urssafResp?.idClient || urssafResp?.id || null;
+      if (!returnedId) {
+        console.warn("URSSAF response didn't include idClient:", urssafResp);
+        alert("URSSAF a répondu sans idClient — vérifiez la réponse");
+        return;
+      }
+
+      // Enrich and persist to backend
+      const enriched = { ...jsonData, idClient: returnedId };
+      const created = await createParticulier(enriched);
+      console.log("URSSAF OK, created in backend:", created);
+
+      setFormData((prev) => ({ ...prev, idClient: returnedId }));
+      alert(
+        "Données envoyées à URSSAF et enregistrées en base avec idClient: " +
+          returnedId
+      );
+    } catch (error) {
+      console.error("Erreur lors du process URSSAF -> backend:", error);
+      alert("Erreur lors de l'envoi des données (URSSAF ou backend).");
+    }
   };
 
   const renderConfig = (config) =>
