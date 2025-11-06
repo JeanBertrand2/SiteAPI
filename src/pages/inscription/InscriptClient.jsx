@@ -3,7 +3,10 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import Field from "../../components/inscription/Field";
 import "./InscriptClient.css";
 import { fetchMetaData } from "../../services/metaService";
-import { handlePostParticulier } from "../../services/particulierService";
+import {
+  postToUrssaf,
+  createParticulier,
+} from "../../services/particulierService";
 
 const InscriptClient = () => {
   const initial = {
@@ -156,6 +159,8 @@ const InscriptClient = () => {
             iban: jsonData.coordonneeBancaire?.iban || "",
             titulaire: jsonData.coordonneeBancaire?.titulaire || "",
 
+            // Prefer idClient (URSSAF id). Fallback to idParticulier if present in file.
+            idClient: jsonData.idClient || jsonData.idParticulier || "",
             idParticulier: jsonData.idParticulier || "",
           };
 
@@ -357,24 +362,46 @@ const InscriptClient = () => {
     };
 
     try {
-      const responseData = await handlePostParticulier(jsonData);
+      // If an idClient is already present in the JSON, skip URSSAF and directly create in backend DB
+      const existingIdClient =
+        formData.idClient || formData.idParticulier || "";
 
-      const enrichedJson = {
-        ...jsonData,
-        idClient: responseData.idClient,
-      };
+      if (existingIdClient) {
+        // Ensure idClient field is present for backend mapping
+        const payload = {
+          ...jsonData,
+          idClient: formData.idClient || formData.idParticulier,
+        };
+        const createResp = await createParticulier(payload);
+        console.log("Created in backend (direct):", createResp);
+        alert("Particulier ajouté en base (id existant).");
+        return;
+      }
 
-      console.log("JSON final avec idClient:", enrichedJson);
+      // No idClient: first send to URSSAF
+      const urssafResp = await postToUrssaf(jsonData);
 
-      setFormData((prev) => ({
-        ...prev,
-        idClient: responseData.idClient,
-      }));
+      // Expecting URSSAF to return idClient on success
+      const returnedId = urssafResp?.idClient || urssafResp?.id || null;
+      if (!returnedId) {
+        console.warn("URSSAF response didn't include idClient:", urssafResp);
+        alert("URSSAF a répondu sans idClient — vérifiez la réponse");
+        return;
+      }
 
-      alert("Données envoyées et idClient ajouté !");
+      // Enrich and persist to backend
+      const enriched = { ...jsonData, idClient: returnedId };
+      const created = await createParticulier(enriched);
+      console.log("URSSAF OK, created in backend:", created);
+
+      setFormData((prev) => ({ ...prev, idClient: returnedId }));
+      alert(
+        "Données envoyées à URSSAF et enregistrées en base avec idClient: " +
+          returnedId
+      );
     } catch (error) {
-      console.error("Erreur lors de l'appel URSSAF:", error);
-      alert("Erreur lors de l'envoi des données.");
+      console.error("Erreur lors du process URSSAF -> backend:", error);
+      alert("Erreur lors de l'envoi des données (URSSAF ou backend).");
     }
   };
 
