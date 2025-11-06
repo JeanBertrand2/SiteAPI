@@ -1,13 +1,37 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FaFilter } from "react-icons/fa";
 import { FaSearch } from "react-icons/fa";
 import { MdDeleteOutline } from "react-icons/md";
+import axios from "axios";
 
 import "./InscriptClient.css";
 const InterogStatut = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  useEffect(()=>{
+    const fetchData = async()=>{
+      try{
+        //const response = await axios.get(`http://localhost:2083/particuliers/users?page=${page}`);
+        await axios.get(`http://localhost:2083/particuliers`)
+        .then((response)=>{
+            setstaticData(response);
+           
+        })
+        .catch((error)=>{
+          console.log("error particulier front : ",error);
+        })
+        
+        //setPageCount(response.data.pagination.pageCount)
+      }
+      catch(error)
+      {
+        console.log("Error while fetching data",error)
+      }
+      
+    };
+    fetchData()
+  },[]);
   const staticData = [
     {
       id: "CLI001",
