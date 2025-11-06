@@ -130,11 +130,12 @@ const Prestataire = () => {
               ContentTypeSandBox: contentTypeSandBox,
             };
 
-            const payload = {
+           const payload = {
               ...basePayload,
-              ...(urssafTab === "production" ? productionPayload : {}),
-              ...(urssafTab === "sandbox" ? sandboxPayload : {}),
+              ...productionPayload,
+              ...sandboxPayload,
             };
+
 
             fetch("http://localhost:2083/prestataires", {
               method: "PUT",
