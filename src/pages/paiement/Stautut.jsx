@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 
 const Stautut = () => {
-  //const today = new Date().toISOString().split("T")[0];
   const [dateDebut, setDateDebut] = useState("");
   const [dateFin, setDateFin] = useState("");
   const [factures, setFactures] = useState("");

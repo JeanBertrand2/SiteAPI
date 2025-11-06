@@ -3,6 +3,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import Field from "../../components/inscription/Field";
 import "./InscriptClient.css";
 import { fetchMetaData } from "../../services/metaService";
+import { handlePostParticulier } from "../../services/particulierService";
 
 const InscriptClient = () => {
   const initial = {
@@ -305,7 +306,7 @@ const InscriptClient = () => {
     fieldConfigs.map((f) => [f.name, f.label || f.name])
   );
 
-  const submit = () => {
+  const submit = async () => {
     const requiredFields = greenFieldNames;
     const missing = requiredFields.filter((name) => {
       const val = formData[name];
@@ -318,34 +319,6 @@ const InscriptClient = () => {
       return;
     }
 
-    if (formData.codeCommune && !/^\d{3}$/.test(formData.codeCommune)) {
-      alert("Le Code Commune doit contenir exactement 3 chiffres");
-      return;
-    }
-
-    if (formData.iban && !/^[A-Z0-9]{14,34}$/.test(formData.iban)) {
-      alert(
-        "L'IBAN doit contenir entre 14 et 34 caractères (lettres et chiffres, sans espaces)"
-      );
-      return;
-    }
-
-    if (formData.bic && !/^[A-Z0-9]{8}$|^[A-Z0-9]{11}$/.test(formData.bic)) {
-      alert(
-        "Le BIC doit contenir exactement 8 ou 11 caractères (lettres et chiffres, sans espaces)"
-      );
-      return;
-    }
-
-    if (
-      formData.adresseMail &&
-      !/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/i.test(formData.adresseMail)
-    ) {
-      alert("Veuillez entrer une adresse email valide");
-      return;
-    }
-
-    // Créer le JSON au format exact des fichiers JSON fournis
     const jsonData = {
       civilite: formData.civilite === "M" ? "1" : "2",
       nomNaissance: formData.nomNaissance,
@@ -362,7 +335,6 @@ const InscriptClient = () => {
           libelleCommune: formData.nomCommune,
         },
       },
-
       numeroTelephonePortable: formData.numTelPortable,
       adresseMail: formData.adresseMail,
       adressePostale: {
@@ -384,7 +356,26 @@ const InscriptClient = () => {
       },
     };
 
-    console.log(JSON.stringify(jsonData, null, "\t"));
+    try {
+      const responseData = await handlePostParticulier(jsonData);
+
+      const enrichedJson = {
+        ...jsonData,
+        idClient: responseData.idClient,
+      };
+
+      console.log("JSON final avec idClient:", enrichedJson);
+
+      setFormData((prev) => ({
+        ...prev,
+        idClient: responseData.idClient,
+      }));
+
+      alert("Données envoyées et idClient ajouté !");
+    } catch (error) {
+      console.error("Erreur lors de l'appel URSSAF:", error);
+      alert("Erreur lors de l'envoi des données.");
+    }
   };
 
   const renderConfig = (config) =>
