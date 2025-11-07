@@ -40,6 +40,7 @@ const InscriptClient = () => {
     titulaire: "",
     idParticulier: "",
   };
+  
   const lettresVoie = Array.from({ length: 26 }, (_, i) =>
     String.fromCharCode(65 + i)
   );
@@ -325,6 +326,7 @@ const InscriptClient = () => {
     }
 
     const jsonData = {
+      methode: "/particulier",
       civilite: formData.civilite === "M" ? "1" : "2",
       nomNaissance: formData.nomNaissance,
       nomUsage: formData.nomUsage || formData.nomNaissance,
