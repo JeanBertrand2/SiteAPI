@@ -386,8 +386,7 @@ const InscriptClient = () => {
       return false;
     }
     if (validCommune && !validInsee) {
-      // autofill adresse postale codeInsee from birthplace codeCommune
-      setFormData((p) => ({ ...p, codeInsee: codeCommune }));
+      // codeInsee will be autofilled from codeCommune in submit handler if needed
     }
 
     // Pays / codes pays consistency
