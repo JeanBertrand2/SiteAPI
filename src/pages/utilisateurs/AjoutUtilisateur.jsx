@@ -143,27 +143,39 @@ const AjoutUtilisateur = () => {
     }
 
     if (id) {
-      const result = await updateUser(id, form);
-      if (!result) {
+      try {
+        const result = await updateUser(id, form);
+        if (!result) {
+          setMessage("Erreur lors de la modification de l'utilisateur.");
+          setTitle("Erreur");
+          setShowModal((prev) => ({ ...prev, error: true }));
+          return;
+        }
+        setMessage("Utilisateur modifié avec succès !");
+        setTitle("Succès");
+        setShowModal((prev) => ({ ...prev, success: true }));
+      } catch (error) {
         setMessage("Erreur lors de la modification de l'utilisateur.");
         setTitle("Erreur");
         setShowModal((prev) => ({ ...prev, error: true }));
-        return;
       }
-      setMessage("Utilisateur modifié avec succès !");
-      setTitle("Succès");
-      setShowModal((prev) => ({ ...prev, success: true }));
     } else {
-      const result = await createUser(form);
-      if (!result) {
+      try {
+        const result = await createUser(form);
+        if (!result) {
+          setMessage("Erreur lors de l'ajout de l'utilisateur.");
+          setTitle("Erreur");
+          setShowModal((prev) => ({ ...prev, error: true }));
+          return;
+        }
+        setMessage("Utilisateur ajouté avec succès !");
+        setTitle("Succès");
+        setShowModal((prev) => ({ ...prev, success: true }));
+      } catch (error) {
         setMessage("Erreur lors de l'ajout de l'utilisateur.");
         setTitle("Erreur");
         setShowModal((prev) => ({ ...prev, error: true }));
-        return;
       }
-      setMessage("Utilisateur ajouté avec succès !");
-      setTitle("Succès");
-      setShowModal((prev) => ({ ...prev, success: true }));
     }
   };
 
