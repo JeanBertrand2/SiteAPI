@@ -21,6 +21,7 @@ import {
   FiEyeOff,
 } from "react-icons/fi";
 import { createUser, updateUser } from "../../services/userService";
+import Confirmation from "../../components/Modal/Confirmation";
 
 const cardStyle = {
   borderRadius: 14,
@@ -47,6 +48,13 @@ const AjoutUtilisateur = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const userToEdit = location.state?.user;
+  const [showPassword, setShowPassword] = useState(false);
+  const [message, setMessage] = useState("");
+  const [title, setTitle] = useState("");
+  const [showModal, setShowModal] = useState({
+    success: false,
+    error: false,
+  });
 
   const [form, setForm] = useState({
     Nom: "",
@@ -55,8 +63,6 @@ const AjoutUtilisateur = () => {
     MotDePasse: "",
     Login: "",
   });
-
-  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     if (userToEdit) setForm((prev) => ({ ...prev, ...userToEdit }));
@@ -77,17 +83,25 @@ const AjoutUtilisateur = () => {
     if (id) {
       const result = await updateUser(id, form);
       if (!result) {
-        alert("Erreur lors de la modification de l'utilisateur.");
+        setMessage("Erreur lors de la modification de l'utilisateur.");
+        setTitle("Erreur");
+        setShowModal({ ...showModal, error: true });
         return;
       }
-      alert("Utilisateur modifié avec succès !");
+      setMessage("Utilisateur modifié avec succès !");
+      setTitle("Succès");
+      setShowModal({ ...showModal, success: true });
     } else {
       const result = await createUser(form);
       if (!result) {
-        alert("Erreur lors de l'ajout de l'utilisateur.");
+        setMessage("Erreur lors de l'ajout de l'utilisateur.");
+        setTitle("Erreur");
+        setShowModal({ ...showModal, error: true });
         return;
       }
-      alert("Utilisateur ajouté avec succès !");
+      setMessage("Utilisateur ajouté avec succès !");
+      setTitle("Succès");
+      setShowModal({ ...showModal, success: true });
     }
   };
 
@@ -277,6 +291,17 @@ const AjoutUtilisateur = () => {
           </Card>
         </Col>
       </Row>
+
+      {showModal.success && (
+        <Confirmation
+          isOpen={showModal.success}
+          title={title}
+          message={message}
+          onClose={() => {
+            setShowModal({ ...showModal, success: false });
+          }}
+        />
+      )}
     </Container>
   );
 };

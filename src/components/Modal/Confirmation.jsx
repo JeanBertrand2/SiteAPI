@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 
 const Confirmation = ({
-  isOpen ,
+  isOpen,
   title = "Confirmer la suppression",
   message = "Voulez-vous vraiment supprimer cet élément ?",
   onConfirm,
@@ -64,41 +64,45 @@ const Confirmation = ({
               <p className="mb-0">{message}</p>
             </div>
 
-            <div className="modal-footer confirm-footer">
-              <div>
-                <button
-                  type="button"
-                  className="btn btn-secondary w-100 mb-0 "
-                  onClick={onClose}
-                  disabled={loading}
-                >
-                  {cancelLabel}
-                </button>
+            {onConfirm !== undefined ? (
+              <div className="modal-footer confirm-footer">
+                <div>
+                  <button
+                    type="button"
+                    className="btn btn-secondary w-100 mb-0 "
+                    onClick={onClose}
+                    disabled={loading}
+                  >
+                    {cancelLabel}
+                  </button>
+                </div>
+                <div>
+                  <button
+                    type="button"
+                    className={`${
+                      destructive ? "btn btn-danger" : "btn btn-primary"
+                    } w-100 ms-sm-2 ms-lg-0`}
+                    onClick={onConfirm}
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <>
+                        <span
+                          className="spinner-border spinner-border-sm me-2"
+                          role="status"
+                          aria-hidden="true"
+                        />
+                        {confirmLabel}
+                      </>
+                    ) : (
+                      confirmLabel
+                    )}
+                  </button>
+                </div>
               </div>
-              <div>
-                <button
-                  type="button"
-                  className={`${
-                    destructive ? "btn btn-danger" : "btn btn-primary"
-                  } w-100 ms-sm-2 ms-lg-0`}
-                  onClick={onConfirm}
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <>
-                      <span
-                        className="spinner-border spinner-border-sm me-2"
-                        role="status"
-                        aria-hidden="true"
-                      />
-                      {confirmLabel}
-                    </>
-                  ) : (
-                    confirmLabel
-                  )}
-                </button>
-              </div>
-            </div>
+            ) : (
+              <div className="modal-footer"></div>
+            )}
           </div>
         </div>
       </div>
