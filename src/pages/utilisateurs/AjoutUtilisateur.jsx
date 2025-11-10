@@ -17,6 +17,8 @@ import {
   FiList,
   FiCheck,
   FiEdit,
+  FiEye,
+  FiEyeOff,
 } from "react-icons/fi";
 import { createUser, updateUser } from "../../services/userService";
 
@@ -54,6 +56,8 @@ const AjoutUtilisateur = () => {
     Login: "",
   });
 
+  const [showPassword, setShowPassword] = useState(false);
+
   useEffect(() => {
     if (userToEdit) setForm((prev) => ({ ...prev, ...userToEdit }));
   }, [userToEdit]);
@@ -65,6 +69,8 @@ const AjoutUtilisateur = () => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
+
+  const toggleShowPassword = () => setShowPassword((s) => !s);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -224,13 +230,30 @@ const AjoutUtilisateur = () => {
                           <FiLock />
                         </InputGroup.Text>
                         <Form.Control
-                          type="password"
+                          type={showPassword ? "text" : "password"}
                           name="MotDePasse"
                           value={form.MotDePasse}
                           onChange={handleChange}
                           placeholder="Mot de passe"
                           aria-label="MotDePasse"
                         />
+                        <InputGroup.Text
+                          onClick={toggleShowPassword}
+                          style={{
+                            ...iconBg,
+                            cursor: "pointer",
+                            position: "relative",
+                            zIndex: 1,
+                            right: "3rem",
+                          }}
+                          title={
+                            showPassword
+                              ? "Masquer le mot de passe"
+                              : "Afficher le mot de passe"
+                          }
+                        >
+                          {showPassword ? <FiEyeOff /> : <FiEye />}
+                        </InputGroup.Text>
                       </InputGroup>
                     </Form.Group>
                   </Col>

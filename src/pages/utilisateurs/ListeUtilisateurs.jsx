@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { FiEdit, FiTrash2, FiUserPlus, FiUsers, FiList } from "react-icons/fi";
 import { Container, Row, Col, Card, Button } from "react-bootstrap";
 import { deleteUser, fetchUsers } from "../../services/userService";
+import Confirmation from "../../components/Modal/Confirmation";
 
 const cardStyle = {
   borderRadius: 14,
@@ -20,6 +21,8 @@ const headerStyle = {
 const ListeUtilisateurs = () => {
   const navigate = useNavigate();
   const [users, setUsers] = useState([]);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
 
   useEffect(() => {
     const loadUsers = async () => {
@@ -36,13 +39,15 @@ const ListeUtilisateurs = () => {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Confirmer la suppression de cet utilisateur ?")) {
-      return;
-    }
-
+    setUserToDelete(id);
+    setShowConfirm(true);
     try {
-      await deleteUser(id);
-      setUsers((prev) => prev.filter((u) => u.ID_Utilisateurs !== id));
+      await deleteUser(userToDelete);
+      setUsers((prev) =>
+        prev.filter((u) => u.ID_Utilisateurs !== userToDelete)
+      );
+      setShowConfirm(false);
+      setUserToDelete(null);
     } catch (err) {
       console.error("Failed to delete user", err);
       window.alert("La suppression a échoué. Veuillez réessayer.");
@@ -165,7 +170,10 @@ const ListeUtilisateurs = () => {
                           >
                             <button
                               className="btn btn-sm btn-outline-danger"
-                              onClick={() => handleDelete(u.ID_Utilisateurs)}
+                              onClick={() => {
+                                setUserToDelete(u.ID_Utilisateurs);
+                                setShowConfirm(true);
+                              }}
                               aria-label={`Supprimer ${u.Nom} ${u.Prenoms}`}
                             >
                               <FiTrash2 />
@@ -181,6 +189,18 @@ const ListeUtilisateurs = () => {
           </Card>
         </Col>
       </Row>
+      {showConfirm && (
+        <Confirmation
+          isOpen={showConfirm}
+          title="Confirmer la suppression"
+          message="Voulez-vous vraiment supprimer cet élément ?"
+          onConfirm={handleDelete}
+          onClose={() => {
+            setShowConfirm(false);
+            setUserToDelete(null);
+          }}
+        />
+      )}
     </Container>
   );
 };
