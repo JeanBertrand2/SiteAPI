@@ -54,121 +54,126 @@ const Stautut = () => {
   };
 
   const interroger = async () => {
-    setLoading(true);
-    setMessage("");
+        setLoading(true);
+        setMessage("");
 
-    const estDateValide = (val) => val && !isNaN(Date.parse(val));
-    const sansEspace = (val) => val.replace(/\s+/g, "");
+        const estDateValide = (val) => val && !isNaN(Date.parse(val));
+        const sansEspace = (val) => val.replace(/\s+/g, "");
+        const nettoyerFactures = (str) =>
+          str.split(",").map(f => f.trim()).filter(Boolean);
 
-    const gf_dDatedebut = estDateValide(dateDebut) ? dateDebut : null;
-    const gf_dDateFin = estDateValide(dateFin) ? dateFin : null;
-    const gf_sListeFacture = sansEspace(factures);
+        const gf_dDatedebut = estDateValide(dateDebut) ? dateDebut : null;
+        const gf_dDateFin = estDateValide(dateFin) ? dateFin : null;
+        const gf_sListeFacture = nettoyerFactures(sansEspace(factures)); 
 
-    const payload = {
-      gf_dDatedebut,
-      gf_dDateFin,
-      gf_sListeFacture,
-    };
-
-    try {
-      const res = await fetch("http://localhost:2083/demande/periode", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) throw new Error(await res.text());
-
-      const data = await res.json();
-      const facturesExistantes = data.gtabListeFacturePeriode || [];
-
-      const formatISO = (val) => new Date(val).toISOString();
-      const vMonVariant = {
-        numFactureTiers: facturesExistantes.map((f) => f.numFactureTiers),
-        dateDebut: gf_dDatedebut ? formatISO(gf_dDatedebut) : "2020-01-01T00:00:00Z",
-        dateFin: gf_dDateFin ? formatISO(gf_dDateFin) : "2025-12-31T00:00:00Z",
-        methode: "/demandePaiement/rechercher",
-      };
-
-      const lots = chunkArray(vMonVariant.numFactureTiers, 10);
-      let allPaiements = [];
-
-      for (const lot of lots) {
-        const payloadLot = {
-          idDemandePaiements: [],
-          numFactureTiers: lot,
-          dateDebut: vMonVariant.dateDebut,
-          dateFin: vMonVariant.dateFin,
-          methode: "/demandePaiement/rechercher",
+        const payload = {
+          gf_dDatedebut,
+          gf_dDateFin,
+          gf_sListeFacture,
         };
 
-        const resUrssaf = await fetch("http://localhost:2083/demande/interrogerUrssaf", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ payload: payloadLot }),
-        });
+        try {
+          const res = await fetch("http://localhost:2083/demande/periode", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
 
-        if (!resUrssaf.ok) {
-          console.error("Erreur HTTP /interrogerUrssaf :", await resUrssaf.text());
-          continue;
-        }
+          if (!res.ok) throw new Error(await res.text());
 
-        const result = await resUrssaf.json();
-        const paiementsLot = result?.infoDemandePaiements || result?.result?.infoDemandePaiements || [];
+          const data = await res.json();
+          const facturesExistantes = data.gtabListeFacturePeriode || [];
+          console.log("Factures détectées :", facturesExistantes.map(f => f.numFactureTiers));
 
-        if (Array.isArray(paiementsLot)) {
-          allPaiements.push(...paiementsLot);
 
-          for (const paiement of paiementsLot) {
-            try {
-              const dp = paiement.demandePaiement || {};
-              const statut = paiement.statut || {};
-              const infoRejet = paiement.infoRejet || {};
-              const infoVirement = paiement.infoVirement || {};
 
-              const payload = {
-                idDemandePaiement: paiement.idDemandePaiement,
-                idClient: dp.idClient,
-                idTiersFacturation: dp.idTiersFacturation,
-                numFactureTiers: dp.numFactureTiers,
-                dateFacture: dp.dateFacture,
-                dateDebutEmploi: dp.dateDebutEmploi,
-                dateFinEmploi: dp.dateFinEmploi,
-                mntAcompte: dp.mntAcompte,
-                dateVersementAcompte: dp.dateVersementAcompte,
-                mntFactureTTC: dp.mntFactureTTC,
-                mntFactureHT: dp.mntFactureHT,
-                statut: { code: statut.code, libelle: statut.libelle },
-                infoRejet: { code: infoRejet.code, commentaire: infoRejet.commentaire },
-                infoVirement: { mntVirement: infoVirement.mntVirement, dateVirement: infoVirement.dateVirement }
-              };
+          const formatISO = (val) => new Date(val).toISOString();
+          const vMonVariant = {
+            numFactureTiers: facturesExistantes.map((f) => f.numFactureTiers),
+            dateDebut: gf_dDatedebut ? formatISO(gf_dDatedebut) : "2020-01-01T00:00:00Z",
+            dateFin: gf_dDateFin ? formatISO(gf_dDateFin) : "2025-12-31T00:00:00Z",
+            methode: "/demandePaiement/rechercher",
+          };
 
-              const resSave = await fetch("http://localhost:2083/demande/upsert", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload),
-              });
+          const lots = chunkArray(vMonVariant.numFactureTiers, 10);
+          let allPaiements = [];
 
-              if (!resSave.ok) {
-                console.error("Erreur HTTP /upsert :", await resSave.text());
+          for (const lot of lots) {
+            const payloadLot = {
+              numFactureTiers: lot, 
+              dateDebut: vMonVariant.dateDebut,
+              dateFin: vMonVariant.dateFin,
+              methode: vMonVariant.methode
+            };
+
+            const resUrssaf = await fetch("http://localhost:2083/demande/interrogerUrssaf", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payloadLot), 
+            });
+
+            if (!resUrssaf.ok) {
+              console.error("Erreur HTTP /interrogerUrssaf :", await resUrssaf.text());
+              continue;
+            }
+
+            const result = await resUrssaf.json();
+            const paiementsLot = result?.infoDemandePaiements || result?.result?.infoDemandePaiements || [];
+
+            if (Array.isArray(paiementsLot)) {
+              allPaiements.push(...paiementsLot);
+
+              for (const paiement of paiementsLot) {
+                try {
+                  const dp = paiement.demandePaiement || {};
+                  const statut = paiement.statut || {};
+                  const infoRejet = paiement.infoRejet || {};
+                  const infoVirement = paiement.infoVirement || {};
+
+                  const payload = {
+                    idDemandePaiement: paiement.idDemandePaiement,
+                    idClient: dp.idClient,
+                    idTiersFacturation: dp.idTiersFacturation,
+                    numFactureTiers: dp.numFactureTiers,
+                    dateFacture: dp.dateFacture,
+                    dateDebutEmploi: dp.dateDebutEmploi,
+                    dateFinEmploi: dp.dateFinEmploi,
+                    mntAcompte: dp.mntAcompte,
+                    dateVersementAcompte: dp.dateVersementAcompte,
+                    mntFactureTTC: dp.mntFactureTTC,
+                    mntFactureHT: dp.mntFactureHT,
+                    statut: { code: statut.code, libelle: statut.libelle },
+                    infoRejet: { code: infoRejet.code, commentaire: infoRejet.commentaire },
+                    infoVirement: { mntVirement: infoVirement.mntVirement, dateVirement: infoVirement.dateVirement }
+                  };
+
+                  const resSave = await fetch("http://localhost:2083/demande/upsert", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload),
+                  });
+
+                  if (!resSave.ok) {
+                    console.error("Erreur HTTP /upsert :", await resSave.text());
+                  }
+                } catch (err) {
+                  console.error("Erreur lors de l'enregistrement :", err.message);
+                }
               }
-            } catch (err) {
-              console.error("Erreur lors de l'enregistrement :", err.message);
             }
           }
-        }
-      }
 
-      setReponseUrssaf({ infoDemandePaiements: allPaiements });
-      afficherResultat();
-      setMessage(`${allPaiements.length} paiement(s) récupéré(s) et enregistrés`);
-    } catch (err) {
-      console.error("Erreur globale dans interroger :", err);
-      setMessage(" Échec de l'interrogation ou de l'enregistrement");
-    } finally {
-      setLoading(false);
-    }
-  };
+          setReponseUrssaf({ infoDemandePaiements: allPaiements });
+          afficherResultat();
+          setMessage(`${allPaiements.length} paiement(s) récupéré(s) et enregistrés`);
+        } catch (err) {
+          console.error("Erreur globale dans interroger :", err);
+          setMessage(" Échec de l'interrogation ou de l'enregistrement");
+        } finally {
+          setLoading(false);
+        }
+      };
+
 
   return (
     <div className="container mt-4">
@@ -222,6 +227,8 @@ const Stautut = () => {
     <table className="table table-bordered table-striped">
       <thead className="table-light">
         <tr>
+          <th>Statut</th>
+          <th>Libellé Statut</th>
           <th>Id Demande Paiement</th>
           <th>Date facture</th>
           <th>Date Début Emploi</th>
@@ -236,8 +243,6 @@ const Stautut = () => {
           <th>Id Tiers Facturé</th>
           <th>Montant TTC</th>
           <th>Montant HT</th>
-          <th>Statut</th>
-          <th>Libellé Statut</th>
           <th>Info Rejet</th>
           <th>Commentaire Rejet</th>
           <th>Montant Virement</th>
@@ -247,7 +252,15 @@ const Stautut = () => {
       <tbody>
         {resultats.map((item, index) => (
           <tr key={index}>
-            <td>{item.idDemande}</td>
+            <td>{item.statut}</td>
+            <td className={
+              item.statutlibelle === "Payée" ? "text-success" :
+              item.statutlibelle === "Refusée" ? "text-danger" :
+              "text-primary"
+            }>
+              {item.statutlibelle}
+            </td>
+            <td>{item.idDemandePaiement || "—"}</td>
             <td>{item.datefacture}</td>
             <td>{item.debutEmploi}</td>
             <td>{item.finEmploi}</td>
@@ -260,15 +273,7 @@ const Stautut = () => {
             <td>{formatMontant(item.montant)}</td>
             <td>{item.idTiers}</td>
             <td>{formatMontant(item.mntFactureTTC)}</td>
-            <td>{formatMontant(item.mntFactureHT)}</td>
-            <td>{item.statut}</td>
-            <td className={
-              item.statutlibelle === "Payée" ? "text-success" :
-              item.statutlibelle === "Refusée" ? "text-danger" :
-              "text-primary"
-            }>
-              {item.statutlibelle}
-            </td>
+            <td>{formatMontant(item.mntFactureHT)}</td>                    
             <td>{item.inforejet}</td>
             <td>{item.inforejetcommentaire}</td>
             <td>{formatMontant(item.mntVirement)}</td>
