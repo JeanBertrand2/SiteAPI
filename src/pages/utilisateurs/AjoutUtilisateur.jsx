@@ -209,7 +209,7 @@ const AjoutUtilisateur = () => {
                   title="Voir la liste des utilisateurs"
                 >
                   <FiList style={{ marginRight: 6 }} />
-                  Liste des utilisateur
+                  Liste des utilisateurs
                 </Button>
               </div>
             </div>
