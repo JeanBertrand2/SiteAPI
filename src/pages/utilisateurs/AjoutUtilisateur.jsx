@@ -7,7 +7,7 @@ const AjoutUtilisateur = () => {
   const { id } = useParams();
   const location = useLocation();
   const userToEdit = location.state?.user;
-
+  console.log("userToEdit =", userToEdit);
   const [form, setForm] = useState({
     nom: "",
     prenoms: "",
@@ -20,7 +20,6 @@ const AjoutUtilisateur = () => {
     if (userToEdit) setForm(userToEdit);
   }, [userToEdit]);
 
-  
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));

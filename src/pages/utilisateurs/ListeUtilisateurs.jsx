@@ -6,14 +6,27 @@ const ListeUtilisateurs = () => {
   const navigate = useNavigate();
 
   const initialUsers = [
-    { id: 1, email: "jean.dupont@example.com", nom: "Dupont", prenom: "Jean" },
+    {
+      id: 1,
+      email: "jean.dupont@example.com",
+      nom: "Dupont",
+      prenoms: "Jean",
+      login: "jdupont",
+    },
     {
       id: 2,
       email: "marie.durand@example.com",
       nom: "Durand",
-      prenom: "Marie",
+      prenoms: "Marie",
+      login: "mdurand",
     },
-    { id: 3, email: "paul.martin@example.com", nom: "Martin", prenom: "Paul" },
+    {
+      id: 3,
+      email: "paul.martin@example.com",
+      nom: "Martin",
+      prenoms: "Paul",
+      login: "pmartin",
+    },
   ];
 
   const [users, setUsers] = useState(initialUsers);
@@ -77,13 +90,13 @@ const ListeUtilisateurs = () => {
                       </td>
                       <td className="text-break">{u.email}</td>
                       <td>{u.nom}</td>
-                      <td>{u.prenom}</td>
+                      <td>{u.prenoms}</td>
 
                       <td className="text-center">
                         <button
                           className="btn btn-sm btn-outline-primary"
                           onClick={() => handleEdit(u.id)}
-                          aria-label={`Modifier ${u.nom} ${u.prenom}`}
+                          aria-label={`Modifier ${u.nom} ${u.prenoms}`}
                         >
                           <FiEdit />
                         </button>
@@ -93,7 +106,7 @@ const ListeUtilisateurs = () => {
                         <button
                           className="btn btn-sm btn-outline-danger"
                           onClick={() => handleDelete(u.id)}
-                          aria-label={`Supprimer ${u.nom} ${u.prenom}`}
+                          aria-label={`Supprimer ${u.nom} ${u.prenoms}`}
                         >
                           <FiTrash2 />
                         </button>
