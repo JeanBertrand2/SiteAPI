@@ -14,11 +14,15 @@ import MajBdd from "../pages/bdd/MajBdd";
 
 import Prestataire from "../pages/parametre/Prestataire";
 import Util from "../pages/parametre/Util";
+import AjoutUtilisateur from "../pages/utilisateurs/AjoutUtilisateur";
+import ListeUtilisateurs from "../pages/utilisateurs/ListeUtilisateurs";
 
 const MainRoute = () => {
   return (
     <Router>
       <Routes>
+        <Route path="/add-user" element={<AjoutUtilisateur />} />
+        <Route path="/liste-user" element={<ListeUtilisateurs />} />
         <Route element={<MainLayout />}>
           <Route path="/" element={<Homepage />} />
           <Route path="/inscription/client" element={<InscriptClient />} />
