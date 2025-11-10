@@ -19,7 +19,10 @@ const ListeUtilisateurs = () => {
   const [users, setUsers] = useState(initialUsers);
 
   const handleAdd = () => navigate("/add-user");
-  const handleEdit = (id) => navigate(`/edit-user/${id}`);
+  const handleEdit = (id) => {
+    const user = users.find((u) => u.id === id);
+    navigate(`/edit-user/${id}`, { state: { user } });
+  };
   const handleDelete = (id) => {
     if (!window.confirm("Confirmer la suppression de cet utilisateur ?"))
       return;

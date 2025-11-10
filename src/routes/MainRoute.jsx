@@ -21,8 +21,6 @@ const MainRoute = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/add-user" element={<AjoutUtilisateur />} />
-        <Route path="/liste-user" element={<ListeUtilisateurs />} />
         <Route element={<MainLayout />}>
           <Route path="/" element={<Homepage />} />
           <Route path="/inscription/client" element={<InscriptClient />} />
@@ -42,6 +40,9 @@ const MainRoute = () => {
           <Route path="/param/prestataire" element={<Prestataire />} />
           <Route path="/param/util" element={<Util />} />
         </Route>
+        <Route path="/liste-user" element={<ListeUtilisateurs />} />
+        <Route path="/add-user" element={<AjoutUtilisateur />} />
+        <Route path="/edit-user/:id" element={<AjoutUtilisateur />} />
       </Routes>
     </Router>
   );

@@ -1,8 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Container, Row, Col, Form, Button, Card } from "react-bootstrap";
+import { useLocation, useParams } from "react-router-dom";
 
 const AjoutUtilisateur = () => {
+  const { id } = useParams();
+  const location = useLocation();
+  const userToEdit = location.state?.user;
+
   const [form, setForm] = useState({
     nom: "",
     prenoms: "",
@@ -11,6 +16,11 @@ const AjoutUtilisateur = () => {
     login: "",
   });
 
+  useEffect(() => {
+    if (userToEdit) setForm(userToEdit);
+  }, [userToEdit]);
+
+  
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -24,9 +34,13 @@ const AjoutUtilisateur = () => {
   };
   const handleSubmit = (e) => {
     e.preventDefault();
-    alert("Utilisateur ajouté avec succès !");
-    setForm(initialForm);
-    console.log(form);
+    if (id) {
+      alert("Utilisateur modifié avec succès !");
+      console.log("Updated:", form);
+    } else {
+      alert("Utilisateur ajouté avec succès !");
+      console.log("New:", form);
+    }
   };
 
   return (
@@ -35,7 +49,9 @@ const AjoutUtilisateur = () => {
         <Col xs={12} md={8} lg={6}>
           <Card className="shadow-sm">
             <Card.Body>
-              <Card.Title className="mb-4 text-center">Inscription</Card.Title>
+              <Card.Title className="mb-4 text-center">
+                {id ? "Modifier utilisateur" : "Inscription"}
+              </Card.Title>{" "}
               <Form onSubmit={handleSubmit}>
                 <Form.Group controlId="nom" className="mb-3">
                   <Form.Label>Nom</Form.Label>
@@ -91,7 +107,7 @@ const AjoutUtilisateur = () => {
 
                 <div className="d-grid">
                   <Button type="submit" variant="primary">
-                    S'inscrire
+                    {id ? "Enregistrer les modifications" : "S'inscrire"}
                   </Button>
                 </div>
               </Form>
