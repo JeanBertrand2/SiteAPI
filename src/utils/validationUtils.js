@@ -1,6 +1,6 @@
 export const isValidEmail = (email) => {
   if (!email) return false;
-  return /\S+@\S+\.\S+/.test(String(email).trim());
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email).trim());
 };
 
 export const isValidPhone = (phone) => {
