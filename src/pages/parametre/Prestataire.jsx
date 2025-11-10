@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useSearchParams, useNavigate } from "react-router-dom";
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 
 const Prestataire = () => {
   const navigate = useNavigate();
+ 
+
   const [searchParams] = useSearchParams();
   const mode = searchParams.get("mode");
   const id = parseInt(searchParams.get("id"), 10);
@@ -281,15 +285,24 @@ const Prestataire = () => {
               </div>
               <div className="col-md-6">
                 <label className="form-label">Tél</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  inputMode="numeric"
-                  pattern="[0-9]*"
-                  placeholder="Ex: 0321234567"
-                  value={tel}
-                  onChange={(e) => setTel(e.target.value)}
-                />
+                <PhoneInput
+                    country={'mg'} // Madagascar par défaut
+                    enableSearch={true}
+                    preferredCountries={['mg', 'fr', 'ga']}
+                    onChange={(phone, countryData) => {
+                      console.log("Numéro :", phone); 
+                      console.log("Pays :", countryData); 
+                      setTel(phone); 
+                    }}
+                    inputProps={{
+                      name: 'phone',
+                      required: true,
+                      autoFocus: true
+                    }}
+                    containerStyle={{ width: '100%' }}
+                    inputStyle={{ width: '100%' }}
+                  />
+
               </div>
               <div className="col-md-6">
                 <label className="form-label">Mail</label>
