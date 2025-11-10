@@ -18,6 +18,7 @@ import {
   FiCheck,
   FiEdit,
 } from "react-icons/fi";
+import { createUser, updateUser } from "../../services/userService";
 
 const cardStyle = {
   borderRadius: 14,
@@ -65,14 +66,22 @@ const AjoutUtilisateur = () => {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (id) {
+      const result = await updateUser(id, form);
+      if (!result) {
+        alert("Erreur lors de la modification de l'utilisateur.");
+        return;
+      }
       alert("Utilisateur modifié avec succès !");
-      console.log("Updated:", form);
     } else {
+      const result = await createUser(form);
+      if (!result) {
+        alert("Erreur lors de l'ajout de l'utilisateur.");
+        return;
+      }
       alert("Utilisateur ajouté avec succès !");
-      console.log("New:", form);
     }
   };
 
