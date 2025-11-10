@@ -40,7 +40,7 @@ const InscriptClient = () => {
     titulaire: "",
     idParticulier: "",
   };
-  
+
   const lettresVoie = Array.from({ length: 26 }, (_, i) =>
     String.fromCharCode(65 + i)
   );
@@ -155,12 +155,10 @@ const InscriptClient = () => {
               )?.nomPays || "FRANCE",
             codePays2: jsonData.adressePostale?.codePays || "99100",
 
-            // Coordonnée Bancaire
             bic: jsonData.coordonneeBancaire?.bic || "",
             iban: jsonData.coordonneeBancaire?.iban || "",
             titulaire: jsonData.coordonneeBancaire?.titulaire || "",
 
-            // Prefer idClient (URSSAF id). Fallback to idParticulier if present in file.
             idClient: jsonData.idClient || jsonData.idParticulier || "",
             idParticulier: jsonData.idParticulier || "",
           };
@@ -364,7 +362,6 @@ const InscriptClient = () => {
     };
 
     try {
-      // If an idClient is already present in the JSON, skip URSSAF and directly create in backend DB
       const existingIdClient =
         formData.idClient || formData.idParticulier || "";
 
