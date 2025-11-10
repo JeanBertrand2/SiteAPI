@@ -381,7 +381,7 @@ const InscriptClient = () => {
     if (!validCommune) {
       showConfirm(
         "Validation",
-        "Code commune (lieu naissance) invalide ou manquant (attendu 5 chiffres)."
+        "Code commune (lieu naissance) invalide ou manquant (attendu 3 chiffres)."
       );
       return false;
     }
