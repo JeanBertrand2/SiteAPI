@@ -1,65 +1,93 @@
-import { useState } from "react";
+import {useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FaFilter } from "react-icons/fa";
 import { FaSearch } from "react-icons/fa";
 import { MdDeleteOutline } from "react-icons/md";
+import axios from "axios"
 
 import "./InscriptClient.css";
 const InterogStatut = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const staticData = [
-    {
-      id: "CLI001",
-      statutInscription: "Validé",
-      nomNaissance: "Dupont",
-      nomUsage: "Dupont",
-      prenoms: "Jean",
-      adresseMail: "jean.dupont@example.com",
-      dateNaissance: "1980-01-12",
-      identifiantTiers: "TIERS001",
-    },
-    {
-      id: "CLI002",
-      statutInscription: "En attente",
-      nomNaissance: "Martin",
-      nomUsage: "Martin",
-      prenoms: "Sophie",
-      adresseMail: "sophie.martin@example.com",
-      dateNaissance: "1990-05-21",
-      identifiantTiers: "TIERS002",
-    },
-    {
-      id: "CLI003",
-      statutInscription: "Refusé",
-      nomNaissance: "Nguyen",
-      nomUsage: "Nguyen",
-      prenoms: "Thi",
-      adresseMail: "thi.nguyen@example.com",
-      dateNaissance: "1975-09-09",
-      identifiantTiers: "TIERS003",
-    },
-    {
-      id: "CLI004",
-      statutInscription: "Validé",
-      nomNaissance: "Bernard",
-      nomUsage: "Bernard",
-      prenoms: "Luc",
-      adresseMail: "luc.bernard@example.com",
-      dateNaissance: "1988-11-30",
-      identifiantTiers: "TIERS004",
-    },
-    {
-      id: "CLI005",
-      statutInscription: "En cours",
-      nomNaissance: "Moreau",
-      nomUsage: "Moreau",
-      prenoms: "Claire",
-      adresseMail: "claire.moreau@example.com",
-      dateNaissance: "1995-07-14",
-      identifiantTiers: "TIERS005",
-    },
-  ];
+  const [staticData,setstaticData] = useState([])
+// const [page,setPage] = useState(1)
+// const [pageCount,setPageCount] = useState(0)
+
+  useEffect(()=>{
+    const fetchData = async()=>{
+      try{
+        //const response = await axios.get(`http://localhost:2083/particuliers/users?page=${page}`);
+        await axios.get(`http://localhost:2083/particuliers`)
+        .then((response)=>{
+            setstaticData(response.data);
+            console.log("list particulier front : ",response.data);
+        })
+        .catch((error)=>{
+          console.log("error particulier front : ",error);
+        })
+        
+        //setPageCount(response.data.pagination.pageCount)
+      }
+      catch(error)
+      {
+        console.log("Error while fetching data",error)
+      }
+      
+    };
+    fetchData()
+  },[]);
+  // const staticData = [
+  //   {
+  //     id: "CLI001",
+  //     statutInscription: "Validé",
+  //     nomNaissance: "Dupont",
+  //     nomUsage: "Dupont",
+  //     prenoms: "Jean",
+  //     adresseMail: "jean.dupont@example.com",
+  //     dateNaissance: "1980-01-12",
+  //     identifiantTiers: "TIERS001",
+  //   },
+  //   {
+  //     id: "CLI002",
+  //     statutInscription: "En attente",
+  //     nomNaissance: "Martin",
+  //     nomUsage: "Martin",
+  //     prenoms: "Sophie",
+  //     adresseMail: "sophie.martin@example.com",
+  //     dateNaissance: "1990-05-21",
+  //     identifiantTiers: "TIERS002",
+  //   },
+  //   {
+  //     id: "CLI003",
+  //     statutInscription: "Refusé",
+  //     nomNaissance: "Nguyen",
+  //     nomUsage: "Nguyen",
+  //     prenoms: "Thi",
+  //     adresseMail: "thi.nguyen@example.com",
+  //     dateNaissance: "1975-09-09",
+  //     identifiantTiers: "TIERS003",
+  //   },
+  //   {
+  //     id: "CLI004",
+  //     statutInscription: "Validé",
+  //     nomNaissance: "Bernard",
+  //     nomUsage: "Bernard",
+  //     prenoms: "Luc",
+  //     adresseMail: "luc.bernard@example.com",
+  //     dateNaissance: "1988-11-30",
+  //     identifiantTiers: "TIERS004",
+  //   },
+  //   {
+  //     id: "CLI005",
+  //     statutInscription: "En cours",
+  //     nomNaissance: "Moreau",
+  //     nomUsage: "Moreau",
+  //     prenoms: "Claire",
+  //     adresseMail: "claire.moreau@example.com",
+  //     dateNaissance: "1995-07-14",
+  //     identifiantTiers: "TIERS005",
+  //   },
+  // ];
 
   const [searchCriteria, setSearchCriteria] = useState({
     nomNaissance: "",
@@ -237,14 +265,172 @@ const InterogStatut = () => {
   const finalResults = sortedResults;
 
   const columns = [
-    { key: "statutInscription", label: "Statut inscription" },
+    { key: "statutCode", label: "Statut inscription" },
+    // { key: "statutInscription", label: "Statut inscription" },
     { key: "nomNaissance", label: "Nom de naissance" },
     { key: "nomUsage", label: "Nom usage" },
     { key: "prenoms", label: "Prénoms" },
     { key: "adresseMail", label: "Adresse mail" },
     { key: "dateNaissance", label: "Date naissance" },
     { key: "actions", label: "Actions" },
+    { key: "idClient", label: "Actions" },
   ];
+
+  const getStatutClient = async(idClient=null,email=null)=>{ 
+    let data;
+    if(email!= null && email.trim() !="")
+    {
+        data = {
+                    params: {
+                          adresseMail:email                         
+                          },
+                    url: 'https://api.urssaf.fr/atp/v1/tiersPrestations/particulier'   
+          };
+  
+    }
+    if(idClient!= null && idClient.trim() !="")
+    {
+        data = {
+                    params: {
+                          idClient:idClient
+                          },
+                    url: 'https://api.urssaf.fr/atp/v1/tiersPrestations/particulier'   
+            };
+          }
+      
+    await axios.post('http://localhost:2083/api/urssaf/getUrssaf',data)
+      .then((response)=>{
+            setstaticData(response.data);
+            console.log("list particulier front : ",response.data);
+        })
+        .catch((error)=>{
+          console.log("error particulier front : ",error);
+        })
+
+  }
+
+  ///////////////////////////
+  const E_APPAREILLAGE_EC				= "APPAREILLAGE_EC"
+	const  E_APPAREILLAGE_EC_LIBELLE		= "En cours"
+	const E_APPAREILLAGE_VALIDE			= "APPAREILLAGE_VALIDE"
+	const E_APPAREILLAGE_VALIDE_LIBELLE	= "Confirmé"
+	const E_APPAREILLAGE_NF				= "APPAREILLAGE_NF"
+	const E_APPAREILLAGE_NF_LIBELLE		= "Non finalisé"
+	const E_PARTICULIER_BLOQUE			= "PARTICULIER_BLOQUE"
+	const E_PARTICULIER_BLOQUE_LIBELLE	= "Bloqué"
+	const E_MANDAT_ECHU					= "MANDAT_ECHU"
+	const E_MANDAT_ECHU_LIBELLE			= "Mandat expiré"
+
+  const getStatutParChampText =()=>
+  {
+    const txtMail = document.getElementById("adresseMail");   
+    const txtClient = document.getElementById("idClient");
+    let idClient = txtClient.value;
+    let adresseMail = txtMail.value;
+    getStatutClient(idClient,adresseMail);
+  }
+
+  const valcol = (key,result,rowIdx)=>{
+    switch(key) {
+      case "statutCode":
+       
+        const myElement = document.getElementById("colStatut"+ rowIdx);
+        
+          // if(myElement != null)
+          // {
+          //     //for (let i = 0; i < myElement.length; i++) {
+          //         myElement[colIdx].style.backgroundColor = "green";
+          //     //  }
+          // }
+            
+        switch(result[key]) {
+            case E_APPAREILLAGE_EC:
+              console.log("colonne JAUNE = colStatut"+rowIdx);
+               if(myElement != null)
+          {
+              //for (let i = 0; i < myElement.length; i++) {
+                  myElement.style.backgroundColor = "#eea60a45";
+              //  }
+          }
+               return E_APPAREILLAGE_EC_LIBELLE
+               
+              //vCouleur	= JauneOr
+            case E_APPAREILLAGE_VALIDE:
+             
+               if(myElement != null)
+          {
+             console.log("colonne GREEN = colStatut"+rowIdx);
+              //for (let i = 0; i < myElement.length; i++) {
+                  myElement.style.backgroundColor = "green";
+              //  }
+          }
+              return	 E_APPAREILLAGE_VALIDE_LIBELLE
+              //vCouleur	= iVertClair
+            case E_APPAREILLAGE_NF:
+              console.log("colonne RED 2 = colStatut"+rowIdx);
+               if(myElement != null)
+          {
+              //for (let i = 0; i < myElement.length; i++) {
+                  myElement.style.backgroundColor = "red";
+              //  }
+          }
+              return  E_APPAREILLAGE_NF_LIBELLE
+              //vCouleur	= RougeFoncé
+            case E_PARTICULIER_BLOQUE:
+              console.log("colonne RED 3 = colStatut"+rowIdx);
+               if(myElement != null)
+          {
+              //for (let i = 0; i < myElement.length; i++) {
+                  myElement.style.backgroundColor = "red";
+              //  }
+          }
+              return  E_PARTICULIER_BLOQUE_LIBELLE
+              //vCouleur	= RougeFoncé
+            case E_MANDAT_ECHU:
+              console.log("colonne RED 4 = colStatut"+rowIdx);
+               if(myElement != null)
+          {
+              //for (let i = 0; i < myElement.length; i++) {
+                  myElement.style.backgroundColor = "red";
+              //  }
+          }
+              return  E_MANDAT_ECHU_LIBELLE
+             default :
+             console.log("colonne TRANSPATANT = colStatut"+rowIdx);
+                return ""; 
+        }
+              //vCouleur	= RougeFoncé
+        break;
+      case "actions":
+        return result.id ? (
+                                    <button
+                                      className="btn btn-sm btn-primary"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleSelectClient(result);
+                                      }}
+                                      title="Sélectionner ce client"
+                                      style={{
+                                        fontSize: "11px",
+                                        padding: "2px 8px",
+                                      }}
+                                    >
+                                      Sélectionner
+                                    </button>
+                                  ) : null
+       
+        break;
+        case "idClient":
+          return (<button title="Obtenir statut" onClick={()=>getStatutClient(result[key])} 
+          type="button" className="btn btn-secondary">
+                  <i class="fa-solid fa-signal"></i>                 
+              </button>);
+                                    
+        break;
+      default:
+       return result[key] ;
+    }
+  }
 
   return (
     <div className="inscription-container">
@@ -487,8 +673,8 @@ const InterogStatut = () => {
                               border: "none",
                             }}
                           >
-                            {columns.map((col, colIdx) => (
-                              <td
+                            {columns.map((col, colIdx) => (                             
+                              <td id= {col.key ==="statutCode" ? "colStatut"+rowIdx : ""}
                                 key={colIdx}
                                 style={{
                                   backgroundColor:
@@ -505,26 +691,10 @@ const InterogStatut = () => {
                                   }
                                 }}
                               >
-                                {col.key === "actions" ? (
-                                  result.id ? (
-                                    <button
-                                      className="btn btn-sm btn-primary"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleSelectClient(result);
-                                      }}
-                                      title="Sélectionner ce client"
-                                      style={{
-                                        fontSize: "11px",
-                                        padding: "2px 8px",
-                                      }}
-                                    >
-                                      Sélectionner
-                                    </button>
-                                  ) : null
-                                ) : (
-                                  result[col.key]
-                                )}
+                                {
+                                valcol(col.key,result,rowIdx)
+                                  
+                                }
                               </td>
                             ))}
                           </tr>
@@ -566,8 +736,7 @@ const InterogStatut = () => {
                       type="text"
                       name="idClient"
                       className="form-control form-control-sm"
-                      value={searchByIdOrEmail.idClient}
-                      onChange={handleIdEmailChange}
+                      
                       style={{ flex: 1 }}
                     />
                   </div>
@@ -592,16 +761,16 @@ const InterogStatut = () => {
                       type="email"
                       name="adresseMail"
                       className="form-control form-control-sm"
-                      value={searchByIdOrEmail.adresseMail}
-                      onChange={handleIdEmailChange}
+                      
                       style={{ flex: 1 }}
                     />
                   </div>
 
                   <div style={{ display: "flex", alignItems: "center" }}>
                     <button
+                    type="button"
                       className="btn btn-primary inscrire-btn"
-                      onClick={handleGetStatus}
+                      onClick={getStatutParChampText}
                       style={{ whiteSpace: "nowrap" }}
                     >
                       Obtenir statut
@@ -612,16 +781,16 @@ const InterogStatut = () => {
             </div>
           </div>
 
-          <div className="mb-3 side-button-container" style={{ width: "8rem" }}>
+          {/* <div className="mb-3 side-button-container" style={{ width: "8rem" }}>
             <div className="text-end">
-              <button
+              <button type="submit"
                 className="btn btn-primary inscrire-btn"
-                onClick={handleRowClick}
+                onClick={handleGetStatus}
               >
-                Obtenir Statut
+                Obtenir Statut ok
               </button>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
