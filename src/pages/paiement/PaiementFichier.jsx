@@ -309,8 +309,6 @@ const PaiementFichier = ({ showDemandeBtn = true, showMigrationBtn = false }) =>
         }));
       }
 
-      
-
       const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -318,6 +316,29 @@ const PaiementFichier = ({ showDemandeBtn = true, showMigrationBtn = false }) =>
       a.download = "demande_paiement.json";
       a.click();
       URL.revokeObjectURL(url);
+      // Envoi vers backend pour API externe
+          const enveloppe = {
+            methode: "/demandePaiement",
+            data: payload
+          };
+
+          fetch("http://localhost:2083/demande/envoyer", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ payload: enveloppe })
+          })
+            .then((res) => {
+              if (!res.ok) throw new Error("Erreur backend");
+              return res.json();
+            })
+            .then((data) => {
+              console.log("Réponse API URSSAF :", data);
+              alert("Données envoyées avec succès !");
+            })
+            .catch((err) => {
+              console.error("Erreur d'envoi :", err.message);
+              alert("Échec de l'envoi vers l'API externe.");
+            });
     };
     const envoyerVersBackend = async () => {
         if (formulaires.length === 0) {
