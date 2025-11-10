@@ -26,8 +26,13 @@ const ListeUtilisateurs = () => {
 
   useEffect(() => {
     const loadUsers = async () => {
-      const data = await fetchUsers();
-      setUsers(data);
+      try {
+        const data = await fetchUsers();
+        setUsers(data);
+      } catch (error) {
+        console.error("Failed to load users", error);
+        // Optionally show an error message to the user
+      }
     };
     loadUsers();
   }, []);
