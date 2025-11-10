@@ -46,11 +46,11 @@ const AjoutUtilisateur = () => {
   const userToEdit = location.state?.user;
 
   const [form, setForm] = useState({
-    nom: "",
-    prenoms: "",
-    email: "",
-    mdp: "",
-    login: "",
+    Nom: "",
+    Prenoms: "",
+    adresseMail: "",
+    MotDePasse: "",
+    Login: "",
   });
 
   useEffect(() => {
@@ -127,25 +127,25 @@ const AjoutUtilisateur = () => {
               <Form onSubmit={handleSubmit}>
                 <Row className="g-3">
                   <Col md={6}>
-                    <Form.Group controlId="nom">
+                    <Form.Group controlId="Nom">
                       <Form.Label className="small text-muted">Nom</Form.Label>
                       <InputGroup>
                         <InputGroup.Text style={iconBg}>
                           <FiUser />
                         </InputGroup.Text>
                         <Form.Control
-                          name="nom"
-                          value={form.nom}
+                          name="Nom"
+                          value={form.Nom}
                           onChange={handleChange}
                           placeholder="Entrez le nom"
-                          aria-label="nom"
+                          aria-label="Nom"
                         />
                       </InputGroup>
                     </Form.Group>
                   </Col>
 
                   <Col md={6}>
-                    <Form.Group controlId="prenoms">
+                    <Form.Group controlId="Prenoms">
                       <Form.Label className="small text-muted">
                         Prénoms
                       </Form.Label>
@@ -154,18 +154,18 @@ const AjoutUtilisateur = () => {
                           <FiUser />
                         </InputGroup.Text>
                         <Form.Control
-                          name="prenoms"
-                          value={form.prenoms}
+                          name="Prenoms"
+                          value={form.Prenoms}
                           onChange={handleChange}
                           placeholder="Entrez les prénoms"
-                          aria-label="prenoms"
+                          aria-label="Prenoms"
                         />
                       </InputGroup>
                     </Form.Group>
                   </Col>
 
                   <Col md={6}>
-                    <Form.Group controlId="email" className="mt-2">
+                    <Form.Group controlId="adresseMail" className="mt-2">
                       <Form.Label className="small text-muted">
                         Adresse email
                       </Form.Label>
@@ -175,18 +175,18 @@ const AjoutUtilisateur = () => {
                         </InputGroup.Text>
                         <Form.Control
                           type="email"
-                          name="email"
-                          value={form.email}
+                          name="adresseMail"
+                          value={form.adresseMail}
                           onChange={handleChange}
                           placeholder="adresse@mail.com"
-                          aria-label="email"
+                          aria-label="adresseMail"
                         />
                       </InputGroup>
                     </Form.Group>
                   </Col>
 
                   <Col md={6}>
-                    <Form.Group controlId="login" className="mt-2">
+                    <Form.Group controlId="Login" className="mt-2">
                       <Form.Label className="small text-muted">
                         Login
                       </Form.Label>
@@ -195,18 +195,18 @@ const AjoutUtilisateur = () => {
                           <FiEdit />
                         </InputGroup.Text>
                         <Form.Control
-                          name="login"
-                          value={form.login}
+                          name="Login"
+                          value={form.Login}
                           onChange={handleChange}
                           placeholder="Nom d'utilisateur"
-                          aria-label="login"
+                          aria-label="Login"
                         />
                       </InputGroup>
                     </Form.Group>
                   </Col>
 
                   <Col md={12}>
-                    <Form.Group controlId="mdp" className="mt-2">
+                    <Form.Group controlId="MotDePasse" className="mt-2">
                       <Form.Label className="small text-muted">
                         Mot de passe
                       </Form.Label>
@@ -216,11 +216,11 @@ const AjoutUtilisateur = () => {
                         </InputGroup.Text>
                         <Form.Control
                           type="password"
-                          name="mdp"
-                          value={form.mdp}
+                          name="MotDePasse"
+                          value={form.MotDePasse}
                           onChange={handleChange}
                           placeholder="Mot de passe"
-                          aria-label="mdp"
+                          aria-label="MotDePasse"
                         />
                       </InputGroup>
                     </Form.Group>
