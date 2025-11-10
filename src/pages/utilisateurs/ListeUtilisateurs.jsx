@@ -57,25 +57,26 @@ const ListeUtilisateurs = () => {
   };
 
   return (
-    <Container className="py-5">
+    <Container
+      className="py-5"
+      style={{ paddingTop: "4.5rem", paddingBottom: "4.5rem" }}
+    >
       <h2
         className="mb-4 text-center fw-bold"
         style={{
-          textTransform: "uppercase",
           letterSpacing: "1px",
           borderBottom: "3px solid #3a7bd5ff",
           color: "#3a7bd5ff",
-          display: "inline-block",
           paddingBottom: "6px",
         }}
       >
         Gestion des utilisateurs
       </h2>
       <Row className="justify-content-center">
-        <Col xs={12} md={11} lg={10}>
+        <Col xs={12} md={11} lg={12}>
           <Card style={cardStyle}>
             <div
-              style={headerStyle}
+              style={{ ...headerStyle, padding: "1.5rem 2rem" }}
               className="d-flex align-items-center justify-content-between"
             >
               <div className="d-flex align-items-center">
@@ -101,17 +102,21 @@ const ListeUtilisateurs = () => {
               </div>
             </div>
 
-            <Card.Body className="p-3 p-md-4">
+            <Card.Body className="p-4 p-md-5">
               <div className="table-responsive">
                 <table className="table table-hover align-middle mb-0">
-                  <thead className="table-light">
-                    <tr>
-                      <th style={{ width: 80 }}>ID</th>
-                      <th>Email</th>
-                      <th>Nom</th>
-                      <th>Prénom</th>
-                      <th style={{ width: 120 }}>Modification</th>
-                      <th style={{ width: 120 }}>Suppression</th>
+                  <thead className="table-light ">
+                    <tr className="p-8">
+                      <th style={{ width: 80, padding: " 15px" }}>ID</th>
+                      <th style={{ padding: "15px" }}>Email</th>
+                      <th style={{ padding: "15px" }}>Nom</th>
+                      <th style={{ padding: "15px" }}>Prénom</th>
+                      <th style={{ width: 120, padding: "15px" }}>
+                        Modification
+                      </th>
+                      <th style={{ width: 120, padding: "15px" }}>
+                        Suppression
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -124,14 +129,32 @@ const ListeUtilisateurs = () => {
                     ) : (
                       users.map((u) => (
                         <tr key={u.id}>
-                          <td>
+                          <td style={{ padding: "1.5rem .5rem" }}>
                             <span className="badge bg-primary">{u.id}</span>
                           </td>
-                          <td className="text-break">{u.email}</td>
-                          <td>{u.nom}</td>
-                          <td>{u.prenoms}</td>
+                          <td
+                            style={{ padding: "1.5rem .5rem" }}
+                            className="text-break"
+                          >
+                            {u.email}
+                          </td>
+                          <td
+                            style={{ padding: "1.5rem .5rem" }}
+                            className="text-break"
+                          >
+                            {u.nom}
+                          </td>
+                          <td
+                            style={{ padding: "1.5rem .5rem" }}
+                            className="text-break"
+                          >
+                            {u.prenoms}
+                          </td>
 
-                          <td className="text-center">
+                          <td
+                            className="text-center"
+                            style={{ padding: "1.5rem .5rem" }}
+                          >
                             <button
                               className="btn btn-sm btn-outline-primary"
                               onClick={() => handleEdit(u.id)}
@@ -141,7 +164,10 @@ const ListeUtilisateurs = () => {
                             </button>
                           </td>
 
-                          <td className="text-center">
+                          <td
+                            className="text-center"
+                            style={{ padding: "1.5rem .5rem" }}
+                          >
                             <button
                               className="btn btn-sm btn-outline-danger"
                               onClick={() => handleDelete(u.id)}
