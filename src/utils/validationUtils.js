@@ -34,7 +34,7 @@ export const isValidIBAN = (iban) => {
 
   let remainder = 0;
   for (let offset = 0; offset < numeric.length; offset += 7) {
-    const block = remainder + numeric.substr(offset, 7);
+    const block = remainder + numeric.slice(offset, offset + 7);
     remainder = parseInt(block, 10) % 97;
   }
   return remainder === 1;
