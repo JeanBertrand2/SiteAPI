@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiEdit, FiTrash2, FiUserPlus, FiUsers, FiList } from "react-icons/fi";
 import { Container, Row, Col, Card, Button } from "react-bootstrap";
+import { fetchUsers } from "../../services/userService";
 
 const cardStyle = {
   borderRadius: 14,
@@ -18,42 +19,27 @@ const headerStyle = {
 
 const ListeUtilisateurs = () => {
   const navigate = useNavigate();
+  const [users, setUsers] = useState([]);
 
-  const initialUsers = [
-    {
-      id: 1,
-      email: "jean.dupont@example.com",
-      nom: "Dupont",
-      prenoms: "Jean",
-      login: "jdupont",
-    },
-    {
-      id: 2,
-      email: "marie.durand@example.com",
-      nom: "Durand",
-      prenoms: "Marie",
-      login: "mdurand",
-    },
-    {
-      id: 3,
-      email: "paul.martin@example.com",
-      nom: "Martin",
-      prenoms: "Paul",
-      login: "pmartin",
-    },
-  ];
+  useEffect(() => {
+    const loadUsers = async () => {
+      const data = await fetchUsers();
+      setUsers(data);
+    };
+    loadUsers();
+  }, []);
 
-  const [users, setUsers] = useState(initialUsers);
+  console.log(users);
 
   const handleAdd = () => navigate("/add-user");
   const handleEdit = (id) => {
-    const user = users.find((u) => u.id === id);
+    const user = users.find((u) => u.ID_Utilisateur === id);
     navigate(`/edit-user/${id}`, { state: { user } });
   };
   const handleDelete = (id) => {
     if (!window.confirm("Confirmer la suppression de cet utilisateur ?"))
       return;
-    setUsers((prev) => prev.filter((u) => u.id !== id));
+    setUsers((prev) => prev.filter((u) => u.ID_Utilisateur !== id));
   };
 
   return (
@@ -128,27 +114,29 @@ const ListeUtilisateurs = () => {
                       </tr>
                     ) : (
                       users.map((u) => (
-                        <tr key={u.id}>
+                        <tr key={u.ID_Utilisateurs}>
                           <td style={{ padding: "1.5rem .5rem" }}>
-                            <span className="badge bg-primary">{u.id}</span>
+                            <span className="badge bg-primary">
+                              {u.ID_Utilisateurs}
+                            </span>
                           </td>
                           <td
                             style={{ padding: "1.5rem .5rem" }}
                             className="text-break"
                           >
-                            {u.email}
+                            {u.adresseMail}
                           </td>
                           <td
                             style={{ padding: "1.5rem .5rem" }}
                             className="text-break"
                           >
-                            {u.nom}
+                            {u.Nom}
                           </td>
                           <td
                             style={{ padding: "1.5rem .5rem" }}
                             className="text-break"
                           >
-                            {u.prenoms}
+                            {u.Prenoms}
                           </td>
 
                           <td
@@ -157,8 +145,8 @@ const ListeUtilisateurs = () => {
                           >
                             <button
                               className="btn btn-sm btn-outline-primary"
-                              onClick={() => handleEdit(u.id)}
-                              aria-label={`Modifier ${u.nom} ${u.prenoms}`}
+                              onClick={() => handleEdit(u.ID_Utilisateurs)}
+                              aria-label={`Modifier ${u.Nom} ${u.Prenoms}`}
                             >
                               <FiEdit />
                             </button>
@@ -170,8 +158,8 @@ const ListeUtilisateurs = () => {
                           >
                             <button
                               className="btn btn-sm btn-outline-danger"
-                              onClick={() => handleDelete(u.id)}
-                              aria-label={`Supprimer ${u.nom} ${u.prenoms}`}
+                              onClick={() => handleDelete(u.ID_Utilisateurs)}
+                              aria-label={`Supprimer ${u.Nom} ${u.Prenoms}`}
                             >
                               <FiTrash2 />
                             </button>
