@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FiEdit, FiTrash2, FiUserPlus, FiUsers, FiList } from "react-icons/fi";
+import { FiEdit, FiTrash2, FiUserPlus, FiUsers } from "react-icons/fi";
 import { Container, Row, Col, Card, Button } from "react-bootstrap";
 import { deleteUser, fetchUsers } from "../../services/userService";
 import Confirmation from "../../components/Modal/Confirmation";
