@@ -32,10 +32,9 @@ const ListeUtilisateurs = () => {
   const handleAdd = () => navigate("/add-user");
   const handleEdit = (id) => {
     const user = users.find((u) => u.ID_Utilisateurs === id);
-    console.log(user);
-
     navigate(`/edit-user/${id}`, { state: { user } });
   };
+
   const handleDelete = async (id) => {
     if (!window.confirm("Confirmer la suppression de cet utilisateur ?")) {
       return;
