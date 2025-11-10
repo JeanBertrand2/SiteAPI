@@ -331,6 +331,7 @@ const PaiementFichier = ({ showDemandeBtn = true, showMigrationBtn = false }) =>
               ...DemandePaiement.defaults,
               idClient: form.clientId,
               numFactureTiers: form.numfacture,
+              idDemandePaiement: DemandePaiement.defaults.idDemandePaiement,
               dateFacture: form.datefact,
               dateHeureCreation: new Date().toISOString().slice(0, 19).replace("T", " "),
               idTiersFacturation: form.nomclient || "inconnu",

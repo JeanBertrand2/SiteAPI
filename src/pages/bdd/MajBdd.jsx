@@ -1,7 +1,6 @@
 import axios from "axios";
 import toast from 'react-hot-toast';
-import querystring from 'querystring';
-import * as apiController from "../components/apiController.js";
+
 function MajBdd() {
   const majBASEDD = async(e)=>{
     const tagSubmit =  document.getElementById("tagSubmit");

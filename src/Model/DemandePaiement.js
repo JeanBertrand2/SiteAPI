@@ -2,6 +2,7 @@ export const DemandePaiement = {
   defaults: {
     idTiersFacturation: null,
     idClient_numFactureTiers: null,
+    idDemandePaiement: null,
     dateDebutEmploi: null,
     dateFinEmploi: null,
     mntAcompte: null,
