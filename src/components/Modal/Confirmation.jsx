@@ -101,7 +101,16 @@ const Confirmation = ({
                 </div>
               </div>
             ) : (
-              <div className="modal-footer"></div>
+              <div className="modal-footer">
+                {" "}
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={onClose}
+                >
+                  Ok
+                </button>
+              </div>
             )}
           </div>
         </div>

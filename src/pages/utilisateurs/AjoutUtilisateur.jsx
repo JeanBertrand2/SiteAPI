@@ -54,6 +54,7 @@ const AjoutUtilisateur = () => {
   const [showModal, setShowModal] = useState({
     success: false,
     error: false,
+    warning: false,
   });
 
   const [form, setForm] = useState({
@@ -80,28 +81,47 @@ const AjoutUtilisateur = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const requiredFields = [
+      "Nom",
+      "Prenoms",
+      "adresseMail",
+      "MotDePasse",
+      "Login",
+    ];
+    const missing = requiredFields.filter(
+      (f) => !form[f] || form[f].toString().trim() === ""
+    );
+
+    if (missing.length > 0) {
+      setMessage("Tous les champs sont requis.");
+      setTitle("Attention");
+      setShowModal((prev) => ({ ...prev, warning: true }));
+      return;
+    }
+
     if (id) {
       const result = await updateUser(id, form);
       if (!result) {
         setMessage("Erreur lors de la modification de l'utilisateur.");
         setTitle("Erreur");
-        setShowModal({ ...showModal, error: true });
+        setShowModal((prev) => ({ ...prev, error: true }));
         return;
       }
       setMessage("Utilisateur modifié avec succès !");
       setTitle("Succès");
-      setShowModal({ ...showModal, success: true });
+      setShowModal((prev) => ({ ...prev, success: true }));
     } else {
       const result = await createUser(form);
       if (!result) {
         setMessage("Erreur lors de l'ajout de l'utilisateur.");
         setTitle("Erreur");
-        setShowModal({ ...showModal, error: true });
+        setShowModal((prev) => ({ ...prev, error: true }));
         return;
       }
       setMessage("Utilisateur ajouté avec succès !");
       setTitle("Succès");
-      setShowModal({ ...showModal, success: true });
+      setShowModal((prev) => ({ ...prev, success: true }));
     }
   };
 
@@ -298,7 +318,29 @@ const AjoutUtilisateur = () => {
           title={title}
           message={message}
           onClose={() => {
-            setShowModal({ ...showModal, success: false });
+            setShowModal((prev) => ({ ...prev, success: false }));
+          }}
+        />
+      )}
+
+      {showModal.error && (
+        <Confirmation
+          isOpen={showModal.error}
+          title={title}
+          message={message}
+          onClose={() => {
+            setShowModal((prev) => ({ ...prev, error: false }));
+          }}
+        />
+      )}
+
+      {showModal.warning && (
+        <Confirmation
+          isOpen={showModal.warning}
+          title={title}
+          message={message}
+          onClose={() => {
+            setShowModal((prev) => ({ ...prev, warning: false }));
           }}
         />
       )}
