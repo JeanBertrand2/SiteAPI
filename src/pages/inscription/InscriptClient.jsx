@@ -7,6 +7,16 @@ import {
   postToUrssaf,
   createParticulier,
 } from "../../services/particulierService";
+import {
+  isValidEmail,
+  isValidPhone,
+  isValidBIC,
+  isValidIBAN,
+  checkRequiredFields,
+  isCodeCommuneValid,
+  isCodeInseeValid,
+} from "../../utils/validationUtils";
+import Confirmation from "../../components/Modal/Confirmation";
 
 const InscriptClient = () => {
   const initial = {
@@ -41,6 +51,8 @@ const InscriptClient = () => {
     idParticulier: "",
   };
 
+
+
   const lettresVoie = Array.from({ length: 26 }, (_, i) =>
     String.fromCharCode(65 + i)
   );
@@ -61,6 +73,21 @@ const InscriptClient = () => {
   }, []);
 
   const [isFromJson, setIsFromJson] = useState(false);
+
+  // Confirmation modal state (replaces alert())
+  const [confirmState, setConfirmState] = useState({
+    isOpen: false,
+    title: "",
+    message: "",
+  });
+  const showConfirm = (title, message) =>
+    setConfirmState({
+      isOpen: true,
+      title: title || "",
+      message: message || "",
+    });
+  const closeConfirm = () =>
+    setConfirmState({ isOpen: false, title: "", message: "" });
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -96,7 +123,6 @@ const InscriptClient = () => {
 
     setFormData((p) => ({ ...p, [name]: value }));
   };
-
   const handleFileImport = (e) => {
     const f = e.target.files?.[0];
     if (f) {
@@ -310,18 +336,122 @@ const InscriptClient = () => {
     fieldConfigs.map((f) => [f.name, f.label || f.name])
   );
 
-  const submit = async () => {
-    const requiredFields = greenFieldNames;
-    const missing = requiredFields.filter((name) => {
-      const val = formData[name];
-      return val === undefined || val === null || String(val).trim() === "";
-    });
-
+  const validateForm = () => {
+    // 1) required fields first — show only that error if any
+    const missing = checkRequiredFields(formData, greenFieldNames);
     if (missing.length > 0) {
       const labels = missing.map((n) => labelMap[n] || n).join(", ");
-      alert("Veuillez remplir les champs obligatoires marqués en rouge ");
-      return;
+      showConfirm(
+        "Validation",
+        `Veuillez remplir les champs obligatoires marqués en rouge`
+      );
+      return false;
     }
+
+    // 2) other validations — show first encountered error only
+    if (formData.adresseMail && !isValidEmail(formData.adresseMail)) {
+      showConfirm("Validation", "Adresse email invalide.");
+      return false;
+    }
+
+    if (formData.numTelPortable && !isValidPhone(formData.numTelPortable)) {
+      showConfirm(
+        "Validation",
+        "Numéro de téléphone portable invalide (9-15 chiffres)."
+      );
+      return false;
+    }
+
+    if (formData.iban && !isValidIBAN(formData.iban)) {
+      showConfirm("Validation", "IBAN invalide.");
+      return false;
+    }
+    if (formData.bic && !isValidBIC(formData.bic)) {
+      showConfirm("Validation", "BIC invalide (8 ou 11 caractères).");
+      return false;
+    }
+
+    // Code commune / INSEE
+    const codeCommune = String(formData.codeCommune || "").trim();
+    const codeInsee = String(formData.codeInsee || "").trim();
+
+    const validCommune = isCodeCommuneValid(codeCommune);
+    const validInsee = isCodeInseeValid(codeInsee);
+
+    if (!validCommune) {
+      showConfirm(
+        "Validation",
+        "Code commune (lieu naissance) invalide ou manquant (attendu 5 chiffres)."
+      );
+      return false;
+    }
+    if (validCommune && !validInsee) {
+      // autofill adresse postale codeInsee from birthplace codeCommune
+      setFormData((p) => ({ ...p, codeInsee: codeCommune }));
+    }
+
+    // Pays / codes pays consistency
+    if (!formData.codePays || String(formData.codePays).trim() === "") {
+      const found = metaData.pays.find(
+        (c) => c.nomPays === formData.nomPays || c.codePays === formData.nomPays
+      );
+      if (found) {
+        setFormData((p) => ({ ...p, codePays: found.codePays }));
+      } else {
+        showConfirm(
+          "Validation",
+          "Code pays (lieu naissance) manquant ou invalide."
+        );
+        return false;
+      }
+    }
+    if (!formData.codePays2 || String(formData.codePays2).trim() === "") {
+      const found2 = metaData.pays.find(
+        (c) =>
+          c.nomPays === formData.nomPays2 || c.codePays === formData.nomPays2
+      );
+      if (found2) {
+        setFormData((p) => ({ ...p, codePays2: found2.codePays }));
+      } else {
+        showConfirm(
+          "Validation",
+          "Code pays (adresse postale) manquant ou invalide."
+        );
+        return false;
+      }
+    }
+
+    return true;
+  };
+
+  const submit = async () => {
+    // submit uses the shared validateForm (defined above) and utils
+
+    // Run validations before preparing payload
+    if (!validateForm()) return;
+
+    const usedCodeInsee = /^\d{5}$/.test(
+      String(formData.codeInsee || "").trim()
+    )
+      ? formData.codeInsee
+      : /^\d{5}$/.test(String(formData.codeCommune || "").trim())
+      ? formData.codeCommune
+      : formData.codeInsee;
+
+    const usedCodePays =
+      formData.codePays ||
+      metaData.pays.find(
+        (c) => c.nomPays === formData.nomPays || c.codePays === formData.nomPays
+      )?.codePays ||
+      formData.codePays;
+
+    const usedCodePays2 =
+      formData.codePays2 ||
+      metaData.pays.find(
+        (c) =>
+          c.nomPays === formData.nomPays2 || c.codePays === formData.nomPays2
+      )?.codePays ||
+      formData.codePays2;
 
     const jsonData = {
       methode: "/particulier",
@@ -333,7 +463,7 @@ const InscriptClient = () => {
         ? new Date(formData.dateNaissance).toISOString()
         : "",
       lieuNaissance: {
-        codePaysNaissance: formData.codePays,
+        codePaysNaissance: usedCodePays,
         departementNaissance: formData.departement,
         communeNaissance: {
           codeCommune: formData.codeCommune,
@@ -350,9 +480,9 @@ const InscriptClient = () => {
         complement: formData.complement || "",
         lieuDit: formData.lieuDit || "",
         libelleCommune: formData.nomCommune2,
-        codeCommune: formData.codeInsee,
+        codeCommune: usedCodeInsee,
         codePostal: formData.codePostal,
-        codePays: formData.codePays2,
+        codePays: usedCodePays2,
       },
       coordonneeBancaire: {
         bic: formData.bic,
@@ -366,25 +496,25 @@ const InscriptClient = () => {
         formData.idClient || formData.idParticulier || "";
 
       if (existingIdClient) {
-        // Ensure idClient field is present for backend mapping
         const payload = {
           ...jsonData,
           idClient: formData.idClient || formData.idParticulier,
         };
         const createResp = await createParticulier(payload);
         console.log("Created in backend (direct):", createResp);
-        alert("Particulier ajouté en base (id existant).");
+        showConfirm("Succès", "Particulier ajouté en base (id existant).");
         return;
       }
 
-      // No idClient: first send to URSSAF
       const urssafResp = await postToUrssaf(jsonData);
 
-      // Expecting URSSAF to return idClient on success
       const returnedId = urssafResp?.idClient || urssafResp?.id || null;
       if (!returnedId) {
         console.warn("URSSAF response didn't include idClient:", urssafResp);
-        alert("URSSAF a répondu sans idClient — vérifiez la réponse");
+        showConfirm(
+          "URSSAF",
+          "URSSAF a répondu sans idClient — vérifiez la réponse"
+        );
         return;
       }
 
@@ -394,13 +524,18 @@ const InscriptClient = () => {
       console.log("URSSAF OK, created in backend:", created);
 
       setFormData((prev) => ({ ...prev, idClient: returnedId }));
-      alert(
+      showConfirm(
+        "Succès",
         "Données envoyées à URSSAF et enregistrées en base avec idClient: " +
           returnedId
       );
     } catch (error) {
       console.error("Erreur lors du process URSSAF -> backend:", error);
-      alert("Erreur lors de l'envoi des données (URSSAF ou backend).");
+      showConfirm(
+        "Erreur envoi",
+        "Erreur lors de l'envoi des données (URSSAF ou backend).\n" +
+          (error?.message || "")
+      );
     }
   };
 
@@ -634,6 +769,12 @@ const InscriptClient = () => {
           </div>
         </div>
       </div>
+      <Confirmation
+        isOpen={confirmState.isOpen}
+        title={confirmState.title}
+        message={confirmState.message}
+        onClose={closeConfirm}
+      />
     </div>
   );
 };
