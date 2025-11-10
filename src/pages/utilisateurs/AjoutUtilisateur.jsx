@@ -27,7 +27,7 @@ const cardStyle = {
 };
 
 const headerStyle = {
-  background: " rgba(58,123,213,1) ",
+  background: " #3a7bd5ff ",
   color: "white",
   padding: "1.25rem 1.5rem",
 };
@@ -78,8 +78,22 @@ const AjoutUtilisateur = () => {
 
   return (
     <Container className="py-5">
+      <h2
+        className="mb-4 text-center fw-bold"
+        style={{
+          textTransform: "uppercase",
+          letterSpacing: "1px",
+          borderBottom: "3px solid #3a7bd5ff",
+          color: "#3a7bd5ff",
+          display: "inline-block",
+          paddingBottom: "6px",
+        }}
+      >
+        {id ? "Modifier un utilisateur" : "Créer un utilisateur"}
+      </h2>
+
       <Row className="justify-content-center">
-        <Col xs={12} md={9} lg={7}>
+        <Col xs={12} md={10} lg={12}>
           <Card style={cardStyle}>
             <div
               style={headerStyle}
@@ -88,9 +102,7 @@ const AjoutUtilisateur = () => {
               <div className="d-flex align-items-center">
                 <FiUsers style={{ fontSize: 22, marginRight: 10 }} />
                 <div>
-                  <h5 className="mb-0">
-                    {id ? "Modifier utilisateur" : "Créer un compte"}
-                  </h5>
+                  <h5 className="mb-0">{id ? "Modification" : "Création"}</h5>
                   <small className="opacity-85">
                     Entrez les informations ci-dessous
                   </small>
@@ -106,7 +118,7 @@ const AjoutUtilisateur = () => {
                   title="Voir la liste des utilisateurs"
                 >
                   <FiList style={{ marginRight: 6 }} />
-                  Liste
+                  Liste des utilisateur
                 </Button>
               </div>
             </div>
