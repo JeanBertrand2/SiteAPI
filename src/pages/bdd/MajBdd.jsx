@@ -1,5 +1,8 @@
 import axios from "axios";
+import React from "react";
 import toast from "react-hot-toast";
+
+
 
 function MajBdd() {
   const majBASEDD = async (e) => {
@@ -10,7 +13,7 @@ function MajBdd() {
     tagEnvoie.style.display = "block";
     // e.preventDefault();
     await axios
-      .get("http://localhost:8800/api/majbdd")
+      .get("http://localhost:2083/api/majbdd")
       .then((response) => {
         // toast.success(response.data.message,{position:"top-right"});
         console.log("Mise à jour de la base de données terminée");
@@ -32,6 +35,7 @@ function MajBdd() {
         tagmsg.innerText = error.message;
       });
   };
+
 
   return (
     <div>
@@ -68,4 +72,4 @@ function MajBdd() {
   );
 }
 
-export default MajBdd;
+export default MajBdd
