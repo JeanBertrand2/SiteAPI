@@ -22,6 +22,7 @@ import {
 } from "react-icons/fi";
 import { createUser, updateUser } from "../../services/userService";
 import Confirmation from "../../components/Modal/Confirmation";
+import { isValidEmail } from "../../utils/validationUtils";
 
 const cardStyle = {
   borderRadius: 14,
@@ -55,6 +56,7 @@ const AjoutUtilisateur = () => {
     success: false,
     error: false,
     warning: false,
+    emailError: false,
   });
 
   const [form, setForm] = useState({
@@ -89,6 +91,14 @@ const AjoutUtilisateur = () => {
       "MotDePasse",
       "Login",
     ];
+
+    if (form.adresseMail && !isValidEmail(form.adresseMail)) {
+      setMessage("Adresse email invalide.");
+      setTitle("Validation");
+      setShowModal((prev) => ({ ...prev, emailError: true }));
+      return false;
+    }
+
     const missing = requiredFields.filter(
       (f) => !form[f] || form[f].toString().trim() === ""
     );
@@ -223,7 +233,7 @@ const AjoutUtilisateur = () => {
                           <FiMail />
                         </InputGroup.Text>
                         <Form.Control
-                          type="email"
+                          type="text"
                           name="adresseMail"
                           value={form.adresseMail}
                           onChange={handleChange}
@@ -341,6 +351,16 @@ const AjoutUtilisateur = () => {
           message={message}
           onClose={() => {
             setShowModal((prev) => ({ ...prev, warning: false }));
+          }}
+        />
+      )}
+      {showModal.emailError && (
+        <Confirmation
+          isOpen={showModal.emailError}
+          title={title}
+          message={message}
+          onClose={() => {
+            setShowModal((prev) => ({ ...prev, emailError: false }));
           }}
         />
       )}
