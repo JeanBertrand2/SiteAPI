@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiEdit, FiTrash2, FiUserPlus, FiUsers, FiList } from "react-icons/fi";
 import { Container, Row, Col, Card, Button } from "react-bootstrap";
-import { fetchUsers } from "../../services/userService";
+import { deleteUser, fetchUsers } from "../../services/userService";
 
 const cardStyle = {
   borderRadius: 14,
@@ -29,17 +29,25 @@ const ListeUtilisateurs = () => {
     loadUsers();
   }, []);
 
-  console.log(users);
-
   const handleAdd = () => navigate("/add-user");
   const handleEdit = (id) => {
-    const user = users.find((u) => u.ID_Utilisateur === id);
+    const user = users.find((u) => u.ID_Utilisateurs === id);
+    console.log(user);
+
     navigate(`/edit-user/${id}`, { state: { user } });
   };
-  const handleDelete = (id) => {
-    if (!window.confirm("Confirmer la suppression de cet utilisateur ?"))
+  const handleDelete = async (id) => {
+    if (!window.confirm("Confirmer la suppression de cet utilisateur ?")) {
       return;
-    setUsers((prev) => prev.filter((u) => u.ID_Utilisateur !== id));
+    }
+
+    try {
+      await deleteUser(id);
+      setUsers((prev) => prev.filter((u) => u.ID_Utilisateurs !== id));
+    } catch (err) {
+      console.error("Failed to delete user", err);
+      window.alert("La suppression a échoué. Veuillez réessayer.");
+    }
   };
 
   return (
