@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import {
   Container,
   Row,
@@ -59,16 +59,28 @@ const AjoutUtilisateur = () => {
     emailError: false,
   });
 
-  const [form, setForm] = useState({
+  const emptyForm = {
     Nom: "",
     Prenoms: "",
     adresseMail: "",
     MotDePasse: "",
     Login: "",
-  });
+  };
+
+  const [form, setForm] = useState({ ...emptyForm });
+  const [initialForm, setInitialForm] = useState({ ...emptyForm });
 
   useEffect(() => {
-    if (userToEdit) setForm((prev) => ({ ...prev, ...userToEdit }));
+    if (userToEdit) {
+      // set both form and initialForm to the user values so we can detect changes
+      setForm((prev) => ({ ...prev, ...userToEdit }));
+      setInitialForm((prev) => ({ ...prev, ...userToEdit }));
+    } else {
+      // ensure initialForm stays empty for "create" mode
+      setForm({ ...emptyForm });
+      setInitialForm({ ...emptyForm });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userToEdit]);
 
   const handleViewList = () => {
@@ -80,6 +92,26 @@ const AjoutUtilisateur = () => {
   };
 
   const toggleShowPassword = () => setShowPassword((s) => !s);
+
+  // normalize helper: trim values and stringify for comparison
+  const normalize = (obj) =>
+    Object.keys(obj)
+      .sort()
+      .reduce((acc, k) => {
+        acc[k] = (obj[k] ?? "").toString().trim();
+        return acc;
+      }, {});
+
+  const isDisabled = useMemo(() => {
+    const normForm = normalize(form);
+    const normInitial = normalize(initialForm);
+
+    const allEmpty = Object.values(normForm).every((v) => v === "");
+    const unchanged = JSON.stringify(normForm) === JSON.stringify(normInitial);
+
+    // disable if all fields empty OR form unchanged compared to initial
+    return allEmpty || unchanged;
+  }, [form, initialForm]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -104,7 +136,7 @@ const AjoutUtilisateur = () => {
     );
 
     if (missing.length > 0) {
-      setMessage("Tous les champs sont requis.");
+      setMessage("Tous les champs sont requis, veuillez les remplir.");
       setTitle("Attention");
       setShowModal((prev) => ({ ...prev, warning: true }));
       return;
@@ -311,6 +343,7 @@ const AjoutUtilisateur = () => {
                     type="submit"
                     variant="primary"
                     className="d-flex align-items-center"
+                    disabled={isDisabled}
                   >
                     <FiCheck style={{ marginRight: 8 }} />
                     {id ? "Enregistrer" : "S'inscrire"}
