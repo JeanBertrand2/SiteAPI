@@ -6,24 +6,30 @@ import { MdDeleteOutline } from "react-icons/md";
 import axios from "axios"
 
 import "./InscriptClient.css";
+const urlServer ="https://urssaf.cofident.com/"
+console.log("url server = ",urlServer)
 const InterogStatut = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [staticData,setstaticData] = useState([])
-// const [page,setPage] = useState(1)
-// const [pageCount,setPageCount] = useState(0)
 
-  useEffect(()=>{
-    const fetchData = async()=>{
-      try{
-        //const response = await axios.get(`http://localhost:2083/particuliers/users?page=${page}`);
-        await axios.get(`http://localhost:2083/particuliers`)
+  const chargeDonnes =async (nomNaissance="",prenoms="")=>{
+    try{     //
+      console.log("url server 2 = ",urlServer)
+        await axios.get(`${urlServer}particuliers`,
+          {
+            params: {
+                  nomNaissance: nomNaissance,
+                  prenoms:prenoms
+                }
+          }
+        )
         .then((response)=>{
             setstaticData(response.data);
-            console.log("list particulier front : ",response.data);
+            
         })
         .catch((error)=>{
-          console.log("error particulier front : ",error);
+          console.log("error lors de chargement de la liste des clients : ",error);
         })
         
         //setPageCount(response.data.pagination.pageCount)
@@ -32,10 +38,17 @@ const InterogStatut = () => {
       {
         console.log("Error while fetching data",error)
       }
+  }
+
+  // useEffect(()=>{
+  //   const fetchData = async()=>{
+  //     await chargeDonnes();
       
-    };
-    fetchData()
-  },[]);
+  //   };
+  //   fetchData()
+  // },[]);
+
+
   // const staticData = [
   //   {
   //     id: "CLI001",
@@ -94,6 +107,7 @@ const InterogStatut = () => {
     prenoms: "",
   });
 
+ 
   const [searchByIdOrEmail, setSearchByIdOrEmail] = useState({
     idClient: "",
     adresseMail: "",
@@ -111,10 +125,10 @@ const InterogStatut = () => {
     setSearchByIdOrEmail((p) => ({ ...p, [name]: value }));
   };
 
-  const handleSearch = () => {
+  const handleSearch = async() => {
     console.log("Rechercher:", searchCriteria);
     const { nomNaissance, prenoms } = searchCriteria;
-
+     await chargeDonnes(nomNaissance,prenoms);
     if (!nomNaissance.trim() && !prenoms.trim()) {
       setSearchResults(staticData);
       return;
@@ -298,7 +312,7 @@ const InterogStatut = () => {
             };
           }
       
-    await axios.post('http://localhost:2083/api/urssaf/getUrssaf',data)
+    await axios.post(`${urlServer}api/urssaf/getStatut`,data)
       .then((response)=>{
             setstaticData(response.data);
             console.log("list particulier front : ",response.data);
@@ -423,7 +437,7 @@ const InterogStatut = () => {
         case "idClient":
           return (<button title="Obtenir statut" onClick={()=>getStatutClient(result[key])} 
           type="button" className="btn btn-secondary">
-                  <i class="fa-solid fa-signal"></i>                 
+                  <i className="fa-solid fa-signal"></i>                 
               </button>);
                                     
         break;
