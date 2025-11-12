@@ -54,25 +54,45 @@ const PaiementManuel = () => {
   }, []);
 
   useEffect(() => {
-    if (location.state?.clientData && location.state?.formId !== undefined) {
-      const { id, nom, naissance, tiers } = location.state.clientData;
-      const formId = location.state.formId;
+    const clientData = location.state?.clientData;
+    const formId = location.state?.formId ?? 0;
+
+    if (clientData) {
+      // support multiple possible field names from the source
+      const id =
+        clientData.id ??
+        clientData.idClient ??
+        clientData.identifiantClient ??
+        "";
+      const nom =
+        clientData.nom ??
+        `${clientData.prenoms ?? ""} ${clientData.nomNaissance ?? ""}`.trim();
+      const naissance =
+        clientData.naissance ??
+        clientData.dateNaissance ??
+        clientData.selectedDate ??
+        today;
+      const tiers =
+        clientData.tiers ??
+        clientData.identifiantTiers ??
+        clientData.identifiantT ??
+        "";
 
       setFormulaires((prevForms) =>
         prevForms.map((form, idx) =>
           idx === formId
             ? {
                 ...form,
-                clientId: id || "",
-                nomclient: nom || "",
-                selectedDate: naissance || today,
-                identifiantT: tiers || "",
+                clientId: id,
+                nomclient: nom,
+                selectedDate: naissance,
+                identifiantT: tiers,
               }
             : form
         )
       );
     }
-  }, [location.state]);
+  }, [location]);
 
   const ajouterNouveauFormulaire = () => {
     setFormulaires([...formulaires, { ...initialFormState, id: Date.now() }]);
@@ -416,15 +436,27 @@ const PaiementManuel = () => {
 
                         {/* Code Nature */}
                         <td className="text-nowrap">
-                        <select
+                          <select
                             className="form-select"
                             value={row.cn}
                             onChange={(e) => {
                               const selectedCode = e.target.value;
-                              const nature = natures.find((n) => n.Code === selectedCode);
+                              const nature = natures.find(
+                                (n) => n.Code === selectedCode
+                              );
 
-                              updateRow(formIndex, rowIndex, "cn", selectedCode); 
-                              updateRow(formIndex, rowIndex, "libprest", nature?.Libelle || ""); 
+                              updateRow(
+                                formIndex,
+                                rowIndex,
+                                "cn",
+                                selectedCode
+                              );
+                              updateRow(
+                                formIndex,
+                                rowIndex,
+                                "libprest",
+                                nature?.Libelle || ""
+                              );
                             }}
                           >
                             <option value="">-- Choisir --</option>
@@ -434,7 +466,6 @@ const PaiementManuel = () => {
                               </option>
                             ))}
                           </select>
-
                         </td>
                         <td>
                           <input
