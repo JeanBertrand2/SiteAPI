@@ -67,11 +67,29 @@ const PaiementManuel = () => {
       const nom =
         clientData.nom ??
         `${clientData.prenoms ?? ""} ${clientData.nomNaissance ?? ""}`.trim();
-      const naissance =
+
+      // Normalize various date formats into YYYY-MM-DD suitable for <input type="date" />
+      const formatDateForInput = (d) => {
+        if (!d) return today;
+        try {
+          if (typeof d !== "string") return today;
+          if (d.includes("T")) return d.split("T")[0];
+          // if already in YYYY-MM-DD format
+          if (/^\d{4}-\d{2}-\d{2}$/.test(d)) return d;
+          // fallback: try to parse
+          return new Date(d).toISOString().split("T")[0];
+        } catch (e) {
+          return today;
+        }
+      };
+
+      const naissanceRaw =
         clientData.naissance ??
         clientData.dateNaissance ??
         clientData.selectedDate ??
         today;
+      const naissance = formatDateForInput(naissanceRaw);
+
       const tiers =
         clientData.tiers ??
         clientData.identifiantTiers ??
@@ -129,21 +147,28 @@ const PaiementManuel = () => {
       compl2: "",
     };
     setFormulaires((prevForms) =>
-      prevForms.map((form, idx) =>
-        idx === formIndex
-          ? {
-              ...form,
-              demandePaiement: [...form.demandePaiement, nouvelleLigne],
-            }
-          : form
-      )
+      prevForms.map((form, idx) => {
+        if (idx === formIndex) {
+          const updatedDemandes = [...form.demandePaiement, nouvelleLigne];
+          const totals = calculTotaux(updatedDemandes);
+          return {
+            ...form,
+            demandePaiement: updatedDemandes,
+            mntfht: totals.ht,
+            mntfttc: totals.ttc,
+          };
+        }
+        return form;
+      })
     );
   };
 
   const reset = (formIndex) => {
     setFormulaires((prevForms) =>
       prevForms.map((form, idx) =>
-        idx === formIndex ? { ...form, demandePaiement: [] } : form
+        idx === formIndex
+          ? { ...form, demandePaiement: [], mntfht: 0, mntfttc: 0 }
+          : form
       )
     );
   };
@@ -157,8 +182,31 @@ const PaiementManuel = () => {
       prevForms.map((form, idx) => {
         if (idx === formIndex) {
           const updatedDemandes = [...form.demandePaiement];
-          updatedDemandes[rowIndex][field] = value;
-          return { ...form, demandePaiement: updatedDemandes };
+          // ensure the row exists (defensive)
+          if (!updatedDemandes[rowIndex]) updatedDemandes[rowIndex] = {};
+          updatedDemandes[rowIndex] = {
+            ...updatedDemandes[rowIndex],
+            [field]: value,
+          };
+
+          updatedDemandes[rowIndex].qte =
+            Number(updatedDemandes[rowIndex].qte) || 0;
+          updatedDemandes[rowIndex].mntunit =
+            Number(updatedDemandes[rowIndex].mntunit) || 0;
+          updatedDemandes[rowIndex].mntprestttc =
+            Number(updatedDemandes[rowIndex].mntprestttc) || 0;
+          updatedDemandes[rowIndex].mntprestht =
+            Number(updatedDemandes[rowIndex].mntprestht) || 0;
+          updatedDemandes[rowIndex].mntpresttva =
+            Number(updatedDemandes[rowIndex].mntpresttva) || 0;
+
+          const totals = calculTotaux(updatedDemandes);
+          return {
+            ...form,
+            demandePaiement: updatedDemandes,
+            mntfht: totals.ht,
+            mntfttc: totals.ttc,
+          };
         }
         return form;
       })
@@ -175,6 +223,60 @@ const PaiementManuel = () => {
       tva += row.mntpresttva || 0;
     });
     return { ttc, ht, tva };
+  };
+
+  //Building the json
+  const dateToIso = (dateStr) => {
+    if (!dateStr) return null;
+    try {
+      if (dateStr.includes("T")) return new Date(dateStr).toISOString();
+      return new Date(dateStr + "T00:00:00Z").toISOString();
+    } catch (e) {
+      return null;
+    }
+  };
+
+  const generateDemandePaiementJSON = (formIndex) => {
+    const form = formulaires[formIndex];
+    if (!form) return [];
+
+    const inputPrestations = (form.demandePaiement || []).map((r) => ({
+      codeActivite: r.ca || "",
+      codeNature:
+        r.cn === "" || r.cn == null
+          ? null
+          : isNaN(Number(r.cn))
+          ? r.cn
+          : Number(r.cn),
+      quantite: r.qte || 0,
+      unite: r.unit || "",
+      mntUnitaireTTC: r.mntunit || 0,
+      mntPrestationTTC: r.mntprestttc || 0,
+      mntPrestationHT: r.mntprestht || 0,
+      mntPrestationTVA: r.mntpresttva || 0,
+      complement1: r.compl1 || "",
+      complement2: r.compl2 || "",
+    }));
+
+    const payload = [
+      {
+        idTiersFacturation: form.identifiantT || form.nomclient || "",
+        idClient: form.clientId || "",
+        dateNaissanceClient: dateToIso(form.selectedDate) || null,
+        numFactureTiers: String(form.numfacture || ""),
+        dateFacture: dateToIso(form.datefact) || null,
+        dateDebutEmploi: dateToIso(form.dde) || null,
+        dateFinEmploi: dateToIso(form.dfe) || null,
+        mntAcompte: form.mntacompte || 0,
+        dateVersementAcompte: dateToIso(form.datevers) || null,
+        mntFactureTTC: form.mntfttc || 0,
+        mntFactureHT: form.mntfht || 0,
+        inputPrestations: inputPrestations,
+        nomUsage: form.nomclient || "",
+      },
+    ];
+
+    return payload;
   };
 
   const navigateToStatut = (formIndex) => {
@@ -222,6 +324,7 @@ const PaiementManuel = () => {
                     type="text"
                     className="form-control"
                     value={formulaire.clientId}
+                    disabled
                     onChange={(e) =>
                       updateFormField(formIndex, "clientId", e.target.value)
                     }
@@ -243,6 +346,7 @@ const PaiementManuel = () => {
                   type="text"
                   className="form-control"
                   value={formulaire.nomclient}
+                  disabled
                   onChange={(e) =>
                     updateFormField(formIndex, "nomclient", e.target.value)
                   }
@@ -255,6 +359,7 @@ const PaiementManuel = () => {
                   type="date"
                   className="form-control"
                   value={formulaire.selectedDate}
+                  disabled
                   onChange={(e) =>
                     updateFormField(formIndex, "selectedDate", e.target.value)
                   }
@@ -267,6 +372,7 @@ const PaiementManuel = () => {
                   type="date"
                   className="form-control"
                   value={formulaire.dde}
+                  /* Date d'embauche remains editable */
                   onChange={(e) =>
                     updateFormField(formIndex, "dde", e.target.value)
                   }
@@ -279,6 +385,7 @@ const PaiementManuel = () => {
                   type="date"
                   className="form-control"
                   value={formulaire.dfe}
+                  /* Date fin emploi remains editable */
                   onChange={(e) =>
                     updateFormField(formIndex, "dfe", e.target.value)
                   }
@@ -291,6 +398,7 @@ const PaiementManuel = () => {
                   type="date"
                   className="form-control"
                   value={formulaire.datevers}
+                  disabled
                   onChange={(e) =>
                     updateFormField(formIndex, "datevers", e.target.value)
                   }
@@ -303,6 +411,7 @@ const PaiementManuel = () => {
                   type="date"
                   className="form-control"
                   value={formulaire.datefact}
+                  /* Date facture remains editable */
                   onChange={(e) =>
                     updateFormField(formIndex, "datefact", e.target.value)
                   }
@@ -316,6 +425,7 @@ const PaiementManuel = () => {
                   step="0.01"
                   className="form-control"
                   value={formulaire.mntacompte}
+                  disabled
                   onChange={(e) =>
                     updateFormField(
                       formIndex,
@@ -332,6 +442,7 @@ const PaiementManuel = () => {
                   type="number"
                   className="form-control"
                   value={formulaire.numfacture}
+                  /* Numéro facture tiers remains editable */
                   onChange={(e) =>
                     updateFormField(
                       formIndex,
@@ -348,6 +459,7 @@ const PaiementManuel = () => {
                   type="text"
                   className="form-control"
                   value={formulaire.identifiantT}
+                  disabled
                   onChange={(e) =>
                     updateFormField(formIndex, "identifiantT", e.target.value)
                   }
@@ -361,6 +473,7 @@ const PaiementManuel = () => {
                   step="0.01"
                   className="form-control"
                   value={formulaire.mntfht}
+                  disabled
                   onChange={(e) =>
                     updateFormField(
                       formIndex,
@@ -378,6 +491,7 @@ const PaiementManuel = () => {
                   step="0.01"
                   className="form-control"
                   value={formulaire.mntfttc}
+                  disabled
                   onChange={(e) =>
                     updateFormField(
                       formIndex,
@@ -652,6 +766,15 @@ const PaiementManuel = () => {
                 onClick={() => reset(formIndex)}
               >
                 Supprimer
+              </button>
+              <button
+                className="btn btn-secondary"
+                onClick={() => {
+                  const json = generateDemandePaiementJSON(formIndex);
+                  console.log(JSON.stringify(json, null, 2));
+                }}
+              >
+                Voir JSON
               </button>
               <button
                 className="btn btn-primary"
