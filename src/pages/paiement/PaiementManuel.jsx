@@ -9,6 +9,12 @@ const PaiementManuel = () => {
   const [showModal, setShowModal] = useState(false);
   const [formToDelete, setFormToDelete] = useState(null);
 
+
+    const [activites, setActivites] = useState([]);
+    const [unites, setUnites] = useState([]);
+    const [natures, setNatures] = useState([]);
+
+
   const initialFormState = {
     demandePaiement: [],
     selectedDate: today,
@@ -32,13 +38,13 @@ const PaiementManuel = () => {
     return [{ ...initialFormState, id: Date.now() }];
   });
 
-  const activites = ["304001", "304002", "304003"];
+ {/*} const activites = ["304001", "304002", "304003"];
   const unites = ["FORFAIT", "HEURE", "JOUR"];
   const natures = [
     { code: "NAT001", libelle: "Aide humaine" },
     { code: "NAT002", libelle: "Transport accompagné" },
     { code: "NAT003", libelle: "Assistance administrative" },
-  ];
+  ];*/}
 
   useEffect(() => {
     if (location.state?.clientData && location.state?.formId !== undefined) {
