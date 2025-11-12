@@ -362,65 +362,81 @@ const InterogStatut = () => {
     let adresseMail = txtMail.value;
     getStatutClient(idClient,adresseMail);
   }
+  const getBackGroundColor = (key,result)=>{
+    switch(result[key]) {//
+            case E_APPAREILLAGE_EC:
+                 return"#e2be7145";             
+            case E_APPAREILLAGE_VALIDE:
+                 return "#a8f1c945";          
+            case E_APPAREILLAGE_NF:          
+                  return "#eb909845";             
+            case E_PARTICULIER_BLOQUE:
+                  return "#eb909845";
+            case E_MANDAT_ECHU:
+                  return "#eb909845";
+             default :
+                return "transparent"; 
+        }
+  }
 
   const valcol = (key,result,rowIdx)=>{
     switch(key) {
       case "statutCode":
-        const myElement = document.getElementById("colStatut"+ rowIdx);
+        //const myElement = document.getElementById("colStatut"+ rowIdx);
         switch(result[key]) {
             case E_APPAREILLAGE_EC:
-              console.log("colonne JAUNE = colStatut"+rowIdx);
-               if(myElement != null)
-          {
-              //for (let i = 0; i < myElement.length; i++) {
-                  myElement.style.backgroundColor = "#eea60a45";
-              //  }
-          }
+          //     console.log("colonne JAUNE = colStatut"+rowIdx);
+          //      if(myElement != null)
+          // {
+          //     //for (let i = 0; i < myElement.length; i++) {
+          //         myElement.style.backgroundColor = "#eea60a45";
+          //     //  }
+          // }
                return E_APPAREILLAGE_EC_LIBELLE
                
               //vCouleur	= JauneOr
             case E_APPAREILLAGE_VALIDE:
              
-               if(myElement != null)
-          {
-             console.log("colonne GREEN = colStatut"+rowIdx);
-              //for (let i = 0; i < myElement.length; i++) {
-                  myElement.style.backgroundColor = "green";
-              //  }
-          }
+          //      if(myElement != null)
+          // {
+          //    console.log("colonne GREEN = colStatut"+rowIdx);
+          //     //for (let i = 0; i < myElement.length; i++) {
+          //         myElement.style.backgroundColor = "green";
+          //     //  }
+          // }
               return	 E_APPAREILLAGE_VALIDE_LIBELLE
               //vCouleur	= iVertClair
             case E_APPAREILLAGE_NF:
-              console.log("colonne RED 2 = colStatut"+rowIdx);
-               if(myElement != null)
-          {
-              //for (let i = 0; i < myElement.length; i++) {
-                  myElement.style.backgroundColor = "red";
-              //  }
-          }
+          //     console.log("colonne RED 2 = colStatut"+rowIdx);
+          //      if(myElement != null)
+          // {
+          //     //for (let i = 0; i < myElement.length; i++) {
+          //         myElement.style.backgroundColor = "red";
+          //     //  }
+          // }
               return  E_APPAREILLAGE_NF_LIBELLE
               //vCouleur	= RougeFoncé
             case E_PARTICULIER_BLOQUE:
-              console.log("colonne RED 3 = colStatut"+rowIdx);
-               if(myElement != null)
-          {
-              //for (let i = 0; i < myElement.length; i++) {
-                  myElement.style.backgroundColor = "red";
-              //  }
-          }
+          //     console.log("colonne RED 3 = colStatut"+rowIdx);
+          //      if(myElement != null)
+          // {
+          //     //for (let i = 0; i < myElement.length; i++) {
+          //         myElement.style.backgroundColor = "red";
+          //     //  }
+          // }
               return  E_PARTICULIER_BLOQUE_LIBELLE
               //vCouleur	= RougeFoncé
             case E_MANDAT_ECHU:
-              console.log("colonne RED 4 = colStatut"+rowIdx);
-               if(myElement != null)
-          {
-              //for (let i = 0; i < myElement.length; i++) {
-                  myElement.style.backgroundColor = "red";
-              //  }
-          }
+          //     console.log("colonne RED 4 = colStatut"+rowIdx);
+          //      if(myElement != null)
+          // {
+          //     //for (let i = 0; i < myElement.length; i++) {
+          //         myElement.style.backgroundColor = "red";
+          //     //  }
+          // }
               return  E_MANDAT_ECHU_LIBELLE
              default :
-             console.log("colonne TRANSPATANT = colStatut"+rowIdx);
+            // console.log("colonne TRANSPATANT = colStatut"+rowIdx);
                 return ""; 
         }
               //vCouleur	= RougeFoncé
@@ -725,8 +741,8 @@ const InterogStatut = () => {
                               <td id= {col.key ==="statutCode" ? "colStatut"+rowIdx : ""}
                                 key={colIdx}
                                 style={{
-                                  backgroundColor:
-                                    rowIdx % 2 === 0 ? "#ffffff" : "#f2f2f2",
+                                  backgroundColor: (col.key ==="statutCode") ? getBackGroundColor(col.key,result) : ()=>(rowIdx % 2 === 0) ? "#ffffff" : "#f2f2f2"
+                                   ,
                                   verticalAlign: "middle",
                                   cursor:
                                     col.key === "actions"
