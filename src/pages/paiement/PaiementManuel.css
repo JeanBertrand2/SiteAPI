@@ -1,0 +1,9 @@
+.table-fixed th,
+.table-fixed td {
+  width: 12rem;
+  max-width: 12rem;
+  min-width: 10rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

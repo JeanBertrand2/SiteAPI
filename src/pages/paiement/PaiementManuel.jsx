@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Confirmation from "../../components/Modal/Confirmation";
-
+import "./PaiementManuel.css";
 const PaiementManuel = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -392,7 +392,7 @@ const PaiementManuel = () => {
             <div className="mt-5">
               <h4 className="mb-3">Prestations</h4>
               <div className="table-responsive">
-                <table className="table table-bordered table-striped table-sm w-100">
+                <table className="table table-bordered table-striped table-sm w-100 table-fixed">
                   <thead className="table-light">
                     <tr>
                       <th className="text-nowrap">Code Activity</th>
@@ -614,7 +614,6 @@ const PaiementManuel = () => {
                       </tr>
                     ))}
                   </tbody>
-
                   <tfoot>
                     <tr className="table-secondary fw-bold">
                       <td colSpan="6">Totaux</td>
