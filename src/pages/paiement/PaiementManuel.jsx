@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Confirmation from "../../components/Modal/Confirmation";
 import "./PaiementManuel.css";
+ 
+
 const PaiementManuel = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -92,7 +94,7 @@ const PaiementManuel = () => {
         )
       );
     }
-  }, [location]);
+ }, [location]);
 
   const ajouterNouveauFormulaire = () => {
     setFormulaires([...formulaires, { ...initialFormState, id: Date.now() }]);
