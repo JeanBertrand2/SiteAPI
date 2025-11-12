@@ -15,16 +15,16 @@ const PaiementManuel = () => {
 
   const initialFormState = {
     demandePaiement: [],
-    selectedDate: today,
+    selectedDate: "",
     clientId: "",
     identifiantT: "",
     numfacture: 0,
     mntacompte: 0,
-    datevers: today,
-    datefact: today,
+    datevers: "",
+    datefact: "",
     nomclient: "",
-    dde: today,
-    dfe: today,
+    dde: "",
+    dfe: "",
     mntfht: 0,
     mntfttc: 0,
   };
