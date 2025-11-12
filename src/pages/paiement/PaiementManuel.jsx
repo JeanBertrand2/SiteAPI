@@ -416,37 +416,25 @@ const PaiementManuel = () => {
 
                         {/* Code Nature */}
                         <td className="text-nowrap">
-                          <select
+                        <select
                             className="form-select"
                             value={row.cn}
                             onChange={(e) => {
                               const selectedCode = e.target.value;
-                              const nature = natures.find(
-                                (n) => n.Code === selectedCode
-                              );
-                              updateRow(
-                                formIndex,
-                                rowIndex,
-                                "cn",
-                                selectedCode
-                              );
-                              if (nature) {
-                                updateRow(
-                                  formIndex,
-                                  rowIndex,
-                                  "libprest",
-                                  nature.Libelle
-                                );
-                              }
+                              const nature = natures.find((n) => n.Code === selectedCode);
+
+                              updateRow(formIndex, rowIndex, "cn", selectedCode); 
+                              updateRow(formIndex, rowIndex, "libprest", nature?.Libelle || ""); 
                             }}
                           >
                             <option value="">-- Choisir --</option>
                             {natures.map((item) => (
                               <option key={item.Code} value={item.Code}>
-                                {item.Libelle}
+                                {item.Code} - {item.Libelle}
                               </option>
                             ))}
                           </select>
+
                         </td>
                         <td>
                           <input
