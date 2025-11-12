@@ -1,57 +1,133 @@
-import { useEffect, useState } from "react";
+import {useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FaFilter } from "react-icons/fa";
 import { FaSearch } from "react-icons/fa";
 import { MdDeleteOutline } from "react-icons/md";
 import axios from "axios";
+import instance from '../../api/axiosConfig.js';
 
 import "./InscriptClient.css";
-// const urlServer = "https://urssaf.cofident.com/";
-const urlServer = "http://localhost:2083/";
-console.log("url server = ", urlServer);
+const urlServer ="https://urssaf.cofident.com/"
+console.log("url server = ",urlServer)
 const InterogStatut = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [staticData, setstaticData] = useState([]);
+  const [staticData,setstaticData] = useState([])
+  const originePage = location.state?.origin !== undefined ? location.state.origin : "MOIMEME"; 
+  
+ useEffect(() => {
+ window.addEventListener('DOMContentLoaded', function() {
+  // Votre code s'exécutera ici une fois le DOM chargé
+  console.log('Le DOM est prêt ok.');
+   if(originePage !=="MOIMEME")
+  {
+    const titrepage = document.getElementById("titrePage");
+    if(titrepage !== null)
+    titrepage.textContent ="Sélection d'un client";  
+    const DIVSTAT = document.getElementById("DIVSTATUT");
+    if(DIVSTAT !== null)
+     DIVSTAT.style.display = "none";
+    //document.getElementById("DIVSTATUT").style.display = "none";
+  }
+});
+}, []);
 
-  const chargeDonnes = async (nomNaissance = "", prenoms = "") => {
-    try {
-      //
-      console.log("url server 2 = ", urlServer);
-      await axios
-        .get(`${urlServer}particuliers`, {
-          params: {
-            nomNaissance: nomNaissance,
-            prenoms: prenoms,
-          },
+  console.log("origine page = ",originePage);
+  const chargeDonnes =async (nomNaissance="",prenoms="")=>{
+    try{     //
+      console.log("url server 2 = ",urlServer)
+        await instance.get(`/particuliers`,
+          {
+            params: {
+                  nomNaissance: nomNaissance,
+                  prenoms:prenoms
+                }
+          }
+        )
+        .then((response)=>{
+            setstaticData(response.data);
+            
         })
-        .then((response) => {
-          setstaticData(response.data);
+        .catch((error)=>{
+          console.log("error lors de chargement de la liste des clients : ",error);
         })
-        .catch((error) => {
-          console.log(
-            "error lors de chargement de la liste des clients : ",
-            error
-          );
-        });
-    } catch (error) {
-      console.log("Error while fetching data", error);
-    }
-  };
+        
+        //setPageCount(response.data.pagination.pageCount)
+      }
+      catch(error)
+      {
+        console.log("Error while fetching data",error)
+      }
+  }
 
   // useEffect(()=>{
   //   const fetchData = async()=>{
   //     await chargeDonnes();
-
+      
   //   };
   //   fetchData()
   // },[]);
+
+
+  // const staticData = [
+  //   {
+  //     id: "CLI001",
+  //     statutInscription: "Validé",
+  //     nomNaissance: "Dupont",
+  //     nomUsage: "Dupont",
+  //     prenoms: "Jean",
+  //     adresseMail: "jean.dupont@example.com",
+  //     dateNaissance: "1980-01-12",
+  //     identifiantTiers: "TIERS001",
+  //   },
+  //   {
+  //     id: "CLI002",
+  //     statutInscription: "En attente",
+  //     nomNaissance: "Martin",
+  //     nomUsage: "Martin",
+  //     prenoms: "Sophie",
+  //     adresseMail: "sophie.martin@example.com",
+  //     dateNaissance: "1990-05-21",
+  //     identifiantTiers: "TIERS002",
+  //   },
+  //   {
+  //     id: "CLI003",
+  //     statutInscription: "Refusé",
+  //     nomNaissance: "Nguyen",
+  //     nomUsage: "Nguyen",
+  //     prenoms: "Thi",
+  //     adresseMail: "thi.nguyen@example.com",
+  //     dateNaissance: "1975-09-09",
+  //     identifiantTiers: "TIERS003",
+  //   },
+  //   {
+  //     id: "CLI004",
+  //     statutInscription: "Validé",
+  //     nomNaissance: "Bernard",
+  //     nomUsage: "Bernard",
+  //     prenoms: "Luc",
+  //     adresseMail: "luc.bernard@example.com",
+  //     dateNaissance: "1988-11-30",
+  //     identifiantTiers: "TIERS004",
+  //   },
+  //   {
+  //     id: "CLI005",
+  //     statutInscription: "En cours",
+  //     nomNaissance: "Moreau",
+  //     nomUsage: "Moreau",
+  //     prenoms: "Claire",
+  //     adresseMail: "claire.moreau@example.com",
+  //     dateNaissance: "1995-07-14",
+  //     identifiantTiers: "TIERS005",
+  //   },
+  // ];
 
   const [searchCriteria, setSearchCriteria] = useState({
     nomNaissance: "",
     prenoms: "",
   });
 
+ 
   const [searchByIdOrEmail, setSearchByIdOrEmail] = useState({
     idClient: "",
     adresseMail: "",
@@ -69,10 +145,10 @@ const InterogStatut = () => {
     setSearchByIdOrEmail((p) => ({ ...p, [name]: value }));
   };
 
-  const handleSearch = async () => {
+  const handleSearch = async() => {
     console.log("Rechercher:", searchCriteria);
     const { nomNaissance, prenoms } = searchCriteria;
-    await chargeDonnes(nomNaissance, prenoms);
+     await chargeDonnes(nomNaissance,prenoms);
     if (!nomNaissance.trim() && !prenoms.trim()) {
       setSearchResults(staticData);
       return;
@@ -111,31 +187,23 @@ const InterogStatut = () => {
   };
 
   const handleSelectClient = (client) => {
-    // Determine target form index (default to 0)
-    const formId = location.state?.formId ?? 0;
+    // Récupérer l'index du formulaire depuis location.state s'il existe
+    const formId =
+      location.state?.formId !== undefined ? location.state.formId : 0;
 
-    // Preserve any existing formulaires passed via state
-    const allFormulaires = location.state?.allFormulaires ?? undefined;
-
-    // Normalize client object to a predictable shape expected by PaiementManuel
-    const id =
-      client?.id ?? client?.idClient ?? client?.identifiantClient ?? "";
-    const nom =
-      client?.nom ??
-      `${client?.prenoms ?? ""} ${client?.nomNaissance ?? ""}`.trim();
-    const naissance =
-      client?.naissance ??
-      client?.dateNaissance ??
-      client?.date_naissance ??
-      "";
-    const tiers =
-      client?.tiers ?? client?.identifiantTiers ?? client?.identifiantT ?? "";
+    // Récupérer tous les formulaires pour les préserver
+    const allFormulaires = location.state?.allFormulaires;
 
     navigate("/paiement/manuel", {
       state: {
-        clientData: { id, nom, naissance, tiers },
-        formId,
-        allFormulaires,
+        clientData: {
+          id: client.id,
+          nom: `${client.prenoms} ${client.nomNaissance}`,
+          naissance: client.dateNaissance,
+          tiers: client.identifiantTiers,
+        },
+        formId: formId, // Passer l'index du formulaire
+        allFormulaires: allFormulaires, // Renvoyer tous les formulaires
       },
     });
   };
@@ -238,158 +306,176 @@ const InterogStatut = () => {
     { key: "prenoms", label: "Prénoms" },
     { key: "adresseMail", label: "Adresse mail" },
     { key: "dateNaissance", label: "Date naissance" },
-    { key: "actions", label: "Actions" },
-    { key: "idClient", label: "Actions" },
+    { key: "idClient", label: "Action" },
   ];
 
-  const getStatutClient = async (idClient = null, email = null) => {
+  const getStatutClient = async(idClient=null,email=null)=>{ 
     let data;
-    if (email != null && email.trim() != "") {
-      data = {
-        params: {
-          adresseMail: email,
-        },
-        url: "https://api.urssaf.fr/atp/v1/tiersPrestations/particulier",
-      };
+    if(email!= null && email.trim() !="")
+    {
+        data = {
+                    params: {
+                          adresseMail:email                         
+                          },
+                    url: 'https://api.urssaf.fr/atp/v1/tiersPrestations/particulier'   
+          };
+  
     }
-    if (idClient != null && idClient.trim() != "") {
-      data = {
-        params: {
-          idClient: idClient,
-        },
-        url: "https://api.urssaf.fr/atp/v1/tiersPrestations/particulier",
-      };
-    }
+    if(idClient!= null && idClient.trim() !="")
+    {
+        data = {
+                    params: {
+                          idClient:idClient
+                          },
+                    url: 'https://api.urssaf.fr/atp/v1/tiersPrestations/particulier'   
+            };
+          }
+      
+    await axios.post(`${urlServer}api/urssaf/getStatut`,data)
+      .then((response)=>{
+            setstaticData(response.data);
+            console.log("list particulier front : ",response.data);
+        })
+        .catch((error)=>{
+          console.log("error particulier front : ",error);
+        })
 
-    await axios
-      .post(`${urlServer}api/urssaf/getStatut`, data)
-      .then((response) => {
-        setstaticData(response.data);
-        console.log("list particulier front : ", response.data);
-      })
-      .catch((error) => {
-        console.log("error particulier front : ", error);
-      });
-  };
+  }
 
   ///////////////////////////
-  const E_APPAREILLAGE_EC = "APPAREILLAGE_EC";
-  const E_APPAREILLAGE_EC_LIBELLE = "En cours";
-  const E_APPAREILLAGE_VALIDE = "APPAREILLAGE_VALIDE";
-  const E_APPAREILLAGE_VALIDE_LIBELLE = "Confirmé";
-  const E_APPAREILLAGE_NF = "APPAREILLAGE_NF";
-  const E_APPAREILLAGE_NF_LIBELLE = "Non finalisé";
-  const E_PARTICULIER_BLOQUE = "PARTICULIER_BLOQUE";
-  const E_PARTICULIER_BLOQUE_LIBELLE = "Bloqué";
-  const E_MANDAT_ECHU = "MANDAT_ECHU";
-  const E_MANDAT_ECHU_LIBELLE = "Mandat expiré";
+  const E_APPAREILLAGE_EC				= "APPAREILLAGE_EC"
+	const  E_APPAREILLAGE_EC_LIBELLE		= "En cours"
+	const E_APPAREILLAGE_VALIDE			= "APPAREILLAGE_VALIDE"
+	const E_APPAREILLAGE_VALIDE_LIBELLE	= "Confirmé"
+	const E_APPAREILLAGE_NF				= "APPAREILLAGE_NF"
+	const E_APPAREILLAGE_NF_LIBELLE		= "Non finalisé"
+	const E_PARTICULIER_BLOQUE			= "PARTICULIER_BLOQUE"
+	const E_PARTICULIER_BLOQUE_LIBELLE	= "Bloqué"
+	const E_MANDAT_ECHU					= "MANDAT_ECHU"
+	const E_MANDAT_ECHU_LIBELLE			= "Mandat expiré"
 
-  const getStatutParChampText = () => {
-    const txtMail = document.getElementById("adresseMail");
+  const getStatutParChampText =()=>
+  {
+    const txtMail = document.getElementById("adresseMail");   
     const txtClient = document.getElementById("idClient");
     let idClient = txtClient.value;
     let adresseMail = txtMail.value;
-    getStatutClient(idClient, adresseMail);
-  };
+    getStatutClient(idClient,adresseMail);
+  }
 
-  const valcol = (key, result, rowIdx) => {
-    switch (key) {
+  const valcol = (key,result,rowIdx)=>{
+    switch(key) {
       case "statutCode":
-        const myElement = document.getElementById("colStatut" + rowIdx);
-
-        // if(myElement != null)
-        // {
-        //     //for (let i = 0; i < myElement.length; i++) {
-        //         myElement[colIdx].style.backgroundColor = "green";
-        //     //  }
-        // }
-
-        switch (result[key]) {
-          case E_APPAREILLAGE_EC:
-            console.log("colonne JAUNE = colStatut" + rowIdx);
-            if (myElement != null) {
+        const myElement = document.getElementById("colStatut"+ rowIdx);
+        switch(result[key]) {
+            case E_APPAREILLAGE_EC:
+              console.log("colonne JAUNE = colStatut"+rowIdx);
+               if(myElement != null)
+          {
               //for (let i = 0; i < myElement.length; i++) {
-              myElement.style.backgroundColor = "#eea60a45";
+                  myElement.style.backgroundColor = "#eea60a45";
               //  }
-            }
-            return E_APPAREILLAGE_EC_LIBELLE;
-
-          //vCouleur	= JauneOr
-          case E_APPAREILLAGE_VALIDE:
-            if (myElement != null) {
-              console.log("colonne GREEN = colStatut" + rowIdx);
+          }
+               return E_APPAREILLAGE_EC_LIBELLE
+               
+              //vCouleur	= JauneOr
+            case E_APPAREILLAGE_VALIDE:
+             
+               if(myElement != null)
+          {
+             console.log("colonne GREEN = colStatut"+rowIdx);
               //for (let i = 0; i < myElement.length; i++) {
-              myElement.style.backgroundColor = "green";
+                  myElement.style.backgroundColor = "green";
               //  }
-            }
-            return E_APPAREILLAGE_VALIDE_LIBELLE;
-          //vCouleur	= iVertClair
-          case E_APPAREILLAGE_NF:
-            console.log("colonne RED 2 = colStatut" + rowIdx);
-            if (myElement != null) {
+          }
+              return	 E_APPAREILLAGE_VALIDE_LIBELLE
+              //vCouleur	= iVertClair
+            case E_APPAREILLAGE_NF:
+              console.log("colonne RED 2 = colStatut"+rowIdx);
+               if(myElement != null)
+          {
               //for (let i = 0; i < myElement.length; i++) {
-              myElement.style.backgroundColor = "red";
+                  myElement.style.backgroundColor = "red";
               //  }
-            }
-            return E_APPAREILLAGE_NF_LIBELLE;
-          //vCouleur	= RougeFoncé
-          case E_PARTICULIER_BLOQUE:
-            console.log("colonne RED 3 = colStatut" + rowIdx);
-            if (myElement != null) {
+          }
+              return  E_APPAREILLAGE_NF_LIBELLE
+              //vCouleur	= RougeFoncé
+            case E_PARTICULIER_BLOQUE:
+              console.log("colonne RED 3 = colStatut"+rowIdx);
+               if(myElement != null)
+          {
               //for (let i = 0; i < myElement.length; i++) {
-              myElement.style.backgroundColor = "red";
+                  myElement.style.backgroundColor = "red";
               //  }
-            }
-            return E_PARTICULIER_BLOQUE_LIBELLE;
-          //vCouleur	= RougeFoncé
-          case E_MANDAT_ECHU:
-            console.log("colonne RED 4 = colStatut" + rowIdx);
-            if (myElement != null) {
+          }
+              return  E_PARTICULIER_BLOQUE_LIBELLE
+              //vCouleur	= RougeFoncé
+            case E_MANDAT_ECHU:
+              console.log("colonne RED 4 = colStatut"+rowIdx);
+               if(myElement != null)
+          {
               //for (let i = 0; i < myElement.length; i++) {
-              myElement.style.backgroundColor = "red";
+                  myElement.style.backgroundColor = "red";
               //  }
-            }
-            return E_MANDAT_ECHU_LIBELLE;
-          default:
-            console.log("colonne TRANSPATANT = colStatut" + rowIdx);
-            return "";
+          }
+              return  E_MANDAT_ECHU_LIBELLE
+             default :
+             console.log("colonne TRANSPATANT = colStatut"+rowIdx);
+                return ""; 
         }
-        //vCouleur	= RougeFoncé
+              //vCouleur	= RougeFoncé
         break;
       case "actions":
-        // show the button whenever there is a result object (robust check)
-        return result ? (
-          <button
-            className="btn btn-sm btn-primary"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleSelectClient(result);
-            }}
-            title="Sélectionner ce client"
-            style={{ fontSize: "11px", padding: "4px 10px" }}
-          >
-            Sélectionner
-          </button>
-        ) : null;
-
+        return result.id ? (
+                                    <button
+                                      className="btn btn-sm btn-primary"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleSelectClient(result);
+                                      }}
+                                      title="Sélectionner ce client"
+                                      style={{
+                                        fontSize: "11px",
+                                        padding: "2px 8px",
+                                      }}
+                                    >
+                                      Sélectionner
+                                    </button>
+                                  ) : null
+       
         break;
-      case "idClient":
-        return (
-          <button
-            title="Obtenir statut"
-            onClick={() => getStatutClient(result[key])}
-            type="button"
-            className="btn btn-secondary"
-          >
-            <i className="fa-solid fa-signal"></i>
-          </button>
-        );
-
+        case "idClient":
+          if(originePage === "MOIMEME")
+          {
+              return result.idClient ?(<button title="Obtenir statut" onClick={()=>getStatutClient(result[key])} 
+                  type="button" className="btn btn-secondary">
+                  <i className="fa-solid fa-signal"></i>                 
+              </button>): null;
+          }
+          else
+          {
+             
+            return result.idClient ?(<button
+                                      type="button" className="btn btn-secondary"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                       handleSelectClient(result);
+                                      }}
+                                      title="Sélectionner"
+                                      style={{
+                                        fontSize: "11px",
+                                        padding: "2px 8px",
+                                      }}
+                                    >
+                                      Sélectionner
+                                    </button>):null
+          }
+                                    
         break;
       default:
-        return result[key];
+       return result[key] ;
     }
-  };
+  }
 
   return (
     <div className="inscription-container">
@@ -398,8 +484,11 @@ const InterogStatut = () => {
           className="card-header d-flex justify-content-center align-items-center inscription-header"
           style={{ padding: "1rem 10px" }}
         >
-          <h1 className="header-title">
-            Obtenir le statut d'inscription d'un client
+          <h1 className="header-title" id="titrePage">
+            {
+              (originePage ==="MOIMEME") ? "Obtenir le statut d'inscription d'un client" : "Sélectionner un client"
+            }
+            
           </h1>
         </div>
         <div
@@ -632,13 +721,8 @@ const InterogStatut = () => {
                               border: "none",
                             }}
                           >
-                            {columns.map((col, colIdx) => (
-                              <td
-                                id={
-                                  col.key === "statutCode"
-                                    ? "colStatut" + rowIdx
-                                    : ""
-                                }
+                            {columns.map((col, colIdx) => (                             
+                              <td id= {col.key ==="statutCode" ? "colStatut"+rowIdx : ""}
                                 key={colIdx}
                                 style={{
                                   backgroundColor:
@@ -655,7 +739,10 @@ const InterogStatut = () => {
                                   }
                                 }}
                               >
-                                {valcol(col.key, result, rowIdx)}
+                                {
+                                valcol(col.key,result,rowIdx)
+                                  
+                                }
                               </td>
                             ))}
                           </tr>
@@ -666,7 +753,7 @@ const InterogStatut = () => {
                 </div>
               </div>
             </div>
-
+            <div id="DIVSTATUT" style={{display: (originePage ==="MOIMEME") ? "block" : "none"}}>
             <h3
               className="form-label section-title"
               style={{ color: "gray", textDecoration: "underline" }}
@@ -697,6 +784,7 @@ const InterogStatut = () => {
                       type="text"
                       name="idClient"
                       className="form-control form-control-sm"
+                      
                       style={{ flex: 1 }}
                     />
                   </div>
@@ -721,13 +809,14 @@ const InterogStatut = () => {
                       type="email"
                       name="adresseMail"
                       className="form-control form-control-sm"
+                      
                       style={{ flex: 1 }}
                     />
                   </div>
 
                   <div style={{ display: "flex", alignItems: "center" }}>
                     <button
-                      type="button"
+                    type="button"
                       className="btn btn-primary inscrire-btn"
                       onClick={getStatutParChampText}
                       style={{ whiteSpace: "nowrap" }}
@@ -737,6 +826,7 @@ const InterogStatut = () => {
                   </div>
                 </div>
               </div>
+            </div>
             </div>
           </div>
 
@@ -752,8 +842,11 @@ const InterogStatut = () => {
           </div> */}
         </div>
       </div>
+     
     </div>
-  );
-};
 
+  );
+  
+};
+ 
 export default InterogStatut;
