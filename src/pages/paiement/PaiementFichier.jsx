@@ -379,6 +379,7 @@ const PaiementFichier = ({
         alert("Échec de l'envoi vers l'API externe.");
       });
   };
+  
   const envoyerVersBackend = async () => {
     if (formulaires.length === 0) {
       alert("Aucune donnée à envoyer.");

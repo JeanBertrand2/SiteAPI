@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Confirmation from "../../components/Modal/Confirmation";
+import { DemandePaiement } from "../../Model/DemandePaiement";
 import "./PaiementManuel.css";
 const PaiementManuel = () => {
   const navigate = useNavigate();
@@ -12,19 +13,21 @@ const PaiementManuel = () => {
   const [activites, setActivites] = useState([]);
   const [unites, setUnites] = useState([]);
   const [natures, setNatures] = useState([]);
+  const showDemandeBtn = true;
+  const showMigrationBtn = false;
 
   const initialFormState = {
     demandePaiement: [],
-    selectedDate: "",
+    selectedDate: today,
     clientId: "",
     identifiantT: "",
     numfacture: 0,
     mntacompte: 0,
-    datevers: "",
-    datefact: "",
+    datevers: today,
+    datefact: today,
     nomclient: "",
-    dde: "",
-    dfe: "",
+    dde: today,
+    dfe: today,
     mntfht: 0,
     mntfttc: 0,
   };
@@ -111,6 +114,74 @@ const PaiementManuel = () => {
       );
     }
   }, [location]);
+
+  const genererJSON = () => {
+    if (formulaires.length === 0) {
+      alert("Aucune donnée à exporter.");
+      return;
+    }
+
+    let payload;
+
+    payload = formulaires.map((form) => ({
+      idTiersFacturation: form.nomclient,
+      idClient: form.clientId,
+      dateNaissanceClient: form.selectedDate + "T00:00:00Z",
+      numFactureTiers: form.numfacture,
+      dateFacture: form.datefact + "T00:00:00Z",
+      dateDebutEmploi: form.dde + "T00:00:00Z",
+      dateFinEmploi: form.dfe + "T00:00:00Z",
+      mntAcompte: form.mntacompte,
+      dateVersementAcompte: form.datevers ? form.datevers + "T00:00:00Z" : "",
+      mntFactureTTC: form.mntfttc,
+      mntFactureHT: form.mntfht,
+      inputPrestations: form.demandePaiement.map((p) => ({
+        codeActivite: p.ca,
+        codeNature: p.cn,
+        quantite: p.qte,
+        unite: p.unit,
+        mntUnitaireTTC: p.mntunit,
+        mntPrestationTTC: p.mntprestttc,
+        mntPrestationHT: p.mntprestht,
+        mntPrestationTVA: p.mntpresttva,
+        complement1: p.compl1,
+        complement2: p.compl2,
+      })),
+      nomUsage: form.nomclient,
+    }));
+
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "demande_paiement.json";
+    a.click();
+    URL.revokeObjectURL(url);
+    const enveloppe = {
+      methode: "/demandePaiement",
+      data: payload,
+    };
+
+    fetch("http://localhost:2083/demande/envoyer", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ payload: enveloppe }),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Erreur backend");
+        return res.json();
+      })
+      .then((data) => {
+        console.log("Réponse API URSSAF :", data);
+        alert("Données envoyées avec succès !");
+      })
+      .catch((err) => {
+        console.error("Erreur d'envoi :", err.message);
+        alert("Échec de l'envoi vers l'API externe.");
+      });
+  };
 
   const ajouterNouveauFormulaire = () => {
     setFormulaires([...formulaires, { ...initialFormState, id: Date.now() }]);
@@ -223,60 +294,6 @@ const PaiementManuel = () => {
       tva += row.mntpresttva || 0;
     });
     return { ttc, ht, tva };
-  };
-
-  //Building the json
-  const dateToIso = (dateStr) => {
-    if (!dateStr) return null;
-    try {
-      if (dateStr.includes("T")) return new Date(dateStr).toISOString();
-      return new Date(dateStr + "T00:00:00Z").toISOString();
-    } catch (e) {
-      return null;
-    }
-  };
-
-  const generateDemandePaiementJSON = (formIndex) => {
-    const form = formulaires[formIndex];
-    if (!form) return [];
-
-    const inputPrestations = (form.demandePaiement || []).map((r) => ({
-      codeActivite: r.ca || "",
-      codeNature:
-        r.cn === "" || r.cn == null
-          ? null
-          : isNaN(Number(r.cn))
-          ? r.cn
-          : Number(r.cn),
-      quantite: r.qte || 0,
-      unite: r.unit || "",
-      mntUnitaireTTC: r.mntunit || 0,
-      mntPrestationTTC: r.mntprestttc || 0,
-      mntPrestationHT: r.mntprestht || 0,
-      mntPrestationTVA: r.mntpresttva || 0,
-      complement1: r.compl1 || "",
-      complement2: r.compl2 || "",
-    }));
-
-    const payload = [
-      {
-        idTiersFacturation: form.identifiantT || form.nomclient || "",
-        idClient: form.clientId || "",
-        dateNaissanceClient: dateToIso(form.selectedDate) || null,
-        numFactureTiers: String(form.numfacture || ""),
-        dateFacture: dateToIso(form.datefact) || null,
-        dateDebutEmploi: dateToIso(form.dde) || null,
-        dateFinEmploi: dateToIso(form.dfe) || null,
-        mntAcompte: form.mntacompte || 0,
-        dateVersementAcompte: dateToIso(form.datevers) || null,
-        mntFactureTTC: form.mntfttc || 0,
-        mntFactureHT: form.mntfht || 0,
-        inputPrestations: inputPrestations,
-        nomUsage: form.nomclient || "",
-      },
-    ];
-
-    return payload;
   };
 
   const navigateToStatut = (formIndex) => {
@@ -767,20 +784,15 @@ const PaiementManuel = () => {
               >
                 Supprimer
               </button>
-              <button
-                className="btn btn-secondary"
-                onClick={() => {
-                  const json = generateDemandePaiementJSON(formIndex);
-                  console.log(JSON.stringify(json, null, 2));
-                }}
-              >
-                Voir JSON
-              </button>
+
               <button
                 className="btn btn-primary"
-                onClick={() => dem_paiement(formIndex)}
+                onClick={() => {
+                  alert("Demande de paiement envoyée");
+                  genererJSON();
+                }}
               >
-                Demande de paiement
+                Demande de Paiement
               </button>
             </div>
           </div>
