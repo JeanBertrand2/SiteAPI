@@ -9,11 +9,9 @@ const PaiementManuel = () => {
   const [showModal, setShowModal] = useState(false);
   const [formToDelete, setFormToDelete] = useState(null);
 
-
-    const [activites, setActivites] = useState([]);
-    const [unites, setUnites] = useState([]);
-    const [natures, setNatures] = useState([]);
-
+  const [activites, setActivites] = useState([]);
+  const [unites, setUnites] = useState([]);
+  const [natures, setNatures] = useState([]);
 
   const initialFormState = {
     demandePaiement: [],
@@ -38,13 +36,22 @@ const PaiementManuel = () => {
     return [{ ...initialFormState, id: Date.now() }];
   });
 
- {/*} const activites = ["304001", "304002", "304003"];
-  const unites = ["FORFAIT", "HEURE", "JOUR"];
-  const natures = [
-    { code: "NAT001", libelle: "Aide humaine" },
-    { code: "NAT002", libelle: "Transport accompagné" },
-    { code: "NAT003", libelle: "Assistance administrative" },
-  ];*/}
+  useEffect(() => {
+    const fetchComboData = async () => {
+      try {
+        const response = await fetch("http://localhost:2083/api/donnees-combo");
+        const data = await response.json();
+
+        setActivites(data.filter((item) => item.Type === "CodeActivite"));
+        setUnites(data.filter((item) => item.Type === "Unite"));
+        setNatures(data.filter((item) => item.Type === "NaturePrestation"));
+      } catch (error) {
+        console.error("Erreur chargement combos :", error);
+      }
+    };
+
+    fetchComboData();
+  }, []);
 
   useEffect(() => {
     if (location.state?.clientData && location.state?.formId !== undefined) {
@@ -399,9 +406,9 @@ const PaiementManuel = () => {
                             }
                           >
                             <option value="">-- Choisir --</option>
-                            {activites.map((code) => (
-                              <option key={code} value={code}>
-                                {code}
+                            {activites.map((item) => (
+                              <option key={item.Code} value={item.Code}>
+                                {item.Libelle}
                               </option>
                             ))}
                           </select>
@@ -415,7 +422,7 @@ const PaiementManuel = () => {
                             onChange={(e) => {
                               const selectedCode = e.target.value;
                               const nature = natures.find(
-                                (n) => n.code === selectedCode
+                                (n) => n.Code === selectedCode
                               );
                               updateRow(
                                 formIndex,
@@ -428,15 +435,15 @@ const PaiementManuel = () => {
                                   formIndex,
                                   rowIndex,
                                   "libprest",
-                                  nature.libelle
+                                  nature.Libelle
                                 );
                               }
                             }}
                           >
                             <option value="">-- Choisir --</option>
-                            {natures.map((n) => (
-                              <option key={n.code} value={n.code}>
-                                {n.code}
+                            {natures.map((item) => (
+                              <option key={item.Code} value={item.Code}>
+                                {item.Libelle}
                               </option>
                             ))}
                           </select>
@@ -487,9 +494,9 @@ const PaiementManuel = () => {
                             }
                           >
                             <option value="">-- Choisir --</option>
-                            {unites.map((u) => (
-                              <option key={u} value={u}>
-                                {u}
+                            {unites.map((item) => (
+                              <option key={item.Code} value={item.Code}>
+                                {item.Libelle}
                               </option>
                             ))}
                           </select>
