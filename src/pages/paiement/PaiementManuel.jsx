@@ -3,6 +3,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import Confirmation from "../../components/Modal/Confirmation";
 import { DemandePaiement } from "../../Model/DemandePaiement";
 import "./PaiementManuel.css";
+ 
+
 const PaiementManuel = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -113,7 +115,7 @@ const PaiementManuel = () => {
         )
       );
     }
-  }, [location]);
+ }, [location]);
 
   const genererJSON = () => {
     if (formulaires.length === 0) {
@@ -299,6 +301,7 @@ const PaiementManuel = () => {
   const navigateToStatut = (formIndex) => {
     navigate("/inscription/statut", {
       state: {
+        origin:"DMPMNUEL",
         formId: formIndex,
         allFormulaires: formulaires,
       },
