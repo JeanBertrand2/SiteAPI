@@ -7,6 +7,7 @@ import axios from "axios";
 
 import "./InscriptClient.css";
 // const urlServer = "https://urssaf.cofident.com/";
+
 const urlServer = "http://localhost:2083/";
 console.log("url server = ", urlServer);
 const InterogStatut = () => {
