@@ -4,39 +4,22 @@ import { FaFilter } from "react-icons/fa";
 import { FaSearch } from "react-icons/fa";
 import { MdDeleteOutline } from "react-icons/md";
 import axios from "axios";
-
+//import instance from '../../api/axiosConfig.js';
 
 import "./InscriptClient.css";
-const urlServer ="https://urssaf.cofident.com/"
-console.log("url server = ",urlServer)
+//const urlServer ="https://urssaf.cofident.com/"
+//console.log("url server = ",urlServer)
+const API_URL = process.env.REACT_APP_API_URL;
 const InterogStatut = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [staticData,setstaticData] = useState([])
   const originePage = location.state?.origin !== undefined ? location.state.origin : "MOIMEME"; 
   
- useEffect(() => {
- window.addEventListener('DOMContentLoaded', function() {
-  // Votre code s'exécutera ici une fois le DOM chargé
-  console.log('Le DOM est prêt ok.');
-   if(originePage !=="MOIMEME")
-  {
-    const titrepage = document.getElementById("titrePage");
-    if(titrepage !== null)
-    titrepage.textContent ="Sélection d'un client";  
-    const DIVSTAT = document.getElementById("DIVSTATUT");
-    if(DIVSTAT !== null)
-     DIVSTAT.style.display = "none";
-    //document.getElementById("DIVSTATUT").style.display = "none";
-  }
-});
-}, []);
-
-  console.log("origine page = ",originePage);
   const chargeDonnes =async (nomNaissance="",prenoms="")=>{
     try{     //
-      console.log("url server 2 = ",urlServer)
-        await axios.get(`/particuliers`,
+     // console.log("url server 2 = ",urlServer)
+        await axios.get(`${API_URL}/particuliers`,
           {
             params: {
                   nomNaissance: nomNaissance,
@@ -44,8 +27,9 @@ const InterogStatut = () => {
                 }
           }
         )
-        .then((response)=>{
+        .then((response)=>{          
             setstaticData(response.data);
+             //setSearchResults(staticData);
             
         })
         .catch((error)=>{
@@ -60,13 +44,13 @@ const InterogStatut = () => {
       }
   }
 
-  // useEffect(()=>{
-  //   const fetchData = async()=>{
-  //     await chargeDonnes();
+  useEffect(()=>{
+    const fetchData = async()=>{
+      await chargeDonnes();
       
-  //   };
-  //   fetchData()
-  // },[]);
+    };
+    fetchData()
+  },[]);
 
 
   // const staticData = [
@@ -145,13 +129,13 @@ const InterogStatut = () => {
     setSearchByIdOrEmail((p) => ({ ...p, [name]: value }));
   };
 
-  const handleSearch = async() => {
+  const handleSearch = () => {
     console.log("Rechercher:", searchCriteria);
     const { nomNaissance, prenoms } = searchCriteria;
-     await chargeDonnes(nomNaissance,prenoms);
+      chargeDonnes(nomNaissance,prenoms);
     if (!nomNaissance.trim() && !prenoms.trim()) {
       setSearchResults(staticData);
-      return;
+        return;
     }
 
     const filtered = staticData.filter((row) => {
@@ -331,7 +315,7 @@ const InterogStatut = () => {
             };
           }
       
-    await axios.post(`${urlServer}api/urssaf/getStatut`,data)
+    await axios.post(`${API_URL}/api/urssaf/getStatut`,data)
       .then((response)=>{
             setstaticData(response.data);
             console.log("list particulier front : ",response.data);
@@ -362,7 +346,7 @@ const InterogStatut = () => {
     let adresseMail = txtMail.value;
     getStatutClient(idClient,adresseMail);
   }
-  const getBackGroundColor = (key,result)=>{
+  const getBackGroundColor = (key,result,rowIdx)=>{
     switch(result[key]) {//
             case E_APPAREILLAGE_EC:
                  return"#e2be7145";             
@@ -375,71 +359,27 @@ const InterogStatut = () => {
             case E_MANDAT_ECHU:
                   return "#eb909845";
              default :
-                return "transparent"; 
+                return ((rowIdx % 2 === 0) ? "#ffffff" : "#f2f2f2"); 
         }
   }
 
   const valcol = (key,result,rowIdx)=>{
     switch(key) {
       case "statutCode":
-        //const myElement = document.getElementById("colStatut"+ rowIdx);
         switch(result[key]) {
             case E_APPAREILLAGE_EC:
-          //     console.log("colonne JAUNE = colStatut"+rowIdx);
-          //      if(myElement != null)
-          // {
-          //     //for (let i = 0; i < myElement.length; i++) {
-          //         myElement.style.backgroundColor = "#eea60a45";
-          //     //  }
-          // }
                return E_APPAREILLAGE_EC_LIBELLE
-               
-              //vCouleur	= JauneOr
             case E_APPAREILLAGE_VALIDE:
-             
-          //      if(myElement != null)
-          // {
-          //    console.log("colonne GREEN = colStatut"+rowIdx);
-          //     //for (let i = 0; i < myElement.length; i++) {
-          //         myElement.style.backgroundColor = "green";
-          //     //  }
-          // }
               return	 E_APPAREILLAGE_VALIDE_LIBELLE
-              //vCouleur	= iVertClair
-            case E_APPAREILLAGE_NF:
-          //     console.log("colonne RED 2 = colStatut"+rowIdx);
-          //      if(myElement != null)
-          // {
-          //     //for (let i = 0; i < myElement.length; i++) {
-          //         myElement.style.backgroundColor = "red";
-          //     //  }
-          // }
+            case E_APPAREILLAGE_NF:         
               return  E_APPAREILLAGE_NF_LIBELLE
-              //vCouleur	= RougeFoncé
-            case E_PARTICULIER_BLOQUE:
-          //     console.log("colonne RED 3 = colStatut"+rowIdx);
-          //      if(myElement != null)
-          // {
-          //     //for (let i = 0; i < myElement.length; i++) {
-          //         myElement.style.backgroundColor = "red";
-          //     //  }
-          // }
+            case E_PARTICULIER_BLOQUE:         
               return  E_PARTICULIER_BLOQUE_LIBELLE
-              //vCouleur	= RougeFoncé
-            case E_MANDAT_ECHU:
-          //     console.log("colonne RED 4 = colStatut"+rowIdx);
-          //      if(myElement != null)
-          // {
-          //     //for (let i = 0; i < myElement.length; i++) {
-          //         myElement.style.backgroundColor = "red";
-          //     //  }
-          // }
+            case E_MANDAT_ECHU:         
               return  E_MANDAT_ECHU_LIBELLE
              default :
-            // console.log("colonne TRANSPATANT = colStatut"+rowIdx);
                 return ""; 
         }
-              //vCouleur	= RougeFoncé
         break;
       case "actions":
         return result.id ? (
@@ -741,7 +681,7 @@ const InterogStatut = () => {
                               <td id= {col.key ==="statutCode" ? "colStatut"+rowIdx : ""}
                                 key={colIdx}
                                 style={{
-                                  backgroundColor: (col.key ==="statutCode") ? getBackGroundColor(col.key,result) : ()=>(rowIdx % 2 === 0) ? "#ffffff" : "#f2f2f2"
+                                  backgroundColor: (col.key ==="statutCode") ? getBackGroundColor(col.key,result,rowIdx) : (rowIdx % 2 === 0) ? "#ffffff" : "#f2f2f2"
                                    ,
                                   verticalAlign: "middle",
                                   cursor:
