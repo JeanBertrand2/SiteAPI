@@ -47,22 +47,43 @@ const Prestataire = () => {
   const [apiCrypte, setApiCrypte] = useState("");
 
 
-  useEffect(() => {
-    if (mode === "MODIFIER" && id > 0) {
-      fetch(`http://localhost:2083/prestataires/${id}`)
-        .then((res) => res.json())
-        .then((data) => {
-          setRaisonSociale(data.RaisonSociale || "");
-          setSiret(data.SIRET || "");
-          setAdresse(data.Adresse || "");
-          setTel(data.Tel || "");
-          setMail(data.adresseMail || "");
-          setIdentifiantSAP(data.IdentifiantSAP || "");
-          setIdentifiantAPI(data.IdentifiantAPI || "");
-        })
-        .catch((err) => console.error("Erreur chargement prestataire :", err));
-    }
-  }, [mode, id]);
+      useEffect(() => {
+        if (mode === "MODIFIER" && id > 0) {
+          fetch(`http://localhost:2083/prestataires/${id}`)
+            .then((res) => res.json())
+            .then((data) => {
+              // Prestataire
+              setRaisonSociale(data.RaisonSociale || "");
+              setSiret(data.SIRET || "");
+              setAdresse(data.Adresse || "");
+              setTel(data.Tel || "");
+              setMail(data.adresseMail || "");
+              setIdentifiantSAP(data.IdentifiantSAP || "");
+              setIdentifiantAPI(data.IdentifiantAPI || "");
+
+              // URSSAF Production
+              setClientIDProduction(data.ClientIDProduction || "");
+              setClientSecretProduction(data.ClientSecretProduction || "");
+              setScopeProduction(data.ScopeProduction || "homeplus.tiersprestations");
+              setUrlTokenProduction(data.UrlTokenProduction || "https://api.urssaf.fr/api/oauth/v1/token");
+              setUrlRequeteProduction(data.UrlRequeteProduction || "https://api.urssaf.fr/atp/v1/tiersPrestations");
+              setContentTypeProduction(data.ContentTypeProduction || "application/json");
+
+              // URSSAF Sandbox
+              setClientIDSandBox(data.ClientIDSandBox || "");
+              setClientSecretSandBox(data.ClientSecretSandBox || "");
+              setScopeSandBox(data.ScopeSandBox || "homeplus.tiersprestations");
+              setUrlTokenSandBox(data.UrlTokenSandBox || "https://api-edi.urssaf.fr/api/oauth/v1/token");
+              setUrlRequeteSandBox(data.UrlRequeteSandBox || "https://api-edi.urssaf.fr/atp/v1/tiersPrestations");
+              setContentTypeSandBox(data.ContentTypeSandBox || "application/json");
+
+              // Optionnel
+              setApiCrypte(data.APICrypte !== null ? data.APICrypte.toString() : "");
+            })
+            .catch((err) => console.error("Erreur chargement prestataire :", err));
+        }
+      }, [mode, id]);
+
 
       const handleSubmitPrestataire = (e) => {
         e.preventDefault();
@@ -75,6 +96,23 @@ const Prestataire = () => {
           IdentifiantSAP: identifiantSAP,
           IdentifiantAPI: identifiantAPI,
           ...(mode === "MODIFIER" && { ID_Prestataires: id }),
+
+          // Ajout des champs URSSAF
+          ClientIDProduction: clientIDProduction,
+          ClientSecretProduction: clientSecretProduction,
+          ScopeProduction: scopeProduction,
+          UrlTokenProduction: urlTokenProduction,
+          UrlRequeteProduction: urlRequeteProduction,
+          ContentTypeProduction: contentTypeProduction,
+
+          ClientIDSandBox: clientIDSandBox,
+          ClientSecretSandBox: clientSecretSandBox,
+          ScopeSandBox: scopeSandBox,
+          UrlTokenSandBox: urlTokenSandBox,
+          UrlRequeteSandBox: urlRequeteSandBox,
+          ContentTypeSandBox: contentTypeSandBox,
+
+          APICrypte: apiCrypte !== "" ? parseInt(apiCrypte, 10) : null,
         };
 
         const url = "http://localhost:2083/prestataires";
@@ -442,4 +480,3 @@ const Prestataire = () => {
 };
 
 export default Prestataire;
-

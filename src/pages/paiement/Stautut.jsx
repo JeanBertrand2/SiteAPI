@@ -118,6 +118,11 @@ const Stautut = () => {
             }
 
             const result = await resUrssaf.json();
+            if (Array.isArray(result) && result.some(e => e.code === "ERR_RECHERCHE_VIDE")) {
+              setMessage("Aucune demande de paiement ne correspond aux factures ou dates que tu as envoyées.");
+              continue;
+            }
+
             const paiementsLot = result?.infoDemandePaiements || result?.result?.infoDemandePaiements || [];
 
             if (Array.isArray(paiementsLot)) {
@@ -164,6 +169,11 @@ const Stautut = () => {
           }
 
           setReponseUrssaf({ infoDemandePaiements: allPaiements });
+         
+          if (allPaiements.length === 0) {
+            setMessage("Aucune demande de paiement ne correspond aux factures ou dates que tu as envoyées.");
+            return;
+          }
           afficherResultat();
           setMessage(`${allPaiements.length} paiement(s) récupéré(s) et enregistrés`);
         } catch (err) {
@@ -217,10 +227,18 @@ const Stautut = () => {
       )}
 
       {message && (
-  <div className={`alert ${message.startsWith("") ? "alert-success" : "alert-danger"} mt-2`} role="alert">
-    {message}
-  </div>
-)}
+        <div
+          className={`alert ${
+            message.includes("aucune demande") || message.includes("Aucune demande")
+              ? "alert-danger"
+              : "alert-success"
+          } mt-2`}
+          role="alert"
+        >
+          {message}
+        </div>
+      )}
+
 
 {resultats.length > 0 ? (
   <div className="table-responsive mt-4">
