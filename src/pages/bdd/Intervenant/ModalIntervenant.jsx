@@ -65,12 +65,6 @@ const ModalIntervenant = ({ show, onClose, data, onSave }) => {
             <span className="modal-title">FICHE INTERVENANT</span>
           </div>
           <div className="modal-header-buttons">
-            <button className="modal-icon-button" aria-label="minimize">
-              <Minimize2 size={14} />
-            </button>
-            <button className="modal-icon-button" aria-label="maximize">
-              <Maximize2 size={14} />
-            </button>
             <button
               onClick={onClose}
               className="modal-icon-button"
