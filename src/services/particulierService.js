@@ -1,5 +1,4 @@
-const API_URL =
-  import.meta?.env?.REACT_APP_API_URL || process.env.REACT_APP_API_URL || "";
+const API_URL = process.env.REACT_APP_API_URL || ""
 
 // Posts the json to the URSSAF proxy endpoint. Returns the URSSAF response (expected to contain idClient on success).
 export const postToUrssaf = async (data) => {
