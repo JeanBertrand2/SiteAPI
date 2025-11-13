@@ -182,6 +182,7 @@ const PaiementManuel = () => {
   const navigateToStatut = (formIndex) => {
     navigate("/inscription/statut", {
       state: {
+        origin:"DMPMNUEL",
         formId: formIndex,
         allFormulaires: formulaires,
       },
