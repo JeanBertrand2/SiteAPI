@@ -161,14 +161,7 @@ const Navbar = () => {
               className="dropdown-menu"
               aria-labelledby="navbarDropdownMenuLink"
             >
-              <Link
-                className="nav-link"
-                to="/bdd/client"
-                style={{ color: "black" }}
-                onClick={handleNavCollapse}
-              >
-                AJOUTER DES CLIENTS DÉJA INSCRITS
-              </Link>
+            
               <Link
                 className="nav-link"
                 to="/bdd/facture"
@@ -177,14 +170,7 @@ const Navbar = () => {
               >
                 AJOUTER DES FACTURES DÉJA ENVOYÉES
               </Link>
-              <Link
-                className="nav-link"
-                to="/bdd/service"
-                style={{ color: "black" }}
-                onClick={handleNavCollapse}
-              >
-                CRÉER DES SERVICES
-              </Link>
+             
               <Link
                 className="nav-link"
                 to="/bdd/intervenant"

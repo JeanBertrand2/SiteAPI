@@ -1,7 +1,7 @@
 import axios from "axios";
 import React from "react";
 import toast from "react-hot-toast";
-
+const API_URL = process.env.REACT_APP_API_URL;
 
 
 function MajBdd() {
@@ -12,8 +12,7 @@ function MajBdd() {
     const tagEnvoie = document.getElementById("tagEnvoie");
     tagEnvoie.style.display = "block";
     // e.preventDefault();
-    await axios
-      .get("http://localhost:2083/api/majbdd")
+    await axios.get(`${API_URL}/api/majbdd`)
       .then((response) => {
         // toast.success(response.data.message,{position:"top-right"});
         console.log("Mise à jour de la base de données terminée");
