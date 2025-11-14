@@ -181,10 +181,10 @@ const InterogStatut = () => {
     navigate("/paiement/manuel", {
       state: {
         clientData: {
-          id: client.id,
+          id: client.idClient,
           nom: `${client.prenoms} ${client.nomNaissance}`,
           naissance: client.dateNaissance,
-          tiers: client.identifiantTiers,
+          tiers: "80077179200028",// client.identifiantTiers,
         },
         formId: formId, // Passer l'index du formulaire
         allFormulaires: allFormulaires, // Renvoyer tous les formulaires
