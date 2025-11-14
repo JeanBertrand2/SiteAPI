@@ -1,6 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Confirmation from "../../components/Modal/Confirmation";
+import {
+  validateAllFormulaires,
+  showValidationErrorsOneByOne,
+} from "../../utils/paiementValidation";
 import "./PaiementManuel.css";
 
 const PaiementManuel = () => {
@@ -118,6 +122,16 @@ const PaiementManuel = () => {
       if (formulaires.length === 0) {
         alert("Aucune donnée à exporter.");
         return;
+      }
+
+      // Validation des formulaires
+      const validationResult = validateAllFormulaires(formulaires);
+
+      // Afficher les erreurs/avertissements une par une
+      const canContinue = await showValidationErrorsOneByOne(validationResult);
+
+      if (!canContinue) {
+        return; // L'utilisateur a annulé ou il y a des erreurs bloquantes
       }
 
       const payload = formulaires.map((form) => ({
