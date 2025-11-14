@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Confirmation from "../../components/Modal/Confirmation";
-import { DemandePaiement } from "../../Model/DemandePaiement";
 import "./PaiementManuel.css";
 
 const PaiementManuel = () => {
@@ -14,8 +13,6 @@ const PaiementManuel = () => {
   const [activites, setActivites] = useState([]);
   const [unites, setUnites] = useState([]);
   const [natures, setNatures] = useState([]);
-  const showDemandeBtn = true;
-  const showMigrationBtn = false;
 
   const initialFormState = {
     demandePaiement: [],
@@ -324,7 +321,6 @@ const PaiementManuel = () => {
               <button
                 className="btn btn-sm btn-danger"
                 onClick={() => {
-                  // Open confirmation modal and store which form index to delete
                   setFormToDelete(formIndex);
                   setShowModal(true);
                 }}
