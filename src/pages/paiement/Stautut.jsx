@@ -90,8 +90,10 @@ const Stautut = () => {
           const formatISO = (val) => new Date(val).toISOString();
           const vMonVariant = {
             numFactureTiers: facturesExistantes.map((f) => f.numFactureTiers),
-            dateDebut: gf_dDatedebut ? formatISO(gf_dDatedebut) : "2020-01-01T00:00:00Z",
-            dateFin: gf_dDateFin ? formatISO(gf_dDateFin) : "2025-12-31T00:00:00Z",
+            //dateDebut: gf_dDatedebut ? formatISO(gf_dDatedebut) : "2020-01-01T00:00:00Z",
+            //dateFin: gf_dDateFin ? formatISO(gf_dDateFin) : "2025-12-31T00:00:00Z",
+              ...(gf_dDatedebut && { dateDebut: formatISO(gf_dDatedebut) }),
+              ...(gf_dDateFin && { dateFin: formatISO(gf_dDateFin) }),
             methode: "/demandePaiement/rechercher",
           };
 
@@ -119,7 +121,7 @@ const Stautut = () => {
 
             const result = await resUrssaf.json();
             if (Array.isArray(result) && result.some(e => e.code === "ERR_RECHERCHE_VIDE")) {
-              setMessage("Aucune demande de paiement ne correspond aux factures ou dates que tu as envoyées.");
+              setMessage("les factures transmises ne correspondent à aucune demande enregistrée côté URSSAF dans la période implicite ou sans période.");
               continue;
             }
 
