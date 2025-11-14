@@ -352,7 +352,7 @@ const PaiementManuel = () => {
                     className="btn btn-outline-secondary"
                     type="button"
                     onClick={() => navigateToStatut(formIndex)}
-                    title="Voir le statut d'inscription"
+                    title="Rechercher un client"
                   >
                     <i className="bi bi-box-arrow-up-right"></i>
                   </button>
