@@ -3,7 +3,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 import Confirmation from "../../components/Modal/Confirmation";
 import { DemandePaiement } from "../../Model/DemandePaiement";
 import "./PaiementManuel.css";
- 
 
 const PaiementManuel = () => {
   const navigate = useNavigate();
@@ -115,7 +114,7 @@ const PaiementManuel = () => {
         )
       );
     }
- }, [location]);
+  }, [location]);
 
   const genererJSON = () => {
     if (formulaires.length === 0) {
@@ -301,7 +300,7 @@ const PaiementManuel = () => {
   const navigateToStatut = (formIndex) => {
     navigate("/inscription/statut", {
       state: {
-        origin:"DMPMNUEL",
+        origin: "DMPMNUEL",
         formId: formIndex,
         allFormulaires: formulaires,
       },
@@ -359,7 +358,18 @@ const PaiementManuel = () => {
                   </button>
                 </div>
               </div>
-
+              <div className="col-md-6">
+                <label className="form-label">IdTiersFacturation</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={formulaire.identifiantT}
+                  disabled
+                  onChange={(e) =>
+                    updateFormField(formIndex, "identifiantT", e.target.value)
+                  }
+                />
+              </div>
               <div className="col-md-6">
                 <label className="form-label">Nom client</label>
                 <input
@@ -469,19 +479,6 @@ const PaiementManuel = () => {
                       "numfacture",
                       parseInt(e.target.value)
                     )
-                  }
-                />
-              </div>
-
-              <div className="col-md-6">
-                <label className="form-label">Identifiant tiers</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  value={formulaire.identifiantT}
-                  disabled
-                  onChange={(e) =>
-                    updateFormField(formIndex, "identifiantT", e.target.value)
                   }
                 />
               </div>
