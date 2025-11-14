@@ -1,9 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Confirmation from "../../components/Modal/Confirmation";
-import { DemandePaiement } from "../../Model/DemandePaiement";
 import "./PaiementManuel.css";
- 
 
 const PaiementManuel = () => {
   const navigate = useNavigate();
@@ -15,8 +13,6 @@ const PaiementManuel = () => {
   const [activites, setActivites] = useState([]);
   const [unites, setUnites] = useState([]);
   const [natures, setNatures] = useState([]);
-  const showDemandeBtn = true;
-  const showMigrationBtn = false;
 
   const initialFormState = {
     demandePaiement: [],
@@ -115,7 +111,7 @@ const PaiementManuel = () => {
         )
       );
     }
- }, [location]);
+  }, [location]);
 
   const genererJSON = () => {
     if (formulaires.length === 0) {
@@ -301,7 +297,7 @@ const PaiementManuel = () => {
   const navigateToStatut = (formIndex) => {
     navigate("/inscription/statut", {
       state: {
-        origin:"DMPMNUEL",
+        origin: "DMPMNUEL",
         formId: formIndex,
         allFormulaires: formulaires,
       },
@@ -325,7 +321,6 @@ const PaiementManuel = () => {
               <button
                 className="btn btn-sm btn-danger"
                 onClick={() => {
-                  // Open confirmation modal and store which form index to delete
                   setFormToDelete(formIndex);
                   setShowModal(true);
                 }}
@@ -353,13 +348,24 @@ const PaiementManuel = () => {
                     className="btn btn-outline-secondary"
                     type="button"
                     onClick={() => navigateToStatut(formIndex)}
-                    title="Voir le statut d'inscription"
+                    title="Rechercher un client"
                   >
                     <i className="bi bi-box-arrow-up-right"></i>
                   </button>
                 </div>
               </div>
-
+              <div className="col-md-6">
+                <label className="form-label">IdTiersFacturation</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={formulaire.identifiantT}
+                  disabled
+                  onChange={(e) =>
+                    updateFormField(formIndex, "identifiantT", e.target.value)
+                  }
+                />
+              </div>
               <div className="col-md-6">
                 <label className="form-label">Nom client</label>
                 <input
@@ -469,19 +475,6 @@ const PaiementManuel = () => {
                       "numfacture",
                       parseInt(e.target.value)
                     )
-                  }
-                />
-              </div>
-
-              <div className="col-md-6">
-                <label className="form-label">Identifiant tiers</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  value={formulaire.identifiantT}
-                  disabled
-                  onChange={(e) =>
-                    updateFormField(formIndex, "identifiantT", e.target.value)
                   }
                 />
               </div>
