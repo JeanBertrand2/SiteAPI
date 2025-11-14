@@ -2,20 +2,20 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Navbar.css";
 import { EModeOuverture } from "../../Model/EModeOuverture";
-
+const API_URL = process.env.REACT_APP_API_URL;
 const Navbar = () => {
   const [isNavCollapsed, setIsNavCollapsed] = useState(true);
   const [scrolled, setScrolled] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [modeOuverture, setModeOuverture] = useState(null);
   const [idPrestataire, setIdPrestataire] = useState(0);
-
+  
   const navigate = useNavigate();
 
   const handleNavCollapse = () => setIsNavCollapsed(!isNavCollapsed);
-
+  
   useEffect(() => {
-    fetch("http://localhost:2083/prestataires/check")
+    fetch(`${API_URL}/prestataires/check`)
 
       .then((res) => {
         if (!res.ok) throw new Error("Erreur réseau");
@@ -249,7 +249,7 @@ const Navbar = () => {
                 style={{ color: "black" }}
                 onClick={handleNavCollapse}
               >
-                UTILISER VERSION SANDBOX
+                VERSION 
               </Link>
             </div>
           </li>
