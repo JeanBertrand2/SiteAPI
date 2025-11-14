@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Field from "../../components/inscription/Field";
 import "./InscriptClient.css";
@@ -17,6 +18,8 @@ import {
   isCodeInseeValid,
 } from "../../utils/validationUtils";
 import Confirmation from "../../components/Modal/Confirmation";
+
+const API_URL = process.env.REACT_APP_API_URL;
 
 const InscriptClient = () => {
   const initial = {
@@ -69,7 +72,7 @@ const InscriptClient = () => {
         console.error("Erreur chargement meta:", err);
       });
   }, []);
-
+  const [staticData, setstaticData] = useState([]);
   const [isFromJson, setIsFromJson] = useState(false);
 
   // Confirmation modal state (replaces alert())
@@ -421,10 +424,30 @@ const InscriptClient = () => {
     return true;
   };
 
-  const submit = async () => {
-    // submit uses the shared validateForm (defined above) and utils
+  const getStatutClient = async (idClient = null) => {
+    let data;
 
-    // Run validations before preparing payload
+    if (idClient != null && idClient.trim() != "") {
+      data = {
+        params: {
+          idClient: idClient,
+        },
+        url: "/particulier",
+      };
+    }
+
+    await axios
+      .post(`${API_URL}/api/urssaf/getStatut`, data)
+      .then((response) => {
+        setstaticData(response.data);
+        console.log("list particulier front : ", response.data);
+      })
+      .catch((error) => {
+        console.log("error particulier front : ", error);
+      });
+  };
+
+  const submit = async () => {
     if (!validateForm()) return;
 
     const usedCodeInsee = /^\d{5}$/.test(
@@ -503,9 +526,10 @@ const InscriptClient = () => {
         return;
       }
 
+      // 1. Envoi à URSSAF pour obtenir l'idClient
       const urssafResp = await postToUrssaf(jsonData);
-
       const returnedId = urssafResp?.idClient || urssafResp?.id || null;
+
       if (!returnedId) {
         console.warn("URSSAF response didn't include idClient:", urssafResp);
         showConfirm(
@@ -515,15 +539,37 @@ const InscriptClient = () => {
         return;
       }
 
-      // Enrich and persist to backend
+      console.log("ID Client reçu de l'URSSAF:", returnedId);
+
+      // 2. Créer le particulier en base avec idClient
       const enriched = { ...jsonData, idClient: returnedId };
       const created = await createParticulier(enriched);
-      console.log("URSSAF OK, created in backend:", created);
+      console.log("Particulier créé en base:", created);
+
+      // 3. Récupérer le statut et mettre à jour en base (géré par getStatutClient)
+      try {
+        await getStatutClient(returnedId);
+        console.log("Statut récupéré et mis à jour en base:", staticData);
+      } catch (statutError) {
+        console.error(
+          "Erreur lors de la récupération/mise à jour du statut:",
+          statutError
+        );
+        // On continue quand même car le particulier a été créé
+        showConfirm(
+          "Avertissement",
+          "Particulier créé avec succès mais erreur lors de la mise à jour du statut.\n" +
+            "IdClient: " +
+            returnedId
+        );
+        setFormData((prev) => ({ ...prev, idClient: returnedId }));
+        return;
+      }
 
       setFormData((prev) => ({ ...prev, idClient: returnedId }));
       showConfirm(
         "Succès",
-        "Données envoyées à URSSAF et enregistrées en base avec idClient: " +
+        "Particulier créé et statut mis à jour avec succès.\nIdClient: " +
           returnedId
       );
     } catch (error) {
