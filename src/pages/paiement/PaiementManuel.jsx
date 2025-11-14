@@ -113,72 +113,113 @@ const PaiementManuel = () => {
     }
   }, [location]);
 
-  const genererJSON = () => {
-    if (formulaires.length === 0) {
-      alert("Aucune donnée à exporter.");
-      return;
-    }
+  const genererJSON = async () => {
+    try {
+      if (formulaires.length === 0) {
+        alert("Aucune donnée à exporter.");
+        return;
+      }
 
-    let payload;
+      const payload = formulaires.map((form) => ({
+        methode: "/demandePaiement",
+        idTiersFacturation: String("80077179200028"),
+        idClient: form.clientId,
+        dateNaissanceClient: form.selectedDate + "T00:00:00Z",
+        numFactureTiers: form.numfacture,
+        dateFacture: form.datefact + "T00:00:00Z",
+        dateDebutEmploi: form.dde + "T00:00:00Z",
+        dateFinEmploi: form.dfe + "T00:00:00Z",
+        mntAcompte: form.mntacompte,
+        dateVersementAcompte: form.datevers ? form.datevers + "T00:00:00Z" : "",
+        mntFactureTTC: form.mntfttc,
+        mntFactureHT: form.mntfht,
+        inputPrestations: form.demandePaiement.map((p) => ({
+          codeActivite: "",
+          codeNature: String(p.cn),
+          quantite: p.qte,
+          unite: p.unit,
+          mntUnitaireTTC: p.mntunit,
+          mntPrestationTTC: p.mntprestttc,
+          mntPrestationHT: p.mntprestht,
+          mntPrestationTVA: p.mntpresttva,
+          complement1: p.compl1,
+          complement2: p.compl2,
+        })),
+        nomUsage: form.nomclient,
+      }));
 
-    payload = formulaires.map((form) => ({
-      idTiersFacturation: form.nomclient,
-      idClient: form.clientId,
-      dateNaissanceClient: form.selectedDate + "T00:00:00Z",
-      numFactureTiers: form.numfacture,
-      dateFacture: form.datefact + "T00:00:00Z",
-      dateDebutEmploi: form.dde + "T00:00:00Z",
-      dateFinEmploi: form.dfe + "T00:00:00Z",
-      mntAcompte: form.mntacompte,
-      dateVersementAcompte: form.datevers ? form.datevers + "T00:00:00Z" : "",
-      mntFactureTTC: form.mntfttc,
-      mntFactureHT: form.mntfht,
-      inputPrestations: form.demandePaiement.map((p) => ({
-        codeActivite: p.ca,
-        codeNature: p.cn,
-        quantite: p.qte,
-        unite: p.unit,
-        mntUnitaireTTC: p.mntunit,
-        mntPrestationTTC: p.mntprestttc,
-        mntPrestationHT: p.mntprestht,
-        mntPrestationTVA: p.mntpresttva,
-        complement1: p.compl1,
-        complement2: p.compl2,
-      })),
-      nomUsage: form.nomclient,
-    }));
-
-    const blob = new Blob([JSON.stringify(payload, null, 2)], {
-      type: "application/json",
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "demande_paiement.json";
-    a.click();
-    URL.revokeObjectURL(url);
-    const enveloppe = {
-      methode: "/demandePaiement",
-      data: payload,
-    };
-
-    fetch("http://localhost:2083/demande/envoyer", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ payload: enveloppe }),
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error("Erreur backend");
-        return res.json();
-      })
-      .then((data) => {
-        console.log("Réponse API URSSAF :", data);
-        alert("Données envoyées avec succès !");
-      })
-      .catch((err) => {
-        console.error("Erreur d'envoi :", err.message);
-        alert("Échec de l'envoi vers l'API externe.");
+      // génération du fichier JSON local (inchangé)
+      const blob = new Blob([JSON.stringify(payload, null, 2)], {
+        type: "application/json",
       });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "demande_paiement.json";
+      a.click();
+      URL.revokeObjectURL(url);
+
+      // enveloppe à envoyer
+      const enveloppe = {
+        methode: "/demandePaiement",
+        data: payload,
+      };
+
+      // Envoi vers backend — remarque : j'envoie enveloppe directement (pas { payload: enveloppe })
+      const res = await fetch("http://localhost:2083/demande/envoyer", {
+        method: "POST",
+        mode: "cors", // utile si server et client sont sur des origines différentes
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify(enveloppe), // <-- essayer aussi JSON.stringify({ payload: enveloppe }) si ton backend l'attend
+      });
+
+      // Diagnostic plus clair si erreur
+      if (!res.ok) {
+        const texte = await res.text().catch(() => "");
+        throw new Error(
+          `Backend erreur ${res.status} ${res.statusText} — body: ${texte}`
+        );
+      }
+
+      // Si le backend renvoie du JSON
+      const data = await res.json().catch(async () => {
+        // si la réponse n'est pas JSON, récupérer le texte
+        const texte = await res.text();
+        throw new Error(`Réponse non JSON du backend: ${texte}`);
+      });
+
+      console.log("Réponse API URSSAF :", data);
+
+      if (Array.isArray(data)) {
+        const doublons = data.filter(
+          (item) => item.statut === "ERR_FACTURE_DOUBLON"
+        );
+        if (doublons.length > 0) {
+          const messages = doublons.map(
+            (item) =>
+              `La facture numéro ${item.numFactureTiers} est déjà existante`
+          );
+          alert(messages.join("\n"));
+        } else {
+          const messages = data.map(
+            (item) =>
+              `La demande de paiement de la facture numéro ${item.numFactureTiers} est bien envoyée`
+          );
+          alert(messages.join("\n"));
+        }
+      } else {
+        alert(
+          "Réponse inattendue de l'API URSSAF : " +
+            JSON.stringify(data, null, 2)
+        );
+      }
+    } catch (err) {
+      console.error("Erreur en envoyant vers le backend :", err);
+      alert("Erreur lors de l'envoi : " + err.message);
+    }
   };
 
   const ajouterNouveauFormulaire = () => {
