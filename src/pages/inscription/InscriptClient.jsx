@@ -516,14 +516,32 @@ const InscriptClient = () => {
         formData.idClient || formData.idParticulier || "";
 
       if (existingIdClient) {
-        const payload = {
-          ...jsonData,
-          idClient: formData.idClient || formData.idParticulier,
-        };
-        const createResp = await createParticulier(payload);
-        console.log("Created in backend (direct):", createResp);
-        showConfirm("Succès", "Particulier ajouté en base (id existant).");
-        return;
+        // Vérifier d'abord si l'ID existe déjà en base
+        try {
+          const payload = {
+            ...jsonData,
+            idClient: formData.idClient || formData.idParticulier,
+          };
+          const createResp = await createParticulier(payload);
+          console.log("Created in backend (direct):", createResp);
+          showConfirm("Succès", "Le client a été ajouté avec succès.");
+          return;
+        } catch (error) {
+          // Si erreur 409, c'est que le client existe déjà
+          if (error.response?.status === 409) {
+            showConfirm(
+              "Client existant",
+              `Ce client est déjà enregistré dans le système.\n\nVeuillez vérifier les informations.`
+            );
+            return;
+          }
+          // Autre erreur
+          showConfirm(
+            "Erreur",
+            `Ce client est déjà enregistré dans le système.\n\nVeuillez vérifier les informations.`
+          );
+          return;
+        }
       }
 
       // 1. Envoi à URSSAF pour obtenir l'idClient
@@ -533,8 +551,8 @@ const InscriptClient = () => {
       if (!returnedId) {
         console.warn("URSSAF response didn't include idClient:", urssafResp);
         showConfirm(
-          "URSSAF",
-          "URSSAF a répondu sans idClient — vérifiez la réponse"
+          "Erreur d'inscription",
+          "Impossible de créer le client. Veuillez vérifier les informations saisies."
         );
         return;
       }
@@ -543,8 +561,27 @@ const InscriptClient = () => {
 
       // 2. Créer le particulier en base avec idClient
       const enriched = { ...jsonData, idClient: returnedId };
-      const created = await createParticulier(enriched);
-      console.log("Particulier créé en base:", created);
+
+      try {
+        const created = await createParticulier(enriched);
+        console.log("Particulier créé en base:", created);
+      } catch (error) {
+        // Si erreur 409, c'est que le client existe déjà dans la base
+        if (error.response?.status === 409) {
+          showConfirm(
+            "Client déjà enregistré",
+            `Ce client existe déjà dans le système.\n\nL'inscription ne peut pas être effectuée.`
+          );
+          setFormData((prev) => ({ ...prev, idClient: returnedId }));
+          return;
+        }
+        // Autre erreur
+        showConfirm(
+          "Erreur",
+          `Ce client est déjà enregistré dans le système.\n\nVeuillez vérifier les informations.`
+        );
+        return;
+      }
 
       // 3. Récupérer le statut et mettre à jour en base (géré par getStatutClient)
       try {
@@ -557,28 +594,35 @@ const InscriptClient = () => {
         );
         // On continue quand même car le particulier a été créé
         showConfirm(
-          "Avertissement",
-          "Particulier créé avec succès mais erreur lors de la mise à jour du statut.\n" +
-            "IdClient: " +
-            returnedId
+          "Inscription réussie",
+          "Le client a été créé avec succès.\n\nAttention : la mise à jour du statut n'a pas pu être effectuée."
         );
         setFormData((prev) => ({ ...prev, idClient: returnedId }));
         return;
       }
 
       setFormData((prev) => ({ ...prev, idClient: returnedId }));
-      showConfirm(
-        "Succès",
-        "Particulier créé et statut mis à jour avec succès.\nIdClient: " +
-          returnedId
-      );
+      showConfirm("Succès", "Le client a été inscrit avec succès.");
     } catch (error) {
       console.error("Erreur lors du process URSSAF -> backend:", error);
-      showConfirm(
-        "Erreur envoi",
-        "Erreur lors de l'envoi des données (URSSAF ou backend).\n" +
-          (error?.message || "")
-      );
+
+      // Message d'erreur user-friendly
+      let errorMessage = "Une erreur s'est produite lors de l'inscription.";
+
+      if (error.response?.status === 409) {
+        errorMessage = "Ce client existe déjà dans le système.";
+      } else if (error.response?.status === 400) {
+        errorMessage =
+          "Les informations saisies sont invalides. Veuillez vérifier les champs obligatoires.";
+      } else if (error.response?.status >= 500) {
+        errorMessage =
+          "Le service est temporairement indisponible. Veuillez réessayer dans quelques instants.";
+      } else if (!navigator.onLine) {
+        errorMessage =
+          "Pas de connexion internet. Veuillez vérifier votre connexion.";
+      }
+
+      showConfirm("Erreur", errorMessage);
     }
   };
 
